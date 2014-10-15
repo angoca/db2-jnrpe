@@ -1,22 +1,16 @@
-package com.github.angoca.db2_jnrpe;
+package com.github.angoca.db2_jnrpe.database.rdbms.db2;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsPool;
 import com.ibm.db2.jcc.DB2Diagnosable;
 import com.ibm.db2.jcc.DB2Sqlca;
 
-//Import packages for DB2 SQLException support
+public abstract class DB2Helper {
 
-public abstract class DBBroker {
-
-    final protected String driverClass = "com.ibm.db2.jcc.DB2Driver";
-
-    abstract Connection getConnection(final DatabaseConnection dbConn)
-            throws SQLException;
-
-    abstract void closeConnection(final DatabaseConnection dbConn)
-            throws SQLException;
+    public static final String databaseConnection = DB2Connection.class
+            .getName();
 
     static int getSQLCode(final SQLException sqle) {
         int ret = 0;
@@ -30,7 +24,7 @@ public abstract class DBBroker {
         return ret;
     }
 
-    static void processException(SQLException sqle) throws SQLException {
+    public static void processException(SQLException sqle) {
         // Check whether there are more SQLExceptions to process
         while (sqle != null) {
             if (sqle instanceof DB2Diagnosable) {
@@ -63,7 +57,12 @@ public abstract class DBBroker {
                     // Get SQLSTATE
                     String sqlState = sqlca.getSqlState();
                     // Get error message
-                    String errMessage = sqlca.getMessage();
+                    String errMessage;
+                    try {
+                        errMessage = sqlca.getMessage();
+                    } catch (SQLException e) {
+                        errMessage = "Exception while getting message";
+                    }
                     System.err.println("Server error message: " + errMessage);
                     System.err.println("--------------- SQLCA ---------------");
                     System.err.println("Error code: " + sqlCode);
@@ -118,6 +117,20 @@ public abstract class DBBroker {
                 sqle = sqle.getNextException();
             }
         }
+    }
+
+    public static void main(String[] args) {
+        String hostname = "localhost";
+        int portNumber = 50000;
+        String databaseName = "sample";
+        String username = "db2admin";
+        String password = "AngocA81";
+
+        String databaseConnection = DB2Helper.databaseConnection;
+        DatabaseConnection dbConn = DatabaseConnectionsPool.getInstance()
+                .getDatabaseConnection(databaseConnection, hostname,
+                        portNumber, databaseName, username, password);
+        System.out.println("DB2 version: " + DB2Versions.getDB2Version(dbConn));
     }
 }
 

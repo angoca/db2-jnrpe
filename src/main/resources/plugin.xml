@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins xmlns="http://jnrpe.sourceforge.net/plugins" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://jnrpe.sourceforge.net/plugins plugin.xsd">
+ <plugin name="CHECK_BUFFER_POOL_HIT_RATIO"
+  class="com.github.angoca.db2_jnrpe.plugins.db2.CheckBufferPoolHitRatioJnrpe">
+  <description>This command shows the hit ratio of all bufferpools.
+   CHECK_BUFFER_POOL_HIT_RATIO -i /home/db2inst1 -d sample
+  </description>
+  <command-line>
+   <options>
+    <option shortName="d" longName="database" description="Name of the database"
+     required="true" hasArgs="true" argName="database" optionalArgs="false" />
+    <option shortName="i" longName="instance"
+     description="Instance directory where the database is hosted"
+     required="true" hasArgs="true" argName="instance" optionalArgs="false" />
+    <option shortName="w" longName="warning" description="The warning threshold"
+     required="false" hasArgs="true" argName="threshold" optionalArgs="false" />
+    <option shortName="c" longName="critical" description="The critical threshold"
+     required="false" hasArgs="true" argName="threshold" optionalArgs="false" />
+   </options>
+  </command-line>
+ </plugin>
+</plugins>

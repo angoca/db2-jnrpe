@@ -1,8 +1,8 @@
-package com.github.angoca.db2_jnrpe;
+package com.github.angoca.db2_jnrpe.database;
 
 import java.util.Properties;
 
-public final class DatabaseConnection {
+public abstract class DatabaseConnection {
 
     static String getId(final String hostname, final int portNumber,
             final String databaseName) {
@@ -16,7 +16,7 @@ public final class DatabaseConnection {
     final private String username;
     final private String password;
 
-    DatabaseConnection(final Properties defaultProperties,
+    protected DatabaseConnection(final Properties defaultProperties,
             final String hostname, final int portNumber,
             final String databaseName, final String username,
             final String password) {
@@ -28,11 +28,11 @@ public final class DatabaseConnection {
         this.id = getId(hostname, portNumber, databaseName);
     }
 
-    String getURL() {
+    public String getURL() {
         return this.url;
     }
 
-    Properties getConnectionProperties() {
+    public Properties getConnectionProperties() {
         return this.connectionProperties;
     }
 
@@ -40,11 +40,14 @@ public final class DatabaseConnection {
         return this.id;
     }
 
-    String getUsername() {
+    public String getUsername() {
         return this.username;
     }
 
-    String getPassword() {
+    public String getPassword() {
         return this.password;
     }
+
+    public abstract String getDriverClass();
 }
+
