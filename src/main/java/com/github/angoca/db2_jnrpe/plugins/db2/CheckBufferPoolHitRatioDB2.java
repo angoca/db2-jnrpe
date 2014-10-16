@@ -72,6 +72,7 @@ public class CheckBufferPoolHitRatioDB2 {
                 DBBroker_c3p0.getInstance().closeConnection(dbConn);
             } catch (SQLException sqle) {
                 DB2Helper.processException(sqle);
+                // TODO throw an exception to show that the execution failed
             }
         }
         String[][] retValues = convertArrays(allValues);

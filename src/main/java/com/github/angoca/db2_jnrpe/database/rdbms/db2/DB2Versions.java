@@ -66,6 +66,7 @@ public enum DB2Versions {
             DBBroker_c3p0.getInstance().closeConnection(dbConn);
         } catch (SQLException sqle) {
             DB2Helper.processException(sqle);
+            // TODO throw an exception to show that the execution failed
         }
         return version;
     }
