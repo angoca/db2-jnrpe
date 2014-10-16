@@ -22,6 +22,7 @@
    <version>10.5.0</version>
    <scope>system</scope>
    <systemPath>/opt/IBM/db2/V10.1/java/db2jcc4.jar</systemPath>
+   <!-- systemPath>C:\\Program Files\\IBM\\SQLLIB\\java\\db2jcc4.jar</systemPath-->
   </dependency>
  </dependencies>
  <build>
