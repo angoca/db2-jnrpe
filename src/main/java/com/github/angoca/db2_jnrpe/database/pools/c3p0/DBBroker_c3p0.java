@@ -10,8 +10,6 @@ import com.github.angoca.db2_jnrpe.database.pools.DBBroker;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class DBBroker_c3p0 extends DBBroker {
-    private ComboPooledDataSource cpds;
-
     private static DBBroker_c3p0 instance;
 
     public static DBBroker_c3p0 getInstance() {
@@ -21,6 +19,26 @@ public class DBBroker_c3p0 extends DBBroker {
         return instance;
     }
 
+    public static void main(final String[] args) throws SQLException {
+
+        final Connection conn = DBBroker_c3p0.getInstance().getConnection(
+                new DatabaseConnection(DBBroker_c3p0.class.getName(),
+                        new Properties(), "db2inst1", "db2inst1") {
+
+                    {
+                        this.setURL("jdbc:db2://localhost:50000/sample");
+                    }
+
+                    @Override
+                    public String getDriverClass() {
+                        return "com.ibm.db2.jcc.DB2Driver";
+                    }
+                });
+        System.out.println("Client Information: " + conn.getClientInfo());
+    }
+
+    private ComboPooledDataSource cpds;
+
     public DBBroker_c3p0() {
         cpds = new ComboPooledDataSource();
         cpds.setMinPoolSize(3);
@@ -28,6 +46,16 @@ public class DBBroker_c3p0 extends DBBroker {
         cpds.setMaxPoolSize(20);
     }
 
+    @Override
+    public void closeConnection(final DatabaseConnection dbConn)
+            throws SQLException {
+        Connection connection = this.getConnection(dbConn);
+        if (connection != null) {
+            connection.close();
+        }
+    }
+
+    @Override
     public Connection getConnection(final DatabaseConnection dbConn)
             throws SQLException {
         try {
@@ -39,31 +67,9 @@ public class DBBroker_c3p0 extends DBBroker {
         cpds.setJdbcUrl(dbConn.getURL());
         cpds.setProperties(dbConn.getConnectionProperties());
 
-        String username = dbConn.getUsername();
-        String password = dbConn.getPassword();
+        final String username = dbConn.getUsername();
+        final String password = dbConn.getPassword();
         Connection connection = cpds.getConnection(username, password);
         return connection;
     }
-
-    public void closeConnection(final DatabaseConnection dbConn)
-            throws SQLException {
-        Connection connection = this.getConnection(dbConn);
-        if (connection != null) {
-            connection.close();
-        }
-    }
-
-    public static void main(String[] args) throws SQLException {
-        Connection conn = DBBroker_c3p0.getInstance().getConnection(
-                new DatabaseConnection(new Properties(), "localhost", 50000,
-                        "sample", "db2admin", "AngocA81") {
-
-                    @Override
-                    public String getDriverClass() {
-                        return "com.ibm.db2.jcc.DB2Driver";
-                    }
-                });
-        System.out.println("Client Information: " + conn.getClientInfo());
-    }
 }
-

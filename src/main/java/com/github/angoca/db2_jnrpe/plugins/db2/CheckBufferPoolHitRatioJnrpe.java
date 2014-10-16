@@ -13,14 +13,20 @@ import java.util.Collection;
 import java.util.List;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsPool;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Helper;
+import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0;
+import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
 
 public class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
     @Override
-    protected String getPluginName() {
-        return "CHECK_BUFFER_POOL_HIT_RATIO";
+    public void configureThresholdEvaluatorBuilder(
+            ThresholdsEvaluatorBuilder thrb, ICommandLine cl)
+            throws BadThresholdException {
+        // TODO check all bufferpools
+        // TODO default value
+        thrb.withLegacyThreshold("bufferpool-hit-ratio_", null,
+                cl.getOptionValue("warning"), cl.getOptionValue("critical"));
     }
 
     @Override
@@ -32,10 +38,11 @@ public class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         String username = cl.getOptionValue("username");
         String password = cl.getOptionValue("password");
 
-        String databaseConnection = DB2Helper.databaseConnection;
-        DatabaseConnection dbConn = DatabaseConnectionsPool.getInstance()
-                .getDatabaseConnection(databaseConnection, hostname,
-                        portNumber, databaseName, username, password);
+        String databaseConnection = DB2Connection.class.getName();
+        String connectionPool = DBBroker_c3p0.class.getName();
+        DatabaseConnection dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
         String[][] values = CheckBufferPoolHitRatioDB2.check(dbConn);
 
         List<Metric> res = new ArrayList<Metric>();
@@ -56,12 +63,7 @@ public class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     }
 
     @Override
-    public void configureThresholdEvaluatorBuilder(
-            ThresholdsEvaluatorBuilder thrb, ICommandLine cl)
-            throws BadThresholdException {
-        // TODO check all bufferpools
-        // TODO default value
-        thrb.withLegacyThreshold("bufferpool-hit-ratio_", null,
-                cl.getOptionValue("warning"), cl.getOptionValue("critical"));
+    protected String getPluginName() {
+        return "CHECK_BUFFER_POOL_HIT_RATIO";
     }
 }

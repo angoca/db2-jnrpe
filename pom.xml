@@ -21,7 +21,7 @@
    <artifactId>db2jcc4</artifactId>
    <version>10.5.0</version>
    <scope>system</scope>
-   <systemPath>C:/Users/agomez/Documents/GitHub/db2-jnrpe/lib/db2jcc4.jar</systemPath>
+   <systemPath>/opt/IBM/db2/V10.1/java/db2jcc4.jar</systemPath>
   </dependency>
  </dependencies>
  <build>

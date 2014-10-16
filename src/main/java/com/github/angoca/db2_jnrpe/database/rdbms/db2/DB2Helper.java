@@ -3,15 +3,12 @@ package com.github.angoca.db2_jnrpe.database.rdbms.db2;
 import java.sql.SQLException;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsPool;
+import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0;
 import com.ibm.db2.jcc.DB2Diagnosable;
 import com.ibm.db2.jcc.DB2Sqlca;
 
 public abstract class DB2Helper {
-
-    public static final String databaseConnection = DB2Connection.class
-            .getName();
-
     static int getSQLCode(final SQLException sqle) {
         int ret = 0;
         if (sqle instanceof DB2Diagnosable) {
@@ -22,6 +19,21 @@ public abstract class DB2Helper {
             }
         }
         return ret;
+    }
+
+    public static void main(final String[] args) {
+        String hostname = "localhost";
+        int portNumber = 50000;
+        String databaseName = "sample";
+        String username = "db2inst1";
+        String password = "db2inst1";
+
+        String databaseConnection = DB2Connection.class.getName();
+        String connectionPool = DBBroker_c3p0.class.getName();
+        DatabaseConnection dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
+        System.out.println("DB2 version: " + DB2Versions.getDB2Version(dbConn));
     }
 
     public static void processException(SQLException sqle) {
@@ -112,25 +124,12 @@ public abstract class DB2Helper {
                     }
                     System.err.println("SQLSTATE: " + sqlState);
                     // portion of SQLException
+                } else {
+                    System.err.println(sqle.getMessage());
                 }
                 // Retrieve next SQLException
                 sqle = sqle.getNextException();
             }
         }
     }
-
-    public static void main(String[] args) {
-        String hostname = "localhost";
-        int portNumber = 50000;
-        String databaseName = "sample";
-        String username = "db2admin";
-        String password = "AngocA81";
-
-        String databaseConnection = DB2Helper.databaseConnection;
-        DatabaseConnection dbConn = DatabaseConnectionsPool.getInstance()
-                .getDatabaseConnection(databaseConnection, hostname,
-                        portNumber, databaseName, username, password);
-        System.out.println("DB2 version: " + DB2Versions.getDB2Version(dbConn));
-    }
 }
-

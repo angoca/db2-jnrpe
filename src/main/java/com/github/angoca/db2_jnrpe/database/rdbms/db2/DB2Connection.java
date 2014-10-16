@@ -8,11 +8,19 @@ public class DB2Connection extends DatabaseConnection {
 
     final protected String driverClass = "com.ibm.db2.jcc.DB2Driver";
 
-    public DB2Connection(Properties defaultProperties, String hostname,
-            int portNumber, String databaseName, String username,
-            String password) {
-        super(defaultProperties, hostname, portNumber, databaseName, username,
-                password);
+    public DB2Connection(final String connectionsPool,
+            final Properties defaultProperties, final String hostname,
+            final int portNumber, final String databaseName,
+            final String username, final String password) {
+        super(connectionsPool, defaultProperties, username, password);
+        // Changes the application name.
+        this.connectionProperties.put("clientProgramName", "db2-jnrpe");
+        // Shows descriptive message when errors.
+        this.connectionProperties.put("retrieveMessagesFromServerOnGetMessage",
+                "true");
+
+        this.setURL("jdbc:db2://" + hostname + ":" + portNumber + "/"
+                + databaseName);
     }
 
     @Override
@@ -21,4 +29,3 @@ public class DB2Connection extends DatabaseConnection {
     }
 
 }
-

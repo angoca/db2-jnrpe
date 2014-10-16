@@ -6,37 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2_jnrpe.database.pools.DBBrokersManager;
 import com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0;
 
 public enum DB2Versions {
-    UNKNOWN(null, 0), V8_2("8.1", 81), V9_1("9.1", 91), V9_5("9.5", 95), V9_7(
-            "9.7", 97), V9_8("9.8", 98), V10_1("10.1", 101), V10_5("10.5", 105), OTHER(
-            "", 999);
-
-    private final String db2Connection = "DB2Connection";
-    private final String name;
-    private final int value;
-
-    private DB2Versions(final String name, final int value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    String getName() {
-        return this.name;
-    }
-
-    private int getValue() {
-        return this.value;
-    }
-
-    public boolean isEqualOrMoreRecentThan(final DB2Versions version) {
-        boolean ret = false;
-        if (this.getValue() >= version.getValue()) {
-            ret = true;
-        }
-        return ret;
-    }
+    OTHER("", 999), UNKNOWN(null, 0), V10_1("10.1", 101), V10_5("10.5", 105), V8_2(
+            "8.1", 81), V9_1("9.1", 91), V9_5("9.5", 95), V9_7("9.7", 97), V9_8(
+            "9.8", 98);
 
     public static DB2Versions getDB2Version(final DatabaseConnection dbConn) {
         DB2Versions version = DB2Versions.UNKNOWN;
@@ -46,7 +22,9 @@ public enum DB2Versions {
                 + "FROM TABLE(SYSPROC.ENV_GET_PROD_INFO())";
         Connection connection = null;
         try {
-            connection = DBBroker_c3p0.getInstance().getConnection(dbConn);
+            connection = DBBrokersManager.getInstance()
+                    .getBroker(dbConn.getConnectionsPool())
+                    .getConnection(dbConn);
             PreparedStatement stmt = connection
                     .prepareStatement(queryAfter_v9_7);
             ResultSet res = null;
@@ -92,8 +70,33 @@ public enum DB2Versions {
         return version;
     }
 
+    private final String db2Connection = "DB2Connection";
+    private final String name;
+
+    private final int value;
+
+    private DB2Versions(final String name, final int value) {
+        this.name = name;
+        this.value = value;
+    }
+
     public String getDatabaseConnection() {
         return this.db2Connection;
     }
-}
 
+    String getName() {
+        return this.name;
+    }
+
+    private int getValue() {
+        return this.value;
+    }
+
+    public boolean isEqualOrMoreRecentThan(final DB2Versions version) {
+        boolean ret = false;
+        if (this.getValue() >= version.getValue()) {
+            ret = true;
+        }
+        return ret;
+    }
+}
