@@ -90,6 +90,7 @@ public class CheckBufferPoolHitRatioDB2 {
     }
 
     public static void main(final String[] args) throws SQLException {
+        System.out.println("Test: Connection with pool");
         final String hostname = "localhost";
         final int portNumber = 50000;
         final String databaseName = "sample";

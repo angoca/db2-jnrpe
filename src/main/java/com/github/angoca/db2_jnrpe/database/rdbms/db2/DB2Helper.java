@@ -22,6 +22,7 @@ public abstract class DB2Helper {
     }
 
     public static void main(final String[] args) {
+        System.out.println("Test: c3p0 Pool");
         String hostname = "localhost";
         int portNumber = 50000;
         String databaseName = "sample";

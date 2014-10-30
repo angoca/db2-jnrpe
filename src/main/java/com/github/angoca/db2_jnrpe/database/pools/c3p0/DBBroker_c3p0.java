@@ -20,7 +20,7 @@ public class DBBroker_c3p0 extends DBBroker {
     }
 
     public static void main(final String[] args) throws SQLException {
-
+        System.out.println("Test: DatabaseConnection");
         final Connection conn = DBBroker_c3p0.getInstance().getConnection(
                 new DatabaseConnection(DBBroker_c3p0.class.getName(),
                         new Properties(), "db2inst1", "db2inst1") {
