@@ -8,11 +8,16 @@
   </description>
   <command-line>
    <options>
+    <option shortName="h" longName="hostname" description="Hostname of the database"
+     required="true" hasArgs="true" argName="hostname" optionalArgs="false" />
     <option shortName="d" longName="database" description="Name of the database"
      required="true" hasArgs="true" argName="database" optionalArgs="false" />
-    <option shortName="i" longName="instance"
-     description="Instance directory where the database is hosted"
-     required="true" hasArgs="true" argName="instance" optionalArgs="false" />
+    <option shortName="p" longName="port" description="Number of the port of the instance"
+     required="true" hasArgs="true" argName="portNumber" optionalArgs="false" />
+    <option shortName="u" longName="username" description="Username"
+     required="true" hasArgs="true" argName="username" optionalArgs="false" />
+    <option shortName="P" longName="password" description="Password"
+     required="true" hasArgs="true" argName="password" optionalArgs="false" />
     <option shortName="w" longName="warning" description="The warning threshold"
      required="false" hasArgs="true" argName="threshold" optionalArgs="false" />
     <option shortName="c" longName="critical" description="The critical threshold"

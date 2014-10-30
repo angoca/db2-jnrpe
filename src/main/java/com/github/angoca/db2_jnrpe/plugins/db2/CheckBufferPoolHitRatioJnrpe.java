@@ -34,7 +34,7 @@ public class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             throws MetricGatheringException {
         String hostname = cl.getOptionValue("hostname");
         int portNumber = Integer.valueOf(cl.getOptionValue("portNumber"));
-        String databaseName = cl.getOptionValue("databaseName");
+        String databaseName = cl.getOptionValue("database");
         String username = cl.getOptionValue("username");
         String password = cl.getOptionValue("password");
 
