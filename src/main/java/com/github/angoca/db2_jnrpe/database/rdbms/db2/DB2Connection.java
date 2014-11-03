@@ -4,10 +4,35 @@ import java.util.Properties;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 
-public class DB2Connection extends DatabaseConnection {
+/**
+ * @author Andres Gomez Casanova (@AngocA)
+ * @version 2014-11-03
+ */
+public final class DB2Connection extends DatabaseConnection {
 
-    final protected String driverClass = "com.ibm.db2.jcc.DB2Driver";
+    /**
+     * Description of the DB2 driver.
+     */
+    protected final String driverClass = "com.ibm.db2.jcc.DB2Driver";
 
+    /**
+     * Creates an object that describes a DB2 connection.
+     * 
+     * @param connectionsPool
+     *            Associate connection pool.
+     * @param defaultProperties
+     *            Properties to connect to the database.
+     * @param hostname
+     *            Name of the server.
+     * @param portNumber
+     *            Port of the instance.
+     * @param databaseName
+     *            database.
+     * @param username
+     *            Connection user.
+     * @param password
+     *            Password.
+     */
     public DB2Connection(final String connectionsPool,
             final Properties defaultProperties, final String hostname,
             final int portNumber, final String databaseName,
@@ -23,9 +48,14 @@ public class DB2Connection extends DatabaseConnection {
                 + databaseName);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.DatabaseConnection#getDriverClass()
+     */
     @Override
-    public String getDriverClass() {
+    public final String getDriverClass() {
         return this.driverClass;
     }
-
 }

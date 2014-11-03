@@ -6,20 +6,43 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.pools.DBBroker;
+import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2_jnrpe.database.pools.ConnectionPool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-public class DBBroker_c3p0 extends DBBroker {
+/**
+ * Configuration of the c3p0 connection pool manager.
+ * 
+ * @author Andres Gomez Casanova (@AngocA)
+ * @version 2014-11-03
+ */
+public final class DBBroker_c3p0 extends ConnectionPool {
+    /**
+     * Singleton instance.
+     */
     private static DBBroker_c3p0 instance;
 
-    public static DBBroker_c3p0 getInstance() {
+    /**
+     * Instantiate and returns the singleton instance.
+     * 
+     * @return Single instance.
+     */
+    public final static DBBroker_c3p0 getInstance() {
         if (instance == null) {
             instance = new DBBroker_c3p0();
         }
         return instance;
     }
 
-    public static void main(final String[] args) throws SQLException {
+    /**
+     * Tester.
+     * 
+     * @param args
+     *            Arguments.
+     * @throws SQLException
+     *             If any error occurs.
+     */
+    public final static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection");
         final Connection conn = DBBroker_c3p0.getInstance().getConnection(
                 new DatabaseConnection(DBBroker_c3p0.class.getName(),
@@ -37,8 +60,14 @@ public class DBBroker_c3p0 extends DBBroker {
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
-    private ComboPooledDataSource cpds;
+    /**
+     * Connection pool.
+     */
+    private final ComboPooledDataSource cpds;
 
+    /**
+     * Instantiate the singleton by initializing the connection pool.
+     */
     public DBBroker_c3p0() {
         cpds = new ComboPooledDataSource();
         cpds.setMinPoolSize(3);
@@ -46,30 +75,52 @@ public class DBBroker_c3p0 extends DBBroker {
         cpds.setMaxPoolSize(20);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
+     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     */
     @Override
-    public void closeConnection(final DatabaseConnection dbConn)
-            throws SQLException {
+    public final void closeConnection(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
         Connection connection = this.getConnection(dbConn);
         if (connection != null) {
-            connection.close();
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new DatabaseConnectionException(e);
+            }
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection
+     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     */
     @Override
-    public Connection getConnection(final DatabaseConnection dbConn)
-            throws SQLException {
+    public final Connection getConnection(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
         try {
             cpds.setDriverClass(dbConn.getDriverClass());
         } catch (PropertyVetoException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new DatabaseConnectionException(e);
         }
         cpds.setJdbcUrl(dbConn.getURL());
         cpds.setProperties(dbConn.getConnectionProperties());
 
         final String username = dbConn.getUsername();
         final String password = dbConn.getPassword();
-        Connection connection = cpds.getConnection(username, password);
+        Connection connection;
+        try {
+            connection = cpds.getConnection(username, password);
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException(e);
+        }
         return connection;
     }
 }

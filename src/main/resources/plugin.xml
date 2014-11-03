@@ -11,10 +11,10 @@
     <option shortName="h" longName="hostname"
      description="Hostname where the database resides" required="true"
      hasArgs="true" argName="hostname" optionalArgs="false" />
-    <option shortName="d" longName="database" description="Name of the database"
-     required="true" hasArgs="true" argName="database" optionalArgs="false" />
     <option shortName="p" longName="port" description="Port number of the instance"
      required="true" hasArgs="true" argName="portNumber" optionalArgs="false" />
+    <option shortName="d" longName="database" description="Name of the database"
+     required="true" hasArgs="true" argName="database" optionalArgs="false" />
     <option shortName="u" longName="username"
      description="Username to connect to the database" required="true"
      hasArgs="true" argName="username" optionalArgs="false" />
