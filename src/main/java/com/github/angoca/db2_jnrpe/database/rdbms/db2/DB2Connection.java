@@ -5,10 +5,24 @@ import java.util.Properties;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 
 /**
+ * Description of the parameter for a DB2 connection.
+ * 
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
 public final class DB2Connection extends DatabaseConnection {
+    /**
+     * Name of the database
+     */
+    private final String databaseName;
+    /**
+     * Instance's port.
+     */
+    private final int portNumber;
+    /**
+     * Name of the server.
+     */
+    private final String hostname;
 
     /**
      * Description of the DB2 driver.
@@ -46,6 +60,9 @@ public final class DB2Connection extends DatabaseConnection {
 
         this.setURL("jdbc:db2://" + hostname + ":" + portNumber + "/"
                 + databaseName);
+        this.hostname = hostname;
+        this.portNumber = portNumber;
+        this.databaseName = databaseName;
     }
 
     /*
@@ -57,5 +74,32 @@ public final class DB2Connection extends DatabaseConnection {
     @Override
     public final String getDriverClass() {
         return this.driverClass;
+    }
+
+    /**
+     * Returns the hostname.
+     * 
+     * @return Hostname.
+     */
+    public final String getHostname() {
+        return this.hostname;
+    }
+
+    /**
+     * Returns the port number of the instance.
+     * 
+     * @return Port.
+     */
+    public final int getPortNumber() {
+        return this.portNumber;
+    }
+
+    /**
+     * Returns the database.
+     * 
+     * @return Database.
+     */
+    public final String getDatabaseName() {
+        return this.databaseName;
     }
 }

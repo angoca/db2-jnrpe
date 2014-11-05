@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
@@ -51,6 +54,47 @@ public final class CheckBufferPoolHitRatioDB2 {
             + "END AS HIT_RATIO, MEMBER FROM BPMETRICS";
 
     /**
+     * Query to retrieve the names of the bufferpools.
+     */
+    private final static String queryBufferpoolNames = "SELECT BPNAME "
+            + "FROM SYSCAT.BUFFERPOOLS";
+
+    /**
+     * Returns the list of bufferpools.
+     * 
+     * @param dbConn
+     *            Object that wraps the connection.
+     * @return A list with the names of the bufferpools.
+     * @throws DatabaseConnectionException
+     */
+    final static List<String> getBufferpoolNames(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
+        List<String> names = new ArrayList<>();
+        Connection connection = null;
+        try {
+            connection = ConnectionPoolsManager.getInstance()
+                    .getConnectionPool(dbConn.getConnectionsPool())
+                    .getConnection(dbConn);
+            PreparedStatement stmt = connection
+                    .prepareStatement(queryBufferpoolNames);
+            ResultSet res = stmt.executeQuery();
+
+            while (res.next()) {
+                names.add(res.getString(1));
+            }
+            res.close();
+            stmt.close();
+            ConnectionPoolsManager.getInstance()
+                    .getConnectionPool(dbConn.getConnectionsPool())
+                    .closeConnection(dbConn);
+        } catch (SQLException sqle) {
+            DB2Helper.processException(sqle);
+            throw new DatabaseConnectionException(sqle);
+        }
+        return names;
+    }
+
+    /**
      * Checks the bufferpool hit ratio with the given database connection.
      * 
      * @param dbConn
@@ -59,11 +103,10 @@ public final class CheckBufferPoolHitRatioDB2 {
      * @throws DatabaseConnectionException
      *             If any problem occur while accessing the database.
      */
-    public final static String[][] check(final DatabaseConnection dbConn)
+    final static Map<String, List<String>> check(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
         assert dbConn != null;
-
-        List<List<String>> allValues = new ArrayList<List<String>>();
+        Map<String, List<String>> allValues = new HashMap<String, List<String>>();
         DB2MajorVersions version = DB2Helper.getDB2MajorVersion(dbConn);
         // This query cannot be executed in a database with db2 v9.5 or before.
         if (version.isEqualOrMoreRecentThan(DB2MajorVersions.V9_7)) {
@@ -79,9 +122,10 @@ public final class CheckBufferPoolHitRatioDB2 {
 
                 List<String> values;
                 String ratio;
+                String name;
                 while (res.next()) {
+                    name = res.getString(1);
                     values = new ArrayList<>();
-                    values.add(res.getString(1));
                     values.add(res.getString(2));
                     values.add(res.getString(3));
                     ratio = res.getString(4);
@@ -90,7 +134,8 @@ public final class CheckBufferPoolHitRatioDB2 {
                     }
                     values.add(ratio);
                     values.add(res.getString(5));
-                    allValues.add(values);
+                    values.add(name);
+                    allValues.put(name, values);
                 }
                 res.close();
                 stmt.close();
@@ -102,30 +147,9 @@ public final class CheckBufferPoolHitRatioDB2 {
                 throw new DatabaseConnectionException(sqle);
             }
         }
-        String[][] retValues = convertArrays(allValues);
 
-        assert retValues != null;
-        return retValues;
-    }
-
-    /**
-     * Converts a List of Lists into a 2 dimension matrix.
-     * 
-     * @param allValues
-     *            List of List with all values.
-     * @return Matrix.
-     */
-    private final static String[][] convertArrays(
-            final List<List<String>> allValues) {
         assert allValues != null;
-        int sizeY = allValues.size();
-        String[][] retValues = new String[sizeY][];
-        for (int i = 0; i < sizeY; i++) {
-            ArrayList<String> row = (ArrayList<String>) allValues.get(i);
-            retValues[i] = row.toArray(new String[row.size()]);
-        }
-        assert retValues != null;
-        return retValues;
+        return allValues;
     }
 
     /**
@@ -152,13 +176,16 @@ public final class CheckBufferPoolHitRatioDB2 {
                         databaseConnection, hostname, portNumber, databaseName,
                         username, password);
 
-        final String[][] values = CheckBufferPoolHitRatioDB2.check(dbConn);
-
-        for (int i = 0; i < values.length; i++) {
+        final Map<String, List<String>> bufferpoolsDesc = CheckBufferPoolHitRatioDB2
+                .check(dbConn);
+        Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
+        while (iter.hasNext()) {
+            String name = iter.next();
+            List<String> bpDesc = bufferpoolsDesc.get(name);
             String message = String.format("Bufferpool %s at member %s has %s "
                     + "logical reads and %s physical reads, with a hit "
-                    + "ratio of %s%%.", values[i][0], values[i][4],
-                    values[i][1], values[0][2], values[i][3]);
+                    + "ratio of %s%%.", bpDesc.get(4), bpDesc.get(3),
+                    bpDesc.get(0), bpDesc.get(1), bpDesc.get(2));
 
             System.out.println(message);
         }

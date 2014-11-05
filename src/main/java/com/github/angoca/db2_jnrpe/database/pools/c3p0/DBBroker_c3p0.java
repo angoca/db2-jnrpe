@@ -18,23 +18,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  */
 public final class DBBroker_c3p0 extends ConnectionPool {
     /**
-     * Singleton instance.
-     */
-    private static DBBroker_c3p0 instance;
-
-    /**
-     * Instantiate and returns the singleton instance.
-     * 
-     * @return Single instance.
-     */
-    public final static DBBroker_c3p0 getInstance() {
-        if (instance == null) {
-            instance = new DBBroker_c3p0();
-        }
-        return instance;
-    }
-
-    /**
      * Tester.
      * 
      * @param args
@@ -44,9 +27,9 @@ public final class DBBroker_c3p0 extends ConnectionPool {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection");
-        final Connection conn = DBBroker_c3p0.getInstance().getConnection(
-                new DatabaseConnection(DBBroker_c3p0.class.getName(),
-                        new Properties(), "db2inst1", "db2inst1") {
+        final Connection conn = new DBBroker_c3p0()
+                .getConnection(new DatabaseConnection(DBBroker_c3p0.class
+                        .getName(), new Properties(), "db2inst1", "db2inst1") {
 
                     {
                         this.setURL("jdbc:db2://localhost:50000/sample");
@@ -63,7 +46,7 @@ public final class DBBroker_c3p0 extends ConnectionPool {
     /**
      * Connection pool.
      */
-    private final ComboPooledDataSource cpds;
+    private static ComboPooledDataSource cpds;
 
     /**
      * Instantiate the singleton by initializing the connection pool.

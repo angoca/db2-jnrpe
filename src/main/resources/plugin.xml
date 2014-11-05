@@ -3,30 +3,36 @@
  xsi:schemaLocation="http://jnrpe.sourceforge.net/plugins plugin.xsd">
  <plugin name="CHECK_BUFFER_POOL_HIT_RATIO"
   class="com.github.angoca.db2_jnrpe.plugins.db2.CheckBufferPoolHitRatioJnrpe">
-  <description>This command shows the hit ratio of a given or all
-   bufferpools.
+  <description>
+<![CDATA[
+This command shows the hit ratio for a given or all bufferpools.
+]]>
   </description>
   <command-line>
    <options>
     <option shortName="h" longName="hostname"
      description="Hostname where the database resides" required="true"
-     hasArgs="true" argName="hostname" optionalArgs="false" />
+     hasArgs="true" argName="URL" optionalArgs="false" />
     <option shortName="p" longName="port" description="Port number of the instance"
-     required="true" hasArgs="true" argName="portNumber" optionalArgs="false" />
+     required="true" hasArgs="true" argName="URL" optionalArgs="false" />
     <option shortName="d" longName="database" description="Name of the database"
-     required="true" hasArgs="true" argName="database" optionalArgs="false" />
+     required="true" hasArgs="true" argName="URL" optionalArgs="false" />
     <option shortName="u" longName="username"
      description="Username to connect to the database" required="true"
-     hasArgs="true" argName="username" optionalArgs="false" />
+     hasArgs="true" argName="Credentials" optionalArgs="false" />
     <option shortName="P" longName="password" description="Password"
-     required="true" hasArgs="true" argName="password" optionalArgs="false" />
+     required="true" hasArgs="true" argName="Credentials" optionalArgs="false" />
     <option shortName="w" longName="warning" description="The warning threshold"
-     required="false" hasArgs="true" argName="threshold" optionalArgs="false" />
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
     <option shortName="c" longName="critical" description="The critical threshold"
-     required="false" hasArgs="true" argName="threshold" optionalArgs="false" />
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
     <option shortName="b" longName="bufferpool"
      description="Name of the bufferpool to check" required="false"
-     hasArgs="true" argName="bufferpool" optionalArgs="false" />
+     hasArgs="true" argName="Bufferpool" optionalArgs="false" />
+
+    <option shortName="T" longName="threshold"
+     description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
+     required="false" argName="Threshold" hasArgs="true" />
    </options>
   </command-line>
  </plugin>

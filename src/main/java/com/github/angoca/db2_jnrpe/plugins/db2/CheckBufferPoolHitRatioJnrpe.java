@@ -11,7 +11,9 @@ import it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
@@ -28,6 +30,12 @@ import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
  */
 public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
+    private static final String THRESHOLD_NAME_BUFFERPOOL = "bufferpool_hit_ratio-";
+    /**
+     * List of bufferpool names.
+     */
+    private List<String> bufferpoolNames = new ArrayList<String>();
+
     /*
      * (non-Javadoc)
      * 
@@ -39,10 +47,32 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     public final void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
-        // TODO check all bufferpools
-        // TODO default value
-        thrb.withLegacyThreshold("bufferpool-hit-ratio_", null,
-                cl.getOptionValue("warning"), cl.getOptionValue("critical"));
+        try {
+            this.bufferpoolNames = CheckBufferPoolHitRatioDB2
+                    .getBufferpoolNames(this.getConnection(cl));
+        } catch (DatabaseConnectionException | MetricGatheringException e) {
+            log.fatal("Error while retrieving names", e);
+            throw new BadThresholdException("Problem retrieving the values "
+                    + "from the database: " + e.getMessage(), e);
+        }
+        final String bufferpoolName = cl.getOptionValue("bufferpool");
+        if (bufferpoolName != null && bufferpoolName.compareTo("") == 0) {
+            thrb.withLegacyThreshold(
+                    CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
+                            + bufferpoolName, null,
+                    cl.getOptionValue("warning", "90"),
+                    cl.getOptionValue("critical", "95"));
+        } else {
+            String name;
+            for (int i = 0; i < this.bufferpoolNames.size(); i++) {
+                name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
+                        + this.bufferpoolNames.get(i);
+                log.debug("Threshold: " + name);
+                thrb.withLegacyThreshold(name, null,
+                        cl.getOptionValue("warning", "90"),
+                        cl.getOptionValue("critical", "95"));
+            }
+        }
     }
 
     /*
@@ -53,33 +83,41 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     public final Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
-        // Gets the connection.
-        final DatabaseConnection dbConn = getConnection(cl);
         // Checks the values.
-        String[][] values;
+        Map<String, List<String>> bufferpoolsDesc;
         try {
-            values = CheckBufferPoolHitRatioDB2.check(dbConn);
+            bufferpoolsDesc = CheckBufferPoolHitRatioDB2.check(this
+                    .getConnection(cl));
         } catch (DatabaseConnectionException e) {
+            log.fatal("Error while checking", e);
             throw new MetricGatheringException("Problem retrieving the values "
-                    + "from the database", Status.UNKNOWN, e);
+                    + "from the database: " + e.getMessage(), Status.UNKNOWN, e);
         }
 
-        // Converts result to arrays.
+        // Converts result to arrays and create metrics.
         BigDecimal value;
         BigDecimal min;
         BigDecimal max;
         final List<Metric> res = new ArrayList<Metric>();
-        for (int i = 0; i < values.length; i++) {
-            String name = "bufferpool-hit-ratio_" + values[i][0];
-            String message = String.format("Bufferpool %s at member %s has %s "
-                    + "logical reads and %s physical reads, with a hit "
-                    + "ratio of %s%%.", values[i][0], values[i][4],
-                    values[i][1], values[0][2], values[i][3]);
-            value = new BigDecimal(values[i][3]);
-            min = new BigDecimal(0);
-            max = new BigDecimal(100);
+        Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
+        while (iter.hasNext()) {
+            String name = iter.next();
+            if (this.bufferpoolNames.add(name)) {
+                List<String> bpDesc = bufferpoolsDesc.get(name);
+                name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
+                        + name;
+                log.debug("Metrics: " + name);
+                value = new BigDecimal(bpDesc.get(2));
+                String message = String.format(
+                        "Bufferpool %s at member %s has %s logical reads "
+                                + "and %s physical reads, with a hit "
+                                + "ratio of %s%%.", name, bpDesc.get(3),
+                        bpDesc.get(0), bpDesc.get(1), value);
+                min = new BigDecimal(0);
+                max = new BigDecimal(100);
 
-            res.add(new Metric(name, message, value, min, max));
+                res.add(new Metric(name, message, value, min, max));
+            }
         }
 
         return res;
@@ -114,7 +152,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                 + databaseName + "-user " + username);
 
         final String databaseConnection = DB2Connection.class.getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0.class
+        // final String connectionPool =
+        // com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0.class
+        // .getName();
+        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.db2direct.DBBroker_db2Direct.class
                 .getName();
         DatabaseConnection dbConn = null;
         try {

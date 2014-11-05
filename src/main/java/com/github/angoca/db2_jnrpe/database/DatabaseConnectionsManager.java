@@ -116,9 +116,9 @@ public final class DatabaseConnectionsManager {
             String hostname, final int portNumber, final String databaseName,
             final String username, final String password)
             throws DatabaseConnectionException {
-        String connKey = hostname + ':' + portNumber + '/' + databaseName;
+        String connKey = username + '@' + hostname + ':' + portNumber + '/' + databaseName;
         DatabaseConnection dbConn = this.connectionProps.get(connKey);
-        if (dbConn == null) {
+        if (dbConn == null || dbConn.getPassword().compareTo(password) != 0) {
             Constructor<DatabaseConnection> constructor = getConstructor(databaseConnection);
             try {
                 dbConn = constructor.newInstance(connectionsPool,

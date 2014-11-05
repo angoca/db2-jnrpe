@@ -1,7 +1,6 @@
 package com.github.angoca.db2_jnrpe.database.pools;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,8 +59,8 @@ public final class ConnectionPoolsManager {
             final Class<?> clazz;
             try {
                 clazz = Class.forName(connectionPoolName);
-                Method method = clazz.getMethod("getInstance");
-                connectionPool = (ConnectionPool) method.invoke(null);
+                connectionPool = (ConnectionPool) clazz.getConstructor()
+                        .newInstance();
                 this.connectionPools.put(connectionPoolName, connectionPool);
             } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
@@ -74,6 +73,8 @@ public final class ConnectionPoolsManager {
             } catch (final IllegalArgumentException e) {
                 throw new DatabaseConnectionException(e);
             } catch (final InvocationTargetException e) {
+                throw new DatabaseConnectionException(e);
+            } catch (InstantiationException e) {
                 throw new DatabaseConnectionException(e);
             }
         }
