@@ -73,8 +73,7 @@ public final class CheckBufferPoolHitRatioDB2 {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .getConnection(dbConn);
+                    .getConnectionPool(dbConn).getConnection();
             PreparedStatement stmt = connection
                     .prepareStatement(queryBufferpoolNames);
             ResultSet res = stmt.executeQuery();
@@ -84,9 +83,8 @@ public final class CheckBufferPoolHitRatioDB2 {
             }
             res.close();
             stmt.close();
-            ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .closeConnection(dbConn);
+            ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
+                    .closeConnection(connection);
         } catch (SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -114,8 +112,7 @@ public final class CheckBufferPoolHitRatioDB2 {
             Connection connection = null;
             try {
                 connection = ConnectionPoolsManager.getInstance()
-                        .getConnectionPool(dbConn.getConnectionsPool())
-                        .getConnection(dbConn);
+                        .getConnectionPool(dbConn).getConnection();
                 PreparedStatement stmt = connection
                         .prepareStatement(queryAfter_v9_7);
                 ResultSet res = stmt.executeQuery();
@@ -139,9 +136,8 @@ public final class CheckBufferPoolHitRatioDB2 {
                 }
                 res.close();
                 stmt.close();
-                ConnectionPoolsManager.getInstance()
-                        .getConnectionPool(dbConn.getConnectionsPool())
-                        .closeConnection(dbConn);
+                ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
+                        .closeConnection(connection);
             } catch (SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
@@ -169,7 +165,7 @@ public final class CheckBufferPoolHitRatioDB2 {
         final String password = "db2inst1";
 
         final String databaseConnection = DB2Connection.class.getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0.class
+        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
                 .getName();
         final DatabaseConnection dbConn = DatabaseConnectionsManager
                 .getInstance().getDatabaseConnection(connectionPool,
@@ -189,5 +185,6 @@ public final class CheckBufferPoolHitRatioDB2 {
 
             System.out.println(message);
         }
+        Thread.sleep(5000);
     }
 }

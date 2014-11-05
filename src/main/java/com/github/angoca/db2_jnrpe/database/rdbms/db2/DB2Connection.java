@@ -12,6 +12,10 @@ import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
  */
 public final class DB2Connection extends DatabaseConnection {
     /**
+     * Connections counter.
+     */
+    private static int qty = 0;
+    /**
      * Name of the database
      */
     private final String databaseName;
@@ -27,7 +31,7 @@ public final class DB2Connection extends DatabaseConnection {
     /**
      * Description of the DB2 driver.
      */
-    protected final String driverClass = "com.ibm.db2.jcc.DB2Driver";
+    protected final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
 
     /**
      * Creates an object that describes a DB2 connection.
@@ -52,8 +56,10 @@ public final class DB2Connection extends DatabaseConnection {
             final int portNumber, final String databaseName,
             final String username, final String password) {
         super(connectionsPool, defaultProperties, username, password);
+        DB2Connection.qty = DB2Connection.qty + 1;
         // Changes the application name.
-        this.connectionProperties.put("clientProgramName", "db2-jnrpe");
+        this.connectionProperties.put("clientProgramName", "db2-jnrpe-"
+                + DB2Connection.qty);
         // Shows descriptive message when errors.
         this.connectionProperties.put("retrieveMessagesFromServerOnGetMessage",
                 "true");

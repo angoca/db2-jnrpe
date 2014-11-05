@@ -116,7 +116,8 @@ public final class DatabaseConnectionsManager {
             String hostname, final int portNumber, final String databaseName,
             final String username, final String password)
             throws DatabaseConnectionException {
-        String connKey = username + '@' + hostname + ':' + portNumber + '/' + databaseName;
+        String connKey = username + '@' + hostname + ':' + portNumber + '/'
+                + databaseName;
         DatabaseConnection dbConn = this.connectionProps.get(connKey);
         if (dbConn == null || dbConn.getPassword().compareTo(password) != 0) {
             Constructor<DatabaseConnection> constructor = getConstructor(databaseConnection);
@@ -124,6 +125,7 @@ public final class DatabaseConnectionsManager {
                 dbConn = constructor.newInstance(connectionsPool,
                         defaultProperties, hostname, portNumber, databaseName,
                         username, password);
+                this.connectionProps.put(connKey, dbConn);
             } catch (InstantiationException e) {
                 throw new DatabaseConnectionException(e);
             } catch (IllegalAccessException e) {
@@ -133,7 +135,6 @@ public final class DatabaseConnectionsManager {
             } catch (InvocationTargetException e) {
                 throw new DatabaseConnectionException(e);
             }
-            this.connectionProps.put(connKey, dbConn);
         }
         return dbConn;
     }

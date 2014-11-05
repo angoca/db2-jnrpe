@@ -16,7 +16,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class DBBroker_c3p0 extends ConnectionPool {
+public final class DBCP_c3p0 extends ConnectionPool {
     /**
      * Tester.
      * 
@@ -26,20 +26,27 @@ public final class DBBroker_c3p0 extends ConnectionPool {
      *             If any error occurs.
      */
     public final static void main(final String[] args) throws Exception {
-        System.out.println("Test: DatabaseConnection");
-        final Connection conn = new DBBroker_c3p0()
-                .getConnection(new DatabaseConnection(DBBroker_c3p0.class
-                        .getName(), new Properties(), "db2inst1", "db2inst1") {
+        System.out.println("Test: DatabaseConnection c3p0");
+        final Connection conn = new DBCP_c3p0().initialize(
+                new DatabaseConnection(DBCP_c3p0.class.getName(),
+                        new Properties(), "db2inst1", "db2inst1") {
 
                     {
                         this.setURL("jdbc:db2://localhost:50000/sample");
                     }
 
+                    /*
+                     * (non-Javadoc)
+                     * 
+                     * @see
+                     * com.github.angoca.db2_jnrpe.database.DatabaseConnection
+                     * #getDriverClass()
+                     */
                     @Override
                     public String getDriverClass() {
                         return "com.ibm.db2.jcc.DB2Driver";
                     }
-                });
+                }).getConnection();
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
@@ -47,11 +54,15 @@ public final class DBBroker_c3p0 extends ConnectionPool {
      * Connection pool.
      */
     private static ComboPooledDataSource cpds;
+    /**
+     * Connection properties.
+     */
+    private DatabaseConnection dbConn;
 
     /**
      * Instantiate the singleton by initializing the connection pool.
      */
-    public DBBroker_c3p0() {
+    public DBCP_c3p0() {
         cpds = new ComboPooledDataSource();
         cpds.setMinPoolSize(3);
         cpds.setAcquireIncrement(5);
@@ -63,12 +74,11 @@ public final class DBBroker_c3p0 extends ConnectionPool {
      * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * (java.sql.Connection)
      */
     @Override
-    public final void closeConnection(final DatabaseConnection dbConn)
+    public final void closeConnection(final Connection connection)
             throws DatabaseConnectionException {
-        Connection connection = this.getConnection(dbConn);
         if (connection != null) {
             try {
                 connection.close();
@@ -82,12 +92,10 @@ public final class DBBroker_c3p0 extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */
     @Override
-    public final Connection getConnection(final DatabaseConnection dbConn)
-            throws DatabaseConnectionException {
+    public final Connection getConnection() throws DatabaseConnectionException {
         try {
             cpds.setDriverClass(dbConn.getDriverClass());
         } catch (PropertyVetoException e) {
@@ -105,5 +113,19 @@ public final class DBBroker_c3p0 extends ConnectionPool {
             throw new DatabaseConnectionException(e);
         }
         return connection;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
+     * com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     */
+    @Override
+    public ConnectionPool initialize(DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
+        this.dbConn = dbConn;
+        return this;
     }
 }

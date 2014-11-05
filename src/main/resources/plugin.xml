@@ -12,23 +12,23 @@ This command shows the hit ratio for a given or all bufferpools.
    <options>
     <option shortName="h" longName="hostname"
      description="Hostname where the database resides" required="true"
-     hasArgs="true" argName="URL" optionalArgs="false" />
+     hasArgs="true" argName="Hostname/IP" optionalArgs="false" />
     <option shortName="p" longName="port" description="Port number of the instance"
-     required="true" hasArgs="true" argName="URL" optionalArgs="false" />
+     required="true" hasArgs="true" argName="PortNumber" optionalArgs="false" />
     <option shortName="d" longName="database" description="Name of the database"
-     required="true" hasArgs="true" argName="URL" optionalArgs="false" />
+     required="true" hasArgs="true" argName="DatabaseName" optionalArgs="false" />
     <option shortName="u" longName="username"
      description="Username to connect to the database" required="true"
-     hasArgs="true" argName="Credentials" optionalArgs="false" />
+     hasArgs="true" argName="Username" optionalArgs="false" />
     <option shortName="P" longName="password" description="Password"
-     required="true" hasArgs="true" argName="Credentials" optionalArgs="false" />
+     required="true" hasArgs="true" argName="Password" optionalArgs="false" />
     <option shortName="w" longName="warning" description="The warning threshold"
      required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
     <option shortName="c" longName="critical" description="The critical threshold"
      required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
     <option shortName="b" longName="bufferpool"
      description="Name of the bufferpool to check" required="false"
-     hasArgs="true" argName="Bufferpool" optionalArgs="false" />
+     hasArgs="true" argName="BufferpooNamel" optionalArgs="false" />
 
     <option shortName="T" longName="threshold"
      description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"

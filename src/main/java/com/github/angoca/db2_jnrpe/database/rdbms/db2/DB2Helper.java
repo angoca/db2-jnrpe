@@ -47,7 +47,7 @@ public abstract class DB2Helper {
      *             Any exception.
      */
     public final static void main(final String[] args) throws Exception {
-        System.out.println("Test: c3p0 Pool");
+        System.out.println("Test: Pool");
         String hostname = "localhost";
         int portNumber = 50000;
         String databaseName = "sample";
@@ -55,7 +55,7 @@ public abstract class DB2Helper {
         String password = "db2inst1";
 
         String databaseConnection = DB2Connection.class.getName();
-        String connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0.class
+        String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
                 .getName();
         DatabaseConnection dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -186,8 +186,7 @@ public abstract class DB2Helper {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .getConnection(dbConn);
+                    .getConnectionPool(dbConn).getConnection();
             PreparedStatement stmt = connection
                     .prepareStatement(queryAfter_v9_7);
             ResultSet res = null;
@@ -232,9 +231,8 @@ public abstract class DB2Helper {
             }
             res.close();
             stmt.close();
-            ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .closeConnection(dbConn);
+            ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
+                    .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -261,8 +259,7 @@ public abstract class DB2Helper {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .getConnection(dbConn);
+                    .getConnectionPool(dbConn).getConnection();
             PreparedStatement stmt = connection
                     .prepareStatement(queryAfter_v9_7);
             ResultSet res = null;
@@ -281,8 +278,7 @@ public abstract class DB2Helper {
             String version_text;
             while (res.next()) {
                 version_text = res.getString(1);
-                if (version_text.compareTo(DB2MinorVersion.V9_7_GA
-                        .getName()) == 0) {
+                if (version_text.compareTo(DB2MinorVersion.V9_7_GA.getName()) == 0) {
                     version = DB2MinorVersion.V9_7_GA;
                 } else if (version_text.compareTo(DB2MinorVersion.V9_7_1
                         .getName()) == 0) {
@@ -365,9 +361,8 @@ public abstract class DB2Helper {
             }
             res.close();
             stmt.close();
-            ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn.getConnectionsPool())
-                    .closeConnection(dbConn);
+            ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
+                    .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);

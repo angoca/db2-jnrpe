@@ -17,6 +17,11 @@
    <version>0.9.5-pre9</version>
   </dependency>
   <dependency>
+   <groupId>com.zaxxer</groupId>
+   <artifactId>HikariCP-java6</artifactId>
+   <version>2.2.2</version>
+  </dependency>
+  <dependency>
    <!-- You need to install the DB2 driver -->
    <!-- mvn install:install-file -Dfile="C:\Program Files\IBM\SQLLIB\java\db2jcc4.jar" 
     -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->

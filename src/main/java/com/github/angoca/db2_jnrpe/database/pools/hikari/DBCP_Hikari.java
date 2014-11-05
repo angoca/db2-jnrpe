@@ -1,0 +1,101 @@
+package com.github.angoca.db2_jnrpe.database.pools.hikari;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2_jnrpe.database.pools.ConnectionPool;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+public class DBCP_Hikari extends ConnectionPool {
+
+    /**
+     * Tester.
+     * 
+     * @param args
+     *            Arguments.
+     * @throws SQLException
+     *             If any error occurs.
+     */
+    public final static void main(final String[] args) throws Exception {
+        System.out.println("Test: DatabaseConnection Hikari");
+        final Connection conn = new DBCP_Hikari().initialize(
+                new DatabaseConnection(DBCP_Hikari.class.getName(),
+                        new Properties(), "db2inst1", "db2inst1") {
+
+                    {
+                        this.setURL("jdbc:db2://localhost:50000/sample");
+                    }
+
+                    /*
+                     * (non-Javadoc)
+                     * 
+                     * @see
+                     * com.github.angoca.db2_jnrpe.database.DatabaseConnection
+                     * #getDriverClass()
+                     */
+                    @Override
+                    public String getDriverClass() {
+                        return "com.ibm.db2.jcc.DB2SimpleDataSource";
+                    }
+                }).getConnection();
+        System.out.println("Client Information: " + conn.getClientInfo());
+    }
+
+    private final HikariConfig config;
+
+    public DBCP_Hikari() {
+        this.config = new HikariConfig();
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
+     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     */
+    @Override
+    public void closeConnection(final Connection connection)
+            throws DatabaseConnectionException {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new DatabaseConnectionException(e);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
+     */
+    @Override
+    public Connection getConnection() throws DatabaseConnectionException {
+        try {
+            return new HikariDataSource(config).getConnection();
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException(e);
+        }
+    }
+
+    @Override
+    public ConnectionPool initialize(DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
+        config.setJdbcUrl(dbConn.getURL());
+        config.setUsername(dbConn.getUsername());
+        config.setPassword(dbConn.getPassword());
+        config.setDataSourceProperties(dbConn.getConnectionProperties());
+        return this;
+    }
+}

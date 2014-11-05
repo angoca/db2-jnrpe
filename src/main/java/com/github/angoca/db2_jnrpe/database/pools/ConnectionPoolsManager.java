@@ -1,9 +1,11 @@
 package com.github.angoca.db2_jnrpe.database.pools;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
 
 /**
@@ -52,18 +54,20 @@ public final class ConnectionPoolsManager {
      *             Any exception is wrapped in this exception.
      */
     public final ConnectionPool getConnectionPool(
-            final String connectionPoolName) throws DatabaseConnectionException {
-        ConnectionPool connectionPool = this.connectionPools
-                .get(connectionPoolName);
+            final DatabaseConnection dbConn) throws DatabaseConnectionException {
+        ConnectionPool connectionPool = this.connectionPools.get(dbConn
+                .getConnectionsPool());
         if (connectionPool == null) {
             final Class<?> clazz;
             try {
-                clazz = Class.forName(connectionPoolName);
-                connectionPool = (ConnectionPool) clazz.getConstructor()
-                        .newInstance();
-                this.connectionPools.put(connectionPoolName, connectionPool);
+                clazz = Class.forName(dbConn.getConnectionsPool());
             } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
+            }
+            try {
+                Constructor[] cons = clazz.getConstructors();
+                connectionPool = (ConnectionPool) clazz.getConstructor()
+                        .newInstance();
             } catch (final NoSuchMethodException e) {
                 throw new DatabaseConnectionException(e);
             } catch (final SecurityException e) {
@@ -77,6 +81,9 @@ public final class ConnectionPoolsManager {
             } catch (InstantiationException e) {
                 throw new DatabaseConnectionException(e);
             }
+            connectionPool.initialize(dbConn);
+            this.connectionPools.put(dbConn.getConnectionsPool(),
+                    connectionPool);
         }
         return connectionPool;
     }

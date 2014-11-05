@@ -53,7 +53,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         } catch (DatabaseConnectionException | MetricGatheringException e) {
             log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
-                    + "from the database: " + e.getMessage(), e);
+                    + "for threshold from the database: " + e.getMessage(), e);
         }
         final String bufferpoolName = cl.getOptionValue("bufferpool");
         if (bufferpoolName != null && bufferpoolName.compareTo("") == 0) {
@@ -91,7 +91,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         } catch (DatabaseConnectionException e) {
             log.fatal("Error while checking", e);
             throw new MetricGatheringException("Problem retrieving the values "
-                    + "from the database: " + e.getMessage(), Status.UNKNOWN, e);
+                    + "for metrics from the database: " + e.getMessage(),
+                    Status.UNKNOWN, e);
         }
 
         // Converts result to arrays and create metrics.
@@ -152,11 +153,14 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                 + databaseName + "-user " + username);
 
         final String databaseConnection = DB2Connection.class.getName();
-        // final String connectionPool =
-        // com.github.angoca.db2_jnrpe.database.pools.c3p0.DBBroker_c3p0.class
-        // .getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.db2direct.DBBroker_db2Direct.class
+        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
                 .getName();
+        // final String connectionPool =
+        // com.github.angoca.db2_jnrpe.database.pools.db2direct.DBCP_db2Direct.class
+        // .getName();
+        // final String connectionPool =
+        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // .getName();
         DatabaseConnection dbConn = null;
         try {
             dbConn = DatabaseConnectionsManager.getInstance()

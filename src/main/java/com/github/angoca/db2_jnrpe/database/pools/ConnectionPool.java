@@ -16,23 +16,32 @@ public abstract class ConnectionPool {
     /**
      * Closes a established connection.
      * 
-     * @param dbConn
+     * @param connection
      *            Connection to the database.
      * @throws DatabaseConnectionException
      *             If any error occurs.
      */
-    public abstract void closeConnection(final DatabaseConnection dbConn)
+    public abstract void closeConnection(final Connection connection)
+            throws DatabaseConnectionException;
+
+    /**
+     * Initialize the Connection Pool
+     * 
+     * @param dbConn
+     *            Configuration parameters.
+     * @throws DatabaseConnectionException
+     *             If any error occurs.
+     */
+    public abstract ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException;
 
     /**
      * Retrieves a connection.
      * 
-     * @param dbConn
-     *            Connection properties.
      * @return An established connection to the database.
      * @throws DatabaseConnectionException
      *             If any error occurs.
      */
-    public abstract Connection getConnection(final DatabaseConnection dbConn)
+    public abstract Connection getConnection()
             throws DatabaseConnectionException;
 }
