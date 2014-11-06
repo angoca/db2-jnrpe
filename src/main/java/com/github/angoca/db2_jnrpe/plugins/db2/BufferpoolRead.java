@@ -161,7 +161,7 @@ public final class BufferpoolRead {
      */
     @Override
     public String toString() {
-        final String ret = this.name + ". Logical " + this.logicalReads + '/'
+        final String ret = this.name + ";reads:" + this.logicalReads + '/'
                 + this.totalReads;
         return ret;
     }

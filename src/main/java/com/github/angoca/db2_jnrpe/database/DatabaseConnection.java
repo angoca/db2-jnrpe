@@ -112,4 +112,16 @@ public abstract class DatabaseConnection {
     public final void setURL(final String url) {
         this.url = url;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        String ret = '{' + this.username + '@' + this.url
+                + connectionProperties.toString() + '}';
+        return ret;
+    }
 }

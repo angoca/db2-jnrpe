@@ -128,4 +128,16 @@ public final class DBCP_c3p0 extends ConnectionPool {
         DBCP_c3p0.cpds.setProperties(dbConn.getConnectionProperties());
         return this;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        String ret = "[c3p0-" + this.dbConn.getUsername() + '@'
+                + this.dbConn.getURL() + ']';
+        return ret;
+    }
 }
