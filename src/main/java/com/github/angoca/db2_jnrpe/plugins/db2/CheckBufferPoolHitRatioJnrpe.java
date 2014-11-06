@@ -56,13 +56,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                     + "for threshold from the database: " + e.getMessage(), e);
         }
         final String bufferpoolName = cl.getOptionValue("bufferpool");
-        if (bufferpoolName != null && bufferpoolName.compareTo("") == 0) {
-            thrb.withLegacyThreshold(
-                    CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                            + bufferpoolName, null,
-                    cl.getOptionValue("warning", "90"),
-                    cl.getOptionValue("critical", "95"));
-        } else {
+        if (bufferpoolName == null || bufferpoolName.compareTo("") == 0) {
             String name;
             for (int i = 0; i < this.bufferpoolNames.size(); i++) {
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
@@ -72,6 +66,15 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                         cl.getOptionValue("warning", "90"),
                         cl.getOptionValue("critical", "95"));
             }
+        } else if (this.bufferpoolNames.contains(bufferpoolName)) {
+            thrb.withLegacyThreshold(
+                    CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
+                            + bufferpoolName, null,
+                    cl.getOptionValue("warning", "90"),
+                    cl.getOptionValue("critical", "95"));
+        } else {
+            throw new BadThresholdException("The given bufferpool does not "
+                    + "exist in the database.");
         }
     }
 
