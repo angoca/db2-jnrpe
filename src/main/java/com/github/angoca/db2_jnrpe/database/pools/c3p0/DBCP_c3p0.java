@@ -96,14 +96,6 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     @Override
     public final Connection getConnection() throws DatabaseConnectionException {
-        try {
-            cpds.setDriverClass(dbConn.getDriverClass());
-        } catch (PropertyVetoException e) {
-            throw new DatabaseConnectionException(e);
-        }
-        cpds.setJdbcUrl(dbConn.getURL());
-        cpds.setProperties(dbConn.getConnectionProperties());
-
         final String username = dbConn.getUsername();
         final String password = dbConn.getPassword();
         Connection connection;
@@ -126,6 +118,13 @@ public final class DBCP_c3p0 extends ConnectionPool {
     public ConnectionPool initialize(DatabaseConnection dbConn)
             throws DatabaseConnectionException {
         this.dbConn = dbConn;
+        try {
+            cpds.setDriverClass(dbConn.getDriverClass());
+        } catch (PropertyVetoException e) {
+            throw new DatabaseConnectionException(e);
+        }
+        cpds.setJdbcUrl(dbConn.getURL());
+        cpds.setProperties(dbConn.getConnectionProperties());
         return this;
     }
 }

@@ -73,7 +73,6 @@ public class DBCP_db2Direct extends ConnectionPool {
     @Override
     public ConnectionPool initialize(DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        System.out.println(">>>>NEW INSTANCE");
         try {
             Class.forName(dbConn.getDriverClass());
             if (dbConn instanceof DB2Connection) {
