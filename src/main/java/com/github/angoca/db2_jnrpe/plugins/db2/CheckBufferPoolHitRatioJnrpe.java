@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
@@ -34,10 +35,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * Prefix for thresholds.
      */
     private static final String THRESHOLD_NAME_BUFFERPOOL = "bufferpool_hit_ratio-";
-    /**
-     * List of bufferpool names.
-     */
-    private List<String> bufferpoolNames = new ArrayList<String>();
 
     /*
      * (non-Javadoc)
@@ -50,26 +47,43 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     public final void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
-        try {
-            this.bufferpoolNames = CheckBufferPoolHitRatioDB2
-                    .getBufferpoolNames(this.getConnection(cl));
-        } catch (DatabaseConnectionException | MetricGatheringException e) {
-            this.log.fatal("Error while retrieving names", e);
-            throw new BadThresholdException("Problem retrieving the values "
-                    + "for threshold from the database: " + e.getMessage(), e);
+        Database database = DatabasesManager.getInstance().getDatabase(
+                this.getURL(cl));
+        if (database == null) {
+            String url = this.getURL(cl);
+            database = new Database(url);
+            DatabasesManager.getInstance().add(url, database);
+        }
+        Set<String> bufferpoolNames = database.getBufferpools().keySet();
+        // Checks the values.
+        if (!database.isBufferpoolListUpdated()) {
+            System.out.println(">>>READ THRESHOLD FROM DATABASE");
+            try {
+                Map<String, BufferpoolRead> bufferpoolReads = CheckBufferPoolHitRatioDB2.check(this.getConnection(cl));
+                database.setBufferpoolReads(bufferpoolReads);
+                bufferpoolNames = database.getBufferpools().keySet();
+            } catch (DatabaseConnectionException | MetricGatheringException e) {
+                this.log.fatal("Error while retrieving names", e);
+                throw new BadThresholdException(
+                        "Problem retrieving the values "
+                                + "for threshold from the database: "
+                                + e.getMessage(), e);
+            }
         }
         final String bufferpoolName = cl.getOptionValue("bufferpool");
         if ((bufferpoolName == null) || (bufferpoolName.compareTo("") == 0)) {
             String name;
-            for (int i = 0; i < this.bufferpoolNames.size(); i++) {
+            for (Iterator<String> iterator = bufferpoolNames.iterator(); iterator
+                    .hasNext();) {
+                String bpName = (String) iterator.next();
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                        + this.bufferpoolNames.get(i);
+                        + bpName;
                 this.log.debug("Threshold for bufferpool: " + name);
                 thrb.withLegacyThreshold(name, null,
                         cl.getOptionValue("warning", "90"),
                         cl.getOptionValue("critical", "95"));
             }
-        } else if (this.bufferpoolNames.contains(bufferpoolName)) {
+        } else if (bufferpoolNames.contains(bufferpoolName)) {
             this.log.debug("Threshold for bufferpool: " + bufferpoolName);
             thrb.withLegacyThreshold(
                     CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
@@ -84,6 +98,38 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         }
     }
 
+    /**
+     * Retrieves the connection URL to identify a database.
+     * 
+     * @param cl
+     *            Command line.
+     * @return Unique URL to the database.
+     */
+    private String getURL(ICommandLine cl) {
+        String ret;
+        String[] values = getURLValues(cl);
+        ret = values[0] + ':' + values[1] + ':' + values[2];
+        return ret;
+    }
+
+    /**
+     * Return the connection values.
+     * 
+     * @param cl
+     *            Command line.
+     * @return Array with parameters.
+     */
+    private String[] getURLValues(ICommandLine cl) {
+        String[] ret = new String[3];
+        final String hostname = cl.getOptionValue("hostname");
+        final String portNumberString = cl.getOptionValue("port");
+        final String databaseName = cl.getOptionValue("database");
+        ret[0] = hostname;
+        ret[1] = portNumberString;
+        ret[2] = databaseName;
+        return ret;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -92,43 +138,31 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     public final Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
-        // Checks the values.
-        Map<String, List<String>> bufferpoolsDesc;
-        try {
-            this.log.info("Retrieving bufferpool values from db");
-            bufferpoolsDesc = CheckBufferPoolHitRatioDB2.check(this
-                    .getConnection(cl));
-        } catch (final DatabaseConnectionException e) {
-            this.log.fatal("Error while checking metrics", e);
-            throw new MetricGatheringException("Problem retrieving the values "
-                    + "for metrics from the database: " + e.getMessage(),
-                    Status.UNKNOWN, e);
-        }
-
+        Database database = DatabasesManager.getInstance().getDatabase(
+                this.getURL(cl));
+        Map<String, BufferpoolRead> bufferpoolReads = database.getBufferpools();
         // Converts result to arrays and create metrics.
-        BigDecimal value;
+        BigDecimal ratio;
         BigDecimal min;
         BigDecimal max;
         final List<Metric> res = new ArrayList<Metric>();
-        final Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
+        final Iterator<String> iter = bufferpoolReads.keySet().iterator();
         while (iter.hasNext()) {
             String name = iter.next();
-            if (this.bufferpoolNames.add(name)) {
-                final List<String> bpDesc = bufferpoolsDesc.get(name);
-                name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                        + name;
-                this.log.debug("Metrics: " + name);
-                value = new BigDecimal(bpDesc.get(2));
-                final String message = String.format(
-                        "Bufferpool %s at member %s has %s logical reads "
-                                + "and %s physical reads, with a hit "
-                                + "ratio of %s%%.", name, bpDesc.get(3),
-                        bpDesc.get(0), bpDesc.get(1), value);
-                min = new BigDecimal(0);
-                max = new BigDecimal(100);
+            final BufferpoolRead bpDesc = bufferpoolReads.get(name);
+            name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
+                    + name;
+            this.log.debug("Metrics: " + name);
+            ratio = new BigDecimal(bpDesc.getRatio());
+            final String message = String.format(
+                    "Bufferpool %s at member %s has %s logical reads "
+                            + "and %s physical reads, with a hit "
+                            + "ratio of %s%%.", name, bpDesc.getMember(),
+                    bpDesc.getLogicalReads(), bpDesc.getPhysicalReads(), ratio);
+            min = new BigDecimal(0);
+            max = new BigDecimal(100);
 
-                res.add(new Metric(name, message, value, min, max));
-            }
+            res.add(new Metric(name, message, ratio, min, max));
         }
         this.log.debug(res.size() + " metrics");
 
@@ -147,9 +181,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             throws MetricGatheringException {
         assert cl != null;
 
-        final String hostname = cl.getOptionValue("hostname");
+        final String[] values = this.getURLValues(cl);
+        final String hostname = values[0];
         int portNumber;
-        final String portNumberString = cl.getOptionValue("port");
+        final String portNumberString = values[1];
         this.log.debug("Port number: " + portNumberString);
         try {
             portNumber = Integer.valueOf(portNumberString);
@@ -158,7 +193,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             throw new MetricGatheringException(
                     "Invalid format for port number", Status.UNKNOWN, ne);
         }
-        final String databaseName = cl.getOptionValue("database");
+        final String databaseName = values[2];
         final String username = cl.getOptionValue("username");
         final String password = cl.getOptionValue("password");
         this.log.debug("Hostname " + hostname + "-Port " + portNumber + "-db"
@@ -200,4 +235,5 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     protected final String getPluginName() {
         return "CHECK_BUFFER_POOL_HIT_RATIO";
     }
+
 }

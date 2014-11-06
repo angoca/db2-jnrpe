@@ -30,7 +30,7 @@ public final class CheckBufferPoolHitRatioDB2 {
      * Columns of the table.
      */
     public final static String[] keys = { "BP_NAME", "LOGICAL_READS",
-        "PHYSICAL_READS", "HIT_RATIO", "MEMBER" };
+            "PHYSICAL_READS", "HIT_RATIO", "MEMBER" };
 
     /**
      * Query for DB2 after v9.7.
@@ -64,14 +64,14 @@ public final class CheckBufferPoolHitRatioDB2 {
      *
      * @param dbConn
      *            Object that wraps the connection.
-     * @return Matrix that describe the results.
+     * @return List of bufferpool reads.
      * @throws DatabaseConnectionException
      *             If any problem occur while accessing the database.
      */
-    final static Map<String, List<String>> check(final DatabaseConnection dbConn)
-            throws DatabaseConnectionException {
+    final static Map<String, BufferpoolRead> check(
+            final DatabaseConnection dbConn) throws DatabaseConnectionException {
         assert dbConn != null;
-        final Map<String, List<String>> allValues = new HashMap<String, List<String>>();
+        final Map<String, BufferpoolRead> allValues = new HashMap<String, BufferpoolRead>();
         final DB2MajorVersions version = DB2Helper.getDB2MajorVersion(dbConn);
         // This query cannot be executed in a database with db2 v9.5 or before.
         if (version.isEqualOrMoreRecentThan(DB2MajorVersions.V9_7)) {
@@ -84,27 +84,29 @@ public final class CheckBufferPoolHitRatioDB2 {
                         .prepareStatement(CheckBufferPoolHitRatioDB2.queryAfter_v9_7);
                 final ResultSet res = stmt.executeQuery();
 
-                List<String> values;
-                String ratio;
+                BufferpoolRead read;
                 String name;
+                int logical;
+                int physical;
+                int member;
                 while (res.next()) {
+                    // Name.
                     name = res.getString(1);
-                    values = new ArrayList<>();
-                    values.add(res.getString(2));
-                    values.add(res.getString(3));
-                    ratio = res.getString(4);
-                    if (ratio == null) {
-                        ratio = "100";
-                    }
-                    values.add(ratio);
-                    values.add(res.getString(5));
-                    values.add(name);
-                    allValues.put(name, values);
+                    // Logical reads.
+                    logical = res.getInt(2);
+                    // Physical reads.
+                    physical = res.getInt(3);
+                    // Member
+                    member = res.getInt(4);
+
+                    read = new BufferpoolRead(name, logical,
+                            logical + physical, member);
+                    allValues.put(name, read);
                 }
                 res.close();
                 stmt.close();
                 ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                .closeConnection(connection);
+                        .closeConnection(connection);
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
@@ -140,7 +142,7 @@ public final class CheckBufferPoolHitRatioDB2 {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-            .closeConnection(connection);
+                    .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -172,17 +174,18 @@ public final class CheckBufferPoolHitRatioDB2 {
                         databaseConnection, hostname, portNumber, databaseName,
                         username, password);
 
-        final Map<String, List<String>> bufferpoolsDesc = CheckBufferPoolHitRatioDB2
+        final Map<String, BufferpoolRead> bufferpoolsDesc = CheckBufferPoolHitRatioDB2
                 .check(dbConn);
         final Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
-            final List<String> bpDesc = bufferpoolsDesc.get(name);
-            final String message = String
-                    .format("Bufferpool %s at member %s has %s "
-                            + "logical reads and %s physical reads, with a hit "
-                            + "ratio of %s%%.", bpDesc.get(4), bpDesc.get(3),
-                            bpDesc.get(0), bpDesc.get(1), bpDesc.get(2));
+            final BufferpoolRead bpDesc = bufferpoolsDesc.get(name);
+            final String message = String.format(
+                    "Bufferpool %s at member %s has %s "
+                            + "logical reads and %s total reads, with a hit "
+                            + "ratio of %s%%.", bpDesc.getName(),
+                    bpDesc.getMember(), bpDesc.getLogicalReads(),
+                    bpDesc.getTotalReads(), bpDesc.getRatio());
 
             System.out.println(message);
         }
