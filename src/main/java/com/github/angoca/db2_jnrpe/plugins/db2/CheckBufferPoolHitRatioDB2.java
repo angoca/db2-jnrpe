@@ -60,39 +60,6 @@ public final class CheckBufferPoolHitRatioDB2 {
             + "FROM SYSCAT.BUFFERPOOLS";
 
     /**
-     * Returns the list of bufferpools.
-     * 
-     * @param dbConn
-     *            Object that wraps the connection.
-     * @return A list with the names of the bufferpools.
-     * @throws DatabaseConnectionException
-     */
-    final static List<String> getBufferpoolNames(final DatabaseConnection dbConn)
-            throws DatabaseConnectionException {
-        List<String> names = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn).getConnection();
-            PreparedStatement stmt = connection
-                    .prepareStatement(queryBufferpoolNames);
-            ResultSet res = stmt.executeQuery();
-
-            while (res.next()) {
-                names.add(res.getString(1));
-            }
-            res.close();
-            stmt.close();
-            ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
-        } catch (SQLException sqle) {
-            DB2Helper.processException(sqle);
-            throw new DatabaseConnectionException(sqle);
-        }
-        return names;
-    }
-
-    /**
      * Checks the bufferpool hit ratio with the given database connection.
      * 
      * @param dbConn
@@ -146,6 +113,39 @@ public final class CheckBufferPoolHitRatioDB2 {
 
         assert allValues != null;
         return allValues;
+    }
+
+    /**
+     * Returns the list of bufferpools.
+     * 
+     * @param dbConn
+     *            Object that wraps the connection.
+     * @return A list with the names of the bufferpools.
+     * @throws DatabaseConnectionException
+     */
+    final static List<String> getBufferpoolNames(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
+        List<String> names = new ArrayList<>();
+        Connection connection = null;
+        try {
+            connection = ConnectionPoolsManager.getInstance()
+                    .getConnectionPool(dbConn).getConnection();
+            PreparedStatement stmt = connection
+                    .prepareStatement(queryBufferpoolNames);
+            ResultSet res = stmt.executeQuery();
+
+            while (res.next()) {
+                names.add(res.getString(1));
+            }
+            res.close();
+            stmt.close();
+            ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
+                    .closeConnection(connection);
+        } catch (SQLException sqle) {
+            DB2Helper.processException(sqle);
+            throw new DatabaseConnectionException(sqle);
+        }
+        return names;
     }
 
     /**

@@ -25,6 +25,16 @@ public abstract class ConnectionPool {
             throws DatabaseConnectionException;
 
     /**
+     * Retrieves a connection.
+     * 
+     * @return An established connection to the database.
+     * @throws DatabaseConnectionException
+     *             If any error occurs.
+     */
+    public abstract Connection getConnection()
+            throws DatabaseConnectionException;
+
+    /**
      * Initialize the Connection Pool
      * 
      * @param dbConn
@@ -33,15 +43,5 @@ public abstract class ConnectionPool {
      *             If any error occurs.
      */
     public abstract ConnectionPool initialize(final DatabaseConnection dbConn)
-            throws DatabaseConnectionException;
-
-    /**
-     * Retrieves a connection.
-     * 
-     * @return An established connection to the database.
-     * @throws DatabaseConnectionException
-     *             If any error occurs.
-     */
-    public abstract Connection getConnection()
             throws DatabaseConnectionException;
 }

@@ -18,6 +18,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  */
 public final class DBCP_c3p0 extends ConnectionPool {
     /**
+     * Connection pool.
+     */
+    private static ComboPooledDataSource cpds;
+
+    /**
      * Tester.
      * 
      * @param args
@@ -49,11 +54,6 @@ public final class DBCP_c3p0 extends ConnectionPool {
                 }).getConnection();
         System.out.println("Client Information: " + conn.getClientInfo());
     }
-
-    /**
-     * Connection pool.
-     */
-    private static ComboPooledDataSource cpds;
     /**
      * Connection properties.
      */

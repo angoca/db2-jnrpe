@@ -30,6 +30,9 @@ import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
  */
 public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
+    /**
+     * Prefix for thresholds.
+     */
     private static final String THRESHOLD_NAME_BUFFERPOOL = "bufferpool_hit_ratio-";
     /**
      * List of bufferpool names.

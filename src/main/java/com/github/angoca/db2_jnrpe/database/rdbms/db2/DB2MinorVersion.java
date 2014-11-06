@@ -17,10 +17,6 @@ public enum DB2MinorVersion {
      */
     UNKNOWN(null, 0),
     /**
-     * 10.1 version GA.
-     */
-    V10_1_GA("DB2 v10.1.0.0", 10100),
-    /**
      * 10.1 version Fixpack 1.
      */
     V10_1_1("DB2 v10.1.0.1", 10101),
@@ -37,9 +33,9 @@ public enum DB2MinorVersion {
      */
     V10_1_4("DB2 v10.1.0.4", 10104),
     /**
-     * 10.5 version.
+     * 10.1 version GA.
      */
-    V10_5_GA("DB2 v10.5.0.0", 10500),
+    V10_1_GA("DB2 v10.1.0.0", 10100),
     /**
      * 10.5 version Fixpack 1.
      */
@@ -57,9 +53,9 @@ public enum DB2MinorVersion {
      */
     V10_5_4("DB2 v10.5.0.400", 10501),
     /**
-     * 9.7 version GA.
+     * 10.5 version.
      */
-    V9_7_GA("DB2 v9.7.0.0", 9700),
+    V10_5_GA("DB2 v10.5.0.0", 10500),
     /**
      * 9.7 version Fixpack 1.
      */
@@ -97,9 +93,9 @@ public enum DB2MinorVersion {
      */
     V9_7_9("DB2 v9.7.0.9", 9709),
     /**
-     * 9.8 version GA.
+     * 9.7 version GA.
      */
-    V9_8_GA("DB2 v9.8.0.0", 9800),
+    V9_7_GA("DB2 v9.7.0.0", 9700),
     /**
      * 9.8 version Fixpack 1.
      */
@@ -119,7 +115,11 @@ public enum DB2MinorVersion {
     /**
      * 9.8 version Fixpack 5.
      */
-    V9_8_5("DB2 v9.8.0.5", 9805);
+    V9_8_5("DB2 v9.8.0.5", 9805),
+    /**
+     * 9.8 version GA.
+     */
+    V9_8_GA("DB2 v9.8.0.0", 9800);
 
     /**
      * Name of the DB2 version.

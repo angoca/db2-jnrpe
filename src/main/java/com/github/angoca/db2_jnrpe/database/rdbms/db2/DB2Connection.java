@@ -20,18 +20,18 @@ public final class DB2Connection extends DatabaseConnection {
      */
     private final String databaseName;
     /**
-     * Instance's port.
+     * Description of the DB2 driver.
      */
-    private final int portNumber;
+    protected final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
     /**
      * Name of the server.
      */
     private final String hostname;
 
     /**
-     * Description of the DB2 driver.
+     * Instance's port.
      */
-    protected final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
+    private final int portNumber;
 
     /**
      * Creates an object that describes a DB2 connection.
@@ -71,6 +71,15 @@ public final class DB2Connection extends DatabaseConnection {
         this.databaseName = databaseName;
     }
 
+    /**
+     * Returns the database.
+     * 
+     * @return Database.
+     */
+    public final String getDatabaseName() {
+        return this.databaseName;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -98,14 +107,5 @@ public final class DB2Connection extends DatabaseConnection {
      */
     public final int getPortNumber() {
         return this.portNumber;
-    }
-
-    /**
-     * Returns the database.
-     * 
-     * @return Database.
-     */
-    public final String getDatabaseName() {
-        return this.databaseName;
     }
 }
