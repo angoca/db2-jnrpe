@@ -25,7 +25,7 @@ public class Database {
     /**
      * Connection URL to identify a database.
      */
-    private String url;
+    private final String url;
 
     public Database(final String url) {
         this.url = url;
@@ -35,7 +35,7 @@ public class Database {
 
     /**
      * Retrieves the map of bufferpools.
-     * 
+     *
      * @return Map of bufferpools.
      */
     Map<String, BufferpoolRead> getBufferpools() {
@@ -44,7 +44,7 @@ public class Database {
 
     /**
      * Retrieves the last time the bufferpools reads were updated.
-     * 
+     *
      * @return Time of last read.
      */
     long getLastRefresh() {
@@ -53,7 +53,7 @@ public class Database {
 
     /**
      * Returns the URL of the database.
-     * 
+     *
      * @return URL of the database.
      */
     String getURL() {
@@ -62,7 +62,7 @@ public class Database {
 
     /**
      * Checks if the list of bufferpools should be updated.
-     * 
+     *
      * @return True if the list is too old or never set. False otherwise.
      */
     boolean isBufferpoolListUpdated() {
@@ -71,7 +71,7 @@ public class Database {
         if (this.lastBufferpoolRead == 0) {
             // Never set.
             ret = false;
-        } else if (now - Database.BUFFERPOOL_FREQUENCY > this.lastBufferpoolRead) {
+        } else if ((now - Database.BUFFERPOOL_FREQUENCY) > this.lastBufferpoolRead) {
             ret = false;
         }
         return ret;
@@ -79,7 +79,7 @@ public class Database {
 
     /**
      * Sets a new set of bufferpools reads.
-     * 
+     *
      * @param bufferpoolReads
      *            Bufferpool reads.
      */
@@ -95,7 +95,7 @@ public class Database {
      */
     @Override
     public String toString() {
-        String ret = this.url + " with " + bufferpools.size()
+        final String ret = this.url + " with " + this.bufferpools.size()
                 + " bufferpools. Last at " + this.lastBufferpoolRead;
         return ret;
     }

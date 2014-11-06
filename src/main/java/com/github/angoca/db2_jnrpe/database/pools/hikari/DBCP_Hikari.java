@@ -32,7 +32,7 @@ public class DBCP_Hikari extends ConnectionPool {
 
                     /*
                      * (non-Javadoc)
-                     *
+                     * 
                      * @see
                      * com.github.angoca.db2_jnrpe.database.DatabaseConnection
                      * #getDriverClass()
@@ -57,7 +57,7 @@ public class DBCP_Hikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
      * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
@@ -76,7 +76,7 @@ public class DBCP_Hikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */

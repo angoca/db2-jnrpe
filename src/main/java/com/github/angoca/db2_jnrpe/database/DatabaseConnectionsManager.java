@@ -66,7 +66,7 @@ public final class DatabaseConnectionsManager {
     @SuppressWarnings("unchecked")
     private final Constructor<DatabaseConnection> getConstructor(
             final String databaseConnectionName)
-                    throws DatabaseConnectionException {
+            throws DatabaseConnectionException {
         Constructor<DatabaseConnection> constructor = this.constructors
                 .get(databaseConnectionName);
         if (constructor == null) {
@@ -115,7 +115,7 @@ public final class DatabaseConnectionsManager {
             final String connectionsPool, final String databaseConnection,
             String hostname, final int portNumber, final String databaseName,
             final String username, final String password)
-                    throws DatabaseConnectionException {
+            throws DatabaseConnectionException {
         final String connKey = username + '@' + hostname + ':' + portNumber
                 + '/' + databaseName;
         DatabaseConnection dbConn = this.connectionProps.get(connKey);

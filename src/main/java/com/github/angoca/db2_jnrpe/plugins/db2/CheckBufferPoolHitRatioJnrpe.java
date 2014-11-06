@@ -50,7 +50,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         Database database = DatabasesManager.getInstance().getDatabase(
                 this.getURL(cl));
         if (database == null) {
-            String url = this.getURL(cl);
+            final String url = this.getURL(cl);
             database = new Database(url);
             DatabasesManager.getInstance().add(url, database);
         }
@@ -59,7 +59,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         if (!database.isBufferpoolListUpdated()) {
             System.out.println(">>>READ THRESHOLD FROM DATABASE");
             try {
-                Map<String, BufferpoolRead> bufferpoolReads = CheckBufferPoolHitRatioDB2.check(this.getConnection(cl));
+                final Map<String, BufferpoolRead> bufferpoolReads = CheckBufferPoolHitRatioDB2
+                        .check(this.getConnection(cl));
                 database.setBufferpoolReads(bufferpoolReads);
                 bufferpoolNames = database.getBufferpools().keySet();
             } catch (DatabaseConnectionException | MetricGatheringException e) {
@@ -73,9 +74,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         final String bufferpoolName = cl.getOptionValue("bufferpool");
         if ((bufferpoolName == null) || (bufferpoolName.compareTo("") == 0)) {
             String name;
-            for (Iterator<String> iterator = bufferpoolNames.iterator(); iterator
-                    .hasNext();) {
-                String bpName = (String) iterator.next();
+            for (final String string : bufferpoolNames) {
+                final String bpName = string;
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                         + bpName;
                 this.log.debug("Threshold for bufferpool: " + name);
@@ -106,9 +106,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     public final Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
-        Database database = DatabasesManager.getInstance().getDatabase(
+        final Database database = DatabasesManager.getInstance().getDatabase(
                 this.getURL(cl));
-        Map<String, BufferpoolRead> bufferpoolReads = database.getBufferpools();
+        final Map<String, BufferpoolRead> bufferpoolReads = database
+                .getBufferpools();
         // Converts result to arrays and create metrics.
         BigDecimal ratio;
         BigDecimal min;
@@ -206,27 +207,27 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
     /**
      * Retrieves the connection URL to identify a database.
-     * 
+     *
      * @param cl
      *            Command line.
      * @return Unique URL to the database.
      */
     private String getURL(ICommandLine cl) {
         String ret;
-        String[] values = getURLValues(cl);
+        final String[] values = this.getURLValues(cl);
         ret = values[0] + ':' + values[1] + '/' + values[2];
         return ret;
     }
 
     /**
      * Return the connection values.
-     * 
+     *
      * @param cl
      *            Command line.
      * @return Array with parameters.
      */
     private String[] getURLValues(ICommandLine cl) {
-        String[] ret = new String[3];
+        final String[] ret = new String[3];
         final String hostname = cl.getOptionValue("hostname");
         final String portNumberString = cl.getOptionValue("port");
         final String databaseName = cl.getOptionValue("database");

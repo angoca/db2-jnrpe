@@ -2,7 +2,7 @@ package com.github.angoca.db2_jnrpe.plugins.db2;
 
 /**
  * This class represents a read of the bufferpool values.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -14,7 +14,7 @@ public final class BufferpoolRead {
     /**
      * Member of the database
      */
-    private int member;
+    private final int member;
     /**
      * Name of the bufferpool.
      */
@@ -26,7 +26,7 @@ public final class BufferpoolRead {
 
     /**
      * Creates a set of most recent reads for a bufferpool.
-     * 
+     *
      * @param name
      *            Name of the bufferpool.
      * @param logical
@@ -47,7 +47,7 @@ public final class BufferpoolRead {
 
     /**
      * Retrieves the logical reads.
-     * 
+     *
      * @return Quantity of logical reads.s
      */
     public int getLogicalReads() {
@@ -56,7 +56,7 @@ public final class BufferpoolRead {
 
     /**
      * Retrieves the member of the database.
-     * 
+     *
      * @return Member of the database.
      */
     public int getMember() {
@@ -65,7 +65,7 @@ public final class BufferpoolRead {
 
     /**
      * Retrieves the name of the bufferpool.
-     * 
+     *
      * @return Name of the bufferpool.
      */
     public String getName() {
@@ -74,7 +74,7 @@ public final class BufferpoolRead {
 
     /**
      * Retrieves the physical reads.
-     * 
+     *
      * @return Quantity of physical reads (total - logical).
      */
     public int getPhysicalReads() {
@@ -84,7 +84,7 @@ public final class BufferpoolRead {
     /**
      * Returns the ratio between logical reads and total reads (logical +
      * physical reads).
-     * 
+     *
      * @return Ratio of the reads.
      */
     public int getRatio() {
@@ -99,7 +99,7 @@ public final class BufferpoolRead {
 
     /**
      * Retrieves the total reads.
-     * 
+     *
      * @return Total reads.
      */
     public int getTotalReads() {
@@ -108,7 +108,7 @@ public final class BufferpoolRead {
 
     /**
      * Establishes the new quantity of logical reads.
-     * 
+     *
      * @param logical
      *            Quantity of logical reads.
      */
@@ -120,7 +120,7 @@ public final class BufferpoolRead {
 
     /**
      * Sets a new name for the bufferpool.
-     * 
+     *
      * @param name
      *            Bufferpool name.
      */
@@ -131,7 +131,7 @@ public final class BufferpoolRead {
     /**
      * Updates the values of the read with the most recent ones if the last
      * update is old.
-     * 
+     *
      * @param logical
      *            Quantity of logical reads.
      * @param total
@@ -144,7 +144,7 @@ public final class BufferpoolRead {
 
     /**
      * Establishes the new quantity of total reads.
-     * 
+     *
      * @param total
      *            Quantity of total reads.
      */
@@ -161,7 +161,7 @@ public final class BufferpoolRead {
      */
     @Override
     public String toString() {
-        String ret = this.name + ". Logical " + this.logicalReads + '/'
+        final String ret = this.name + ". Logical " + this.logicalReads + '/'
                 + this.totalReads;
         return ret;
     }

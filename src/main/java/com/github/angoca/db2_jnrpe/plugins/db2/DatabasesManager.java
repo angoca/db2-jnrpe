@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Controls the databases.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -17,7 +17,7 @@ public class DatabasesManager {
 
     /**
      * Retrieves the only instance.
-     * 
+     *
      * @return Singleton.
      */
     static DatabasesManager getInstance() {
@@ -30,7 +30,7 @@ public class DatabasesManager {
     /**
      * List of databases.
      */
-    private Map<String, Database> databases;
+    private final Map<String, Database> databases;
 
     /**
      * Creates the singleton.
@@ -41,7 +41,7 @@ public class DatabasesManager {
 
     /**
      * Adds a database in the set.
-     * 
+     *
      * @param url
      *            Unique URL to identify this database.
      * @param database
@@ -53,7 +53,7 @@ public class DatabasesManager {
 
     /**
      * Retrieves a database given its URL.
-     * 
+     *
      * @param name
      *            URL of the database.
      * @return The database that corresponds to the given url.
@@ -64,7 +64,7 @@ public class DatabasesManager {
 
     /**
      * Retrieves all databases.
-     * 
+     *
      * @return Map of databases.
      */
     Map<String, Database> getDatabases() {

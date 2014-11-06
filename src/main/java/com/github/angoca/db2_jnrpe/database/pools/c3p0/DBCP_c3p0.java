@@ -42,7 +42,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
                     /*
                      * (non-Javadoc)
-                     *
+                     * 
                      * @see
                      * com.github.angoca.db2_jnrpe.database.DatabaseConnection
                      * #getDriverClass()
@@ -72,7 +72,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
      * (java.sql.Connection)
@@ -91,7 +91,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */
@@ -110,7 +110,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
      * com.github.angoca.db2_jnrpe.database.DatabaseConnection)

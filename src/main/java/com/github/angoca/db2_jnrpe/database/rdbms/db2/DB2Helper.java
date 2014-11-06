@@ -84,7 +84,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-            .closeConnection(connection);
+                    .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -214,7 +214,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-            .closeConnection(connection);
+                    .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
