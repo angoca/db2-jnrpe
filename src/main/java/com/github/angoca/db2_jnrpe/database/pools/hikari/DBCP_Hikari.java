@@ -14,7 +14,7 @@ public class DBCP_Hikari extends ConnectionPool {
 
     /**
      * Tester.
-     * 
+     *
      * @param args
      *            Arguments.
      * @throws SQLException
@@ -32,7 +32,7 @@ public class DBCP_Hikari extends ConnectionPool {
 
                     /*
                      * (non-Javadoc)
-                     * 
+                     *
                      * @see
                      * com.github.angoca.db2_jnrpe.database.DatabaseConnection
                      * #getDriverClass()
@@ -49,15 +49,15 @@ public class DBCP_Hikari extends ConnectionPool {
 
     public DBCP_Hikari() {
         this.config = new HikariConfig();
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("useServerPrepStmts", "true");
+        this.config.addDataSourceProperty("cachePrepStmts", "true");
+        this.config.addDataSourceProperty("prepStmtCacheSize", "250");
+        this.config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        this.config.addDataSourceProperty("useServerPrepStmts", "true");
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
      * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
@@ -68,7 +68,7 @@ public class DBCP_Hikari extends ConnectionPool {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 throw new DatabaseConnectionException(e);
             }
         }
@@ -76,15 +76,15 @@ public class DBCP_Hikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */
     @Override
     public Connection getConnection() throws DatabaseConnectionException {
         try {
-            return new HikariDataSource(config).getConnection();
-        } catch (SQLException e) {
+            return new HikariDataSource(this.config).getConnection();
+        } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
         }
     }
@@ -92,10 +92,10 @@ public class DBCP_Hikari extends ConnectionPool {
     @Override
     public ConnectionPool initialize(DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        config.setJdbcUrl(dbConn.getURL());
-        config.setUsername(dbConn.getUsername());
-        config.setPassword(dbConn.getPassword());
-        config.setDataSourceProperties(dbConn.getConnectionProperties());
+        this.config.setJdbcUrl(dbConn.getURL());
+        this.config.setUsername(dbConn.getUsername());
+        this.config.setPassword(dbConn.getPassword());
+        this.config.setDataSourceProperties(dbConn.getConnectionProperties());
         return this;
     }
 }

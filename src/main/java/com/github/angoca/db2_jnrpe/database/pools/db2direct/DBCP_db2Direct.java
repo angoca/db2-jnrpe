@@ -12,7 +12,7 @@ import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
 
 /**
  * Connection pool using direct DB2 driver.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-04
  */
@@ -25,7 +25,7 @@ public class DBCP_db2Direct extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
      * (java.sql.Connection)
@@ -36,7 +36,7 @@ public class DBCP_db2Direct extends ConnectionPool {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 throw new DatabaseConnectionException(e);
             }
         }
@@ -44,20 +44,20 @@ public class DBCP_db2Direct extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */
     @Override
     public Connection getConnection() throws DatabaseConnectionException {
         Connection connection = null;
-        Properties props = this.db2Conn.getConnectionProperties();
+        final Properties props = this.db2Conn.getConnectionProperties();
         props.put("user", this.db2Conn.getUsername());
         props.put("password", this.db2Conn.getPassword());
         try {
             connection = DriverManager.getConnection(this.db2Conn.getURL(),
                     props);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
         }
         return connection;
@@ -65,7 +65,7 @@ public class DBCP_db2Direct extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
      * com.github.angoca.db2_jnrpe.database.DatabaseConnection)
@@ -81,7 +81,7 @@ public class DBCP_db2Direct extends ConnectionPool {
                 throw new DatabaseConnectionException(new Exception(
                         "Invalid connection properties (DatabaseConnection)"));
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new DatabaseConnectionException(e);
         }
         return this;

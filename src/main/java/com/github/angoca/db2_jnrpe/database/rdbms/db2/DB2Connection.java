@@ -6,7 +6,7 @@ import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 
 /**
  * Description of the parameter for a DB2 connection.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -35,7 +35,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /**
      * Creates an object that describes a DB2 connection.
-     * 
+     *
      * @param connectionsPool
      *            Associate connection pool.
      * @param defaultProperties
@@ -73,7 +73,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /**
      * Returns the database.
-     * 
+     *
      * @return Database.
      */
     public final String getDatabaseName() {
@@ -82,7 +82,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.DatabaseConnection#getDriverClass()
      */
@@ -93,7 +93,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /**
      * Returns the hostname.
-     * 
+     *
      * @return Hostname.
      */
     public final String getHostname() {
@@ -102,7 +102,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /**
      * Returns the port number of the instance.
-     * 
+     *
      * @return Port.
      */
     public final int getPortNumber() {

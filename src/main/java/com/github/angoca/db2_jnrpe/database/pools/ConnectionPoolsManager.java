@@ -1,6 +1,5 @@
 package com.github.angoca.db2_jnrpe.database.pools;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +9,7 @@ import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
 
 /**
  * Controls the singleton instance for the pool managers.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -22,14 +21,14 @@ public final class ConnectionPoolsManager {
 
     /**
      * Instantiate and returns the singleton.
-     * 
+     *
      * @return Returns the singleton instance.
      */
     public final static ConnectionPoolsManager getInstance() {
-        if (instance == null) {
-            instance = new ConnectionPoolsManager();
+        if (ConnectionPoolsManager.instance == null) {
+            ConnectionPoolsManager.instance = new ConnectionPoolsManager();
         }
-        return instance;
+        return ConnectionPoolsManager.instance;
     }
 
     /**
@@ -46,7 +45,7 @@ public final class ConnectionPoolsManager {
 
     /**
      * Retrieves a connection from the connection pool.
-     * 
+     *
      * @param connectionPoolName
      *            Name of the connection pool to retrieve.
      * @return Connection pool.
@@ -65,7 +64,6 @@ public final class ConnectionPoolsManager {
                 throw new DatabaseConnectionException(e);
             }
             try {
-                Constructor[] cons = clazz.getConstructors();
                 connectionPool = (ConnectionPool) clazz.getConstructor()
                         .newInstance();
             } catch (final NoSuchMethodException e) {
@@ -78,7 +76,7 @@ public final class ConnectionPoolsManager {
                 throw new DatabaseConnectionException(e);
             } catch (final InvocationTargetException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (InstantiationException e) {
+            } catch (final InstantiationException e) {
                 throw new DatabaseConnectionException(e);
             }
             connectionPool.initialize(dbConn);

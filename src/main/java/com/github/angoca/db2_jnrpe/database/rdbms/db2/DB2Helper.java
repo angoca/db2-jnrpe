@@ -14,14 +14,14 @@ import com.ibm.db2.jcc.DB2Sqlca;
 
 /**
  * Process a raised DB2 exception. This code was taken from the DB2 manuals.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
 public abstract class DB2Helper {
     /**
      * Returns the corresponding DB2 version of the database server.
-     * 
+     *
      * @param dbConn
      *            Connection to db2.
      * @return Version of the server.
@@ -31,9 +31,9 @@ public abstract class DB2Helper {
     public final static DB2MajorVersions getDB2MajorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MajorVersions version = DB2MajorVersions.UNKNOWN;
-        String queryBefore_v9_7 = "SELECT PROD_RELEASE "
+        final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
                 + "FROM SYSIBMADM.ENV_PROD_INFO";
-        String queryAfter_v9_7 = "SELECT PROD_RELEASE "
+        final String queryAfter_v9_7 = "SELECT PROD_RELEASE "
                 + "FROM TABLE(SYSPROC.ENV_GET_PROD_INFO())";
         Connection connection = null;
         try {
@@ -44,8 +44,8 @@ public abstract class DB2Helper {
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
-            } catch (SQLException sqle) {
-                int code = DB2Helper.getSQLCode(sqle);
+            } catch (final SQLException sqle) {
+                final int code = DB2Helper.getSQLCode(sqle);
                 if (code == -440) {
                     stmt = connection.prepareStatement(queryBefore_v9_7);
                     res = stmt.executeQuery();
@@ -84,7 +84,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
+            .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -94,7 +94,7 @@ public abstract class DB2Helper {
 
     /**
      * Returns the corresponding DB2 version of the database server.
-     * 
+     *
      * @param dbConn
      *            Connection to db2.
      * @return Version of the server.
@@ -104,9 +104,9 @@ public abstract class DB2Helper {
     public final static DB2MinorVersion getDB2MinorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MinorVersion version = DB2MinorVersion.UNKNOWN;
-        String queryBefore_v9_7 = "SELECT PROD_RELEASE "
+        final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
                 + "FROM SYSIBMADM.ENV_PROD_INFO";
-        String queryAfter_v9_7 = "SELECT SERVICE_LEVEL "
+        final String queryAfter_v9_7 = "SELECT SERVICE_LEVEL "
                 + "FROM SYSIBMADM.ENV_INST_INFO";
         Connection connection = null;
         try {
@@ -117,8 +117,8 @@ public abstract class DB2Helper {
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
-            } catch (SQLException sqle) {
-                int code = DB2Helper.getSQLCode(sqle);
+            } catch (final SQLException sqle) {
+                final int code = DB2Helper.getSQLCode(sqle);
                 if (code == -440) {
                     stmt = connection.prepareStatement(queryBefore_v9_7);
                     res = stmt.executeQuery();
@@ -214,7 +214,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
+            .closeConnection(connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -224,7 +224,7 @@ public abstract class DB2Helper {
 
     /**
      * Returns the SQL code that is in a SQL exception.
-     * 
+     *
      * @param sqle
      *            Exception to process.
      * @return SQLcode.
@@ -232,8 +232,8 @@ public abstract class DB2Helper {
     final static int getSQLCode(final SQLException sqle) {
         int ret = 0;
         if (sqle instanceof DB2Diagnosable) {
-            DB2Diagnosable diagnosable = (DB2Diagnosable) sqle;
-            DB2Sqlca sqlca = diagnosable.getSqlca();
+            final DB2Diagnosable diagnosable = (DB2Diagnosable) sqle;
+            final DB2Sqlca sqlca = diagnosable.getSqlca();
             if (sqlca != null) {
                 ret = sqlca.getSqlCode();
             }
@@ -243,7 +243,7 @@ public abstract class DB2Helper {
 
     /**
      * Tester.
-     * 
+     *
      * @param args
      *            Arguments to pass.
      * @throws Exception
@@ -251,25 +251,27 @@ public abstract class DB2Helper {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: Pool");
-        String hostname = "localhost";
-        int portNumber = 50000;
-        String databaseName = "sample";
-        String username = "db2inst1";
-        String password = "db2inst1";
+        final String hostname = "localhost";
+        final int portNumber = 50000;
+        final String databaseName = "sample";
+        final String username = "db2inst1";
+        final String password = "db2inst1";
 
-        String databaseConnection = DB2Connection.class.getName();
-        String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        final String databaseConnection = DB2Connection.class.getName();
+        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
                 .getName();
-        DatabaseConnection dbConn = DatabaseConnectionsManager.getInstance()
-                .getDatabaseConnection(connectionPool, databaseConnection,
-                        hostname, portNumber, databaseName, username, password);
-        System.out.println("DB2 version: " + getDB2MajorVersion(dbConn)
-                + " :: " + getDB2MinorVersion(dbConn));
+        final DatabaseConnection dbConn = DatabaseConnectionsManager
+                .getInstance().getDatabaseConnection(connectionPool,
+                        databaseConnection, hostname, portNumber, databaseName,
+                        username, password);
+        System.out.println("DB2 version: "
+                + DB2Helper.getDB2MajorVersion(dbConn) + " :: "
+                + DB2Helper.getDB2MinorVersion(dbConn));
     }
 
     /**
      * Process a given SQLException generated by DB2.
-     * 
+     *
      * @param sqle
      *            Exception to process.
      */
@@ -279,37 +281,38 @@ public abstract class DB2Helper {
             if (sqle instanceof DB2Diagnosable) {
                 // Check if IBM Data Server Driver for JDBC and SQLJ-only
                 // information exists
-                DB2Diagnosable diagnosable = (DB2Diagnosable) sqle;
+                final DB2Diagnosable diagnosable = (DB2Diagnosable) sqle;
                 // PrintWriter printWriter = new PrintWriter(System.out, true);
                 // diagnosable.printTrace(printWriter, "");
-                java.lang.Throwable throwable = diagnosable.getThrowable();
+                final java.lang.Throwable throwable = diagnosable
+                        .getThrowable();
                 if (throwable != null) {
                     // Extract java.lang.Throwable information
                     // such as message or stack trace.
                     throwable.printStackTrace();
                 }
                 // Get DB2Sqlca object
-                DB2Sqlca sqlca = diagnosable.getSqlca();
+                final DB2Sqlca sqlca = diagnosable.getSqlca();
                 if (sqlca != null) { // Check that DB2Sqlca is not null
                     // Get the SQL error code
-                    int sqlCode = sqlca.getSqlCode();
+                    final int sqlCode = sqlca.getSqlCode();
                     // Get the entire SQLERRMC
-                    String sqlErrmc = sqlca.getSqlErrmc();
+                    final String sqlErrmc = sqlca.getSqlErrmc();
                     // You can also retrieve the individual SQLERRMC tokens
-                    String[] sqlErrmcTokens = sqlca.getSqlErrmcTokens();
+                    final String[] sqlErrmcTokens = sqlca.getSqlErrmcTokens();
                     // Get the SQLERRP
-                    String sqlErrp = sqlca.getSqlErrp();
+                    final String sqlErrp = sqlca.getSqlErrp();
                     // Get SQLERRD fields
-                    int[] sqlErrd = sqlca.getSqlErrd();
+                    final int[] sqlErrd = sqlca.getSqlErrd();
                     // Get SQLWARN fields
-                    char[] sqlWarn = sqlca.getSqlWarn();
+                    final char[] sqlWarn = sqlca.getSqlWarn();
                     // Get SQLSTATE
-                    String sqlState = sqlca.getSqlState();
+                    final String sqlState = sqlca.getSqlState();
                     // Get error message
                     String errMessage;
                     try {
                         errMessage = sqlca.getMessage();
-                    } catch (SQLException e) {
+                    } catch (final SQLException e) {
                         errMessage = "Exception while getting message";
                     }
                     System.err.println("Server error message: " + errMessage);

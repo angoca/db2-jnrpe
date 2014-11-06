@@ -12,7 +12,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * Configuration of the c3p0 connection pool manager.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -24,7 +24,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /**
      * Tester.
-     * 
+     *
      * @param args
      *            Arguments.
      * @throws SQLException
@@ -42,7 +42,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
                     /*
                      * (non-Javadoc)
-                     * 
+                     *
                      * @see
                      * com.github.angoca.db2_jnrpe.database.DatabaseConnection
                      * #getDriverClass()
@@ -54,6 +54,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
                 }).getConnection();
         System.out.println("Client Information: " + conn.getClientInfo());
     }
+
     /**
      * Connection properties.
      */
@@ -63,15 +64,15 @@ public final class DBCP_c3p0 extends ConnectionPool {
      * Instantiate the singleton by initializing the connection pool.
      */
     public DBCP_c3p0() {
-        cpds = new ComboPooledDataSource();
-        cpds.setMinPoolSize(3);
-        cpds.setAcquireIncrement(5);
-        cpds.setMaxPoolSize(20);
+        DBCP_c3p0.cpds = new ComboPooledDataSource();
+        DBCP_c3p0.cpds.setMinPoolSize(3);
+        DBCP_c3p0.cpds.setAcquireIncrement(5);
+        DBCP_c3p0.cpds.setMaxPoolSize(20);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
      * (java.sql.Connection)
@@ -82,7 +83,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 throw new DatabaseConnectionException(e);
             }
         }
@@ -90,18 +91,18 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
      */
     @Override
     public final Connection getConnection() throws DatabaseConnectionException {
-        final String username = dbConn.getUsername();
-        final String password = dbConn.getPassword();
+        final String username = this.dbConn.getUsername();
+        final String password = this.dbConn.getPassword();
         Connection connection;
         try {
-            connection = cpds.getConnection(username, password);
-        } catch (SQLException e) {
+            connection = DBCP_c3p0.cpds.getConnection(username, password);
+        } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
         }
         return connection;
@@ -109,7 +110,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
      * com.github.angoca.db2_jnrpe.database.DatabaseConnection)
@@ -119,12 +120,12 @@ public final class DBCP_c3p0 extends ConnectionPool {
             throws DatabaseConnectionException {
         this.dbConn = dbConn;
         try {
-            cpds.setDriverClass(dbConn.getDriverClass());
-        } catch (PropertyVetoException e) {
+            DBCP_c3p0.cpds.setDriverClass(dbConn.getDriverClass());
+        } catch (final PropertyVetoException e) {
             throw new DatabaseConnectionException(e);
         }
-        cpds.setJdbcUrl(dbConn.getURL());
-        cpds.setProperties(dbConn.getConnectionProperties());
+        DBCP_c3p0.cpds.setJdbcUrl(dbConn.getURL());
+        DBCP_c3p0.cpds.setProperties(dbConn.getConnectionProperties());
         return this;
     }
 }

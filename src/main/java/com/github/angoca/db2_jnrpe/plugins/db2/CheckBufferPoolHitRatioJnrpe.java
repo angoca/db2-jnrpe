@@ -24,7 +24,7 @@ import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
  * This is the bridge between jNRPE and the connection manager (correction and
  * connections pool). This class does not have direct dependencies with any DB2
  * component.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -54,28 +54,31 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             this.bufferpoolNames = CheckBufferPoolHitRatioDB2
                     .getBufferpoolNames(this.getConnection(cl));
         } catch (DatabaseConnectionException | MetricGatheringException e) {
-            log.fatal("Error while retrieving names", e);
+            this.log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
                     + "for threshold from the database: " + e.getMessage(), e);
         }
         final String bufferpoolName = cl.getOptionValue("bufferpool");
-        if (bufferpoolName == null || bufferpoolName.compareTo("") == 0) {
+        if ((bufferpoolName == null) || (bufferpoolName.compareTo("") == 0)) {
             String name;
             for (int i = 0; i < this.bufferpoolNames.size(); i++) {
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                         + this.bufferpoolNames.get(i);
-                log.debug("Threshold: " + name);
+                this.log.debug("Threshold for bufferpool: " + name);
                 thrb.withLegacyThreshold(name, null,
                         cl.getOptionValue("warning", "90"),
                         cl.getOptionValue("critical", "95"));
             }
         } else if (this.bufferpoolNames.contains(bufferpoolName)) {
+            this.log.debug("Threshold for bufferpool: " + bufferpoolName);
             thrb.withLegacyThreshold(
                     CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                             + bufferpoolName, null,
                     cl.getOptionValue("warning", "90"),
                     cl.getOptionValue("critical", "95"));
         } else {
+            this.log.error("The bufferpool " + bufferpoolName
+                    + " does not exist");
             throw new BadThresholdException("The given bufferpool does not "
                     + "exist in the database.");
         }
@@ -92,10 +95,11 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         // Checks the values.
         Map<String, List<String>> bufferpoolsDesc;
         try {
+            this.log.info("Retrieving bufferpool values from db");
             bufferpoolsDesc = CheckBufferPoolHitRatioDB2.check(this
                     .getConnection(cl));
-        } catch (DatabaseConnectionException e) {
-            log.fatal("Error while checking", e);
+        } catch (final DatabaseConnectionException e) {
+            this.log.fatal("Error while checking metrics", e);
             throw new MetricGatheringException("Problem retrieving the values "
                     + "for metrics from the database: " + e.getMessage(),
                     Status.UNKNOWN, e);
@@ -106,16 +110,16 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         BigDecimal min;
         BigDecimal max;
         final List<Metric> res = new ArrayList<Metric>();
-        Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
+        final Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             String name = iter.next();
             if (this.bufferpoolNames.add(name)) {
-                List<String> bpDesc = bufferpoolsDesc.get(name);
+                final List<String> bpDesc = bufferpoolsDesc.get(name);
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                         + name;
-                log.debug("Metrics: " + name);
+                this.log.debug("Metrics: " + name);
                 value = new BigDecimal(bpDesc.get(2));
-                String message = String.format(
+                final String message = String.format(
                         "Bufferpool %s at member %s has %s logical reads "
                                 + "and %s physical reads, with a hit "
                                 + "ratio of %s%%.", name, bpDesc.get(3),
@@ -126,6 +130,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                 res.add(new Metric(name, message, value, min, max));
             }
         }
+        this.log.debug(res.size() + " metrics");
 
         return res;
     }
@@ -133,7 +138,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     /**
      * Given the connection parameters, it returns an object that wraps the
      * pooled connection.
-     * 
+     *
      * @param cl
      *            Handler that contains the parameters.
      * @return Connection wrapper.
@@ -145,35 +150,39 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         final String hostname = cl.getOptionValue("hostname");
         int portNumber;
         final String portNumberString = cl.getOptionValue("port");
-        log.fatal("Port number: " + portNumberString);
+        this.log.debug("Port number: " + portNumberString);
         try {
             portNumber = Integer.valueOf(portNumberString);
-        } catch (NumberFormatException ne) {
+        } catch (final NumberFormatException ne) {
+            this.log.error("Invalid port number " + portNumberString);
             throw new MetricGatheringException(
                     "Invalid format for port number", Status.UNKNOWN, ne);
         }
         final String databaseName = cl.getOptionValue("database");
         final String username = cl.getOptionValue("username");
         final String password = cl.getOptionValue("password");
-        log.debug("Hostname " + hostname + "-Port " + portNumber + "-db"
+        this.log.debug("Hostname " + hostname + "-Port " + portNumber + "-db"
                 + databaseName + "-user " + username);
 
         final String databaseConnection = DB2Connection.class.getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        String connectionPool;
+        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
                 .getName();
-        // final String connectionPool =
+        // connectionPool =
         // com.github.angoca.db2_jnrpe.database.pools.db2direct.DBCP_db2Direct.class
         // .getName();
-        // final String connectionPool =
+        // connectionPool =
         // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
         // .getName();
+        this.log.debug("Connection pool: " + connectionPool);
         DatabaseConnection dbConn = null;
         try {
             dbConn = DatabaseConnectionsManager.getInstance()
                     .getDatabaseConnection(connectionPool, databaseConnection,
                             hostname, portNumber, databaseName, username,
                             password);
-        } catch (DatabaseConnectionException dbe) {
+        } catch (final DatabaseConnectionException dbe) {
+            this.log.fatal("Error while establishing conncetion", dbe);
             throw new MetricGatheringException("Error accesing the database",
                     Status.UNKNOWN, dbe);
         }

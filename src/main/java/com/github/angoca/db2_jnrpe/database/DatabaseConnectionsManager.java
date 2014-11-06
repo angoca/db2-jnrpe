@@ -8,7 +8,7 @@ import java.util.Properties;
 
 /**
  * Controls the connections.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -20,14 +20,14 @@ public final class DatabaseConnectionsManager {
 
     /**
      * Returns the singleton.
-     * 
+     *
      * @return Singleton instance.
      */
     public final static DatabaseConnectionsManager getInstance() {
-        if (instance == null) {
-            instance = new DatabaseConnectionsManager();
+        if (DatabaseConnectionsManager.instance == null) {
+            DatabaseConnectionsManager.instance = new DatabaseConnectionsManager();
         }
-        return instance;
+        return DatabaseConnectionsManager.instance;
     }
 
     /**
@@ -56,7 +56,7 @@ public final class DatabaseConnectionsManager {
 
     /**
      * Returns a constructor for a given classname.
-     * 
+     *
      * @param databaseConnectionName
      *            Name of the class to instantiate.
      * @return Constructor of the class.
@@ -66,7 +66,7 @@ public final class DatabaseConnectionsManager {
     @SuppressWarnings("unchecked")
     private final Constructor<DatabaseConnection> getConstructor(
             final String databaseConnectionName)
-            throws DatabaseConnectionException {
+                    throws DatabaseConnectionException {
         Constructor<DatabaseConnection> constructor = this.constructors
                 .get(databaseConnectionName);
         if (constructor == null) {
@@ -79,11 +79,11 @@ public final class DatabaseConnectionsManager {
                                 String.class, String.class);
                 this.constructors.put(databaseConnectionName, constructor);
                 constructor = this.constructors.get(databaseConnectionName);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (NoSuchMethodException e) {
+            } catch (final NoSuchMethodException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (SecurityException e) {
+            } catch (final SecurityException e) {
                 throw new DatabaseConnectionException(e);
             }
         }
@@ -93,7 +93,7 @@ public final class DatabaseConnectionsManager {
     /**
      * Returns a connection object with all the parameters inside after using
      * the related constructor.
-     * 
+     *
      * @param connectionsPool
      *            Associated connection pool.
      * @param databaseConnection
@@ -115,24 +115,25 @@ public final class DatabaseConnectionsManager {
             final String connectionsPool, final String databaseConnection,
             String hostname, final int portNumber, final String databaseName,
             final String username, final String password)
-            throws DatabaseConnectionException {
-        String connKey = username + '@' + hostname + ':' + portNumber + '/'
-                + databaseName;
+                    throws DatabaseConnectionException {
+        final String connKey = username + '@' + hostname + ':' + portNumber
+                + '/' + databaseName;
         DatabaseConnection dbConn = this.connectionProps.get(connKey);
-        if (dbConn == null || dbConn.getPassword().compareTo(password) != 0) {
-            Constructor<DatabaseConnection> constructor = getConstructor(databaseConnection);
+        if ((dbConn == null) || (dbConn.getPassword().compareTo(password) != 0)) {
+            final Constructor<DatabaseConnection> constructor = this
+                    .getConstructor(databaseConnection);
             try {
                 dbConn = constructor.newInstance(connectionsPool,
-                        defaultProperties, hostname, portNumber, databaseName,
-                        username, password);
+                        this.defaultProperties, hostname, portNumber,
+                        databaseName, username, password);
                 this.connectionProps.put(connKey, dbConn);
-            } catch (InstantiationException e) {
+            } catch (final InstantiationException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 throw new DatabaseConnectionException(e);
-            } catch (InvocationTargetException e) {
+            } catch (final InvocationTargetException e) {
                 throw new DatabaseConnectionException(e);
             }
         }

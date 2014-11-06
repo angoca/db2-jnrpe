@@ -4,7 +4,7 @@ import java.util.Properties;
 
 /**
  * Object that contains all properties to establish a connection.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -31,7 +31,7 @@ public abstract class DatabaseConnection {
     /**
      * Creates an object with all properties to establish a connection to the
      * database.
-     * 
+     *
      * @param connectionsPool
      *            Associated connection pool.
      * @param defaultProperties
@@ -53,7 +53,7 @@ public abstract class DatabaseConnection {
 
     /**
      * Returns the connection properties.
-     * 
+     *
      * @return Connection properties.
      */
     public final Properties getConnectionProperties() {
@@ -62,7 +62,7 @@ public abstract class DatabaseConnection {
 
     /**
      * Returns the associated connection pool.
-     * 
+     *
      * @return Associated connection pool.
      */
     public final String getConnectionsPool() {
@@ -71,14 +71,14 @@ public abstract class DatabaseConnection {
 
     /**
      * Returns the class to load the driver.
-     * 
+     *
      * @return Name of the class of the driver.
      */
     public abstract String getDriverClass();
 
     /**
      * Returns the passwords.
-     * 
+     *
      * @return Password of the user.
      */
     public final String getPassword() {
@@ -87,7 +87,7 @@ public abstract class DatabaseConnection {
 
     /**
      * Returns the URL to connect to the database.
-     * 
+     *
      * @return URL to access the database.
      */
     public final String getURL() {
@@ -96,7 +96,7 @@ public abstract class DatabaseConnection {
 
     /**
      * Returns the username to access the database.
-     * 
+     *
      * @return Username.
      */
     public final String getUsername() {
@@ -105,7 +105,7 @@ public abstract class DatabaseConnection {
 
     /**
      * Establishes the complete URL to connect to the database.
-     * 
+     *
      * @param url
      *            Complete URL to access the database.
      */

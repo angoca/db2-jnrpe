@@ -2,7 +2,7 @@ package com.github.angoca.db2_jnrpe.database.rdbms.db2;
 
 /**
  * Different list of DB2 minor versions.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -133,7 +133,7 @@ public enum DB2MinorVersion {
 
     /**
      * Constructor for DB2 versions.
-     * 
+     *
      * @param name
      *            Name of the DB2 version.
      * @param value
@@ -146,7 +146,7 @@ public enum DB2MinorVersion {
 
     /**
      * Descriptive name of the DB2 version.
-     * 
+     *
      * @return DB2 major version.
      */
     final String getName() {
@@ -155,7 +155,7 @@ public enum DB2MinorVersion {
 
     /**
      * Returns the identifier of the DB2 version.
-     * 
+     *
      * @return Id of the version.
      */
     private final int getValue() {
@@ -164,7 +164,7 @@ public enum DB2MinorVersion {
 
     /**
      * Compares a given DB2 version with another.
-     * 
+     *
      * @param version
      *            Version to compare.
      * @return true if the given version is older.

@@ -7,7 +7,7 @@ import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
 
 /**
  * Structure of a connection pool.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -15,7 +15,7 @@ public abstract class ConnectionPool {
 
     /**
      * Closes a established connection.
-     * 
+     *
      * @param connection
      *            Connection to the database.
      * @throws DatabaseConnectionException
@@ -26,7 +26,7 @@ public abstract class ConnectionPool {
 
     /**
      * Retrieves a connection.
-     * 
+     *
      * @return An established connection to the database.
      * @throws DatabaseConnectionException
      *             If any error occurs.
@@ -36,7 +36,7 @@ public abstract class ConnectionPool {
 
     /**
      * Initialize the Connection Pool
-     * 
+     *
      * @param dbConn
      *            Configuration parameters.
      * @throws DatabaseConnectionException

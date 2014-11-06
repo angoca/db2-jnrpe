@@ -2,7 +2,7 @@ package com.github.angoca.db2_jnrpe.database;
 
 /**
  * Wraps any exception generated while using the database.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
@@ -15,7 +15,7 @@ public final class DatabaseConnectionException extends Exception {
 
     /**
      * Creates an exception by wrapping the cause exception.
-     * 
+     *
      * @param exception
      *            Wrapped exception.
      */
