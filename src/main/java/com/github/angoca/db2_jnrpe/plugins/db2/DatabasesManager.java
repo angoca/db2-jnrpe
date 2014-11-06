@@ -40,12 +40,15 @@ public class DatabasesManager {
     }
 
     /**
-     * Retrieves all databases.
+     * Adds a database in the set.
      * 
-     * @return Map of databases.
+     * @param url
+     *            Unique URL to identify this database.
+     * @param database
+     *            Database.
      */
-    Map<String, Database> getDatabases() {
-        return this.databases;
+    public void add(final String url, final Database database) {
+        this.databases.put(url, database);
     }
 
     /**
@@ -60,14 +63,11 @@ public class DatabasesManager {
     }
 
     /**
-     * Adds a database in the set.
+     * Retrieves all databases.
      * 
-     * @param url
-     *            Unique URL to identify this database.
-     * @param database
-     *            Database.
+     * @return Map of databases.
      */
-    public void add(final String url, final Database database) {
-        this.databases.put(url, database);
+    Map<String, Database> getDatabases() {
+        return this.databases;
     }
 }

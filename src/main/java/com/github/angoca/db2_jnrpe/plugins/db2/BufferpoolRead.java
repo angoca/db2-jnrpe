@@ -8,21 +8,21 @@ package com.github.angoca.db2_jnrpe.plugins.db2;
  */
 public final class BufferpoolRead {
     /**
-     * Name of the bufferpool.
-     */
-    private String name;
-    /**
      * Most recent value of logical reads.
      */
     private int logicalReads = 0;
     /**
-     * Most recent value of total reads.
-     */
-    private int totalReads = 0;
-    /**
      * Member of the database
      */
     private int member;
+    /**
+     * Name of the bufferpool.
+     */
+    private String name;
+    /**
+     * Most recent value of total reads.
+     */
+    private int totalReads = 0;
 
     /**
      * Creates a set of most recent reads for a bufferpool.
@@ -46,6 +46,67 @@ public final class BufferpoolRead {
     }
 
     /**
+     * Retrieves the logical reads.
+     * 
+     * @return Quantity of logical reads.s
+     */
+    public int getLogicalReads() {
+        return this.logicalReads;
+    }
+
+    /**
+     * Retrieves the member of the database.
+     * 
+     * @return Member of the database.
+     */
+    public int getMember() {
+        return this.member;
+    }
+
+    /**
+     * Retrieves the name of the bufferpool.
+     * 
+     * @return Name of the bufferpool.
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Retrieves the physical reads.
+     * 
+     * @return Quantity of physical reads (total - logical).
+     */
+    public int getPhysicalReads() {
+        return this.totalReads - this.logicalReads;
+    }
+
+    /**
+     * Returns the ratio between logical reads and total reads (logical +
+     * physical reads).
+     * 
+     * @return Ratio of the reads.
+     */
+    public int getRatio() {
+        int ret = 0;
+        if (this.totalReads == 0) {
+            ret = 100;
+        } else {
+            ret = this.logicalReads / this.totalReads;
+        }
+        return ret;
+    }
+
+    /**
+     * Retrieves the total reads.
+     * 
+     * @return Total reads.
+     */
+    public int getTotalReads() {
+        return this.totalReads;
+    }
+
+    /**
      * Establishes the new quantity of logical reads.
      * 
      * @param logical
@@ -58,15 +119,13 @@ public final class BufferpoolRead {
     }
 
     /**
-     * Establishes the new quantity of total reads.
+     * Sets a new name for the bufferpool.
      * 
-     * @param total
-     *            Quantity of total reads.
+     * @param name
+     *            Bufferpool name.
      */
-    private void setTotalReads(final int total) {
-        assert total > 0 : "Total reads should be greater than zero.";
-        assert this.logicalReads < total : "Logical reads should be less that total reads.";
-        this.totalReads = total;
+    private void setName(final String name) {
+        this.name = name;
     }
 
     /**
@@ -84,73 +143,26 @@ public final class BufferpoolRead {
     }
 
     /**
-     * Sets a new name for the bufferpool.
+     * Establishes the new quantity of total reads.
      * 
-     * @param name
-     *            Bufferpool name.
+     * @param total
+     *            Quantity of total reads.
      */
-    private void setName(final String name) {
-        this.name = name;
+    private void setTotalReads(final int total) {
+        assert total > 0 : "Total reads should be greater than zero.";
+        assert this.logicalReads < total : "Logical reads should be less that total reads.";
+        this.totalReads = total;
     }
 
-    /**
-     * Retrieves the name of the bufferpool.
+    /*
+     * (non-Javadoc)
      * 
-     * @return Name of the bufferpool.
+     * @see java.lang.Object#toString()
      */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Retrieves the logical reads.
-     * 
-     * @return Quantity of logical reads.s
-     */
-    public int getLogicalReads() {
-        return this.logicalReads;
-    }
-
-    /**
-     * Retrieves the total reads.
-     * 
-     * @return Total reads.
-     */
-    public int getTotalReads() {
-        return this.totalReads;
-    }
-
-    /**
-     * Retrieves the physical reads.
-     * 
-     * @return Quantity of physical reads (total - logical).
-     */
-    public int getPhysicalReads() {
-        return this.totalReads - this.logicalReads;
-    }
-
-    /**
-     * Retrieves the member of the database.
-     * 
-     * @return Member of the database.
-     */
-    public int getMember() {
-        return this.member;
-    }
-
-    /**
-     * Returns the ratio between logical reads and total reads (logical +
-     * physical reads).
-     * 
-     * @return Ratio of the reads.
-     */
-    public int getRatio() {
-        int ret = 0;
-        if (this.totalReads == 0) {
-            ret = 100;
-        } else {
-            ret = this.logicalReads / this.totalReads;
-        }
+    @Override
+    public String toString() {
+        String ret = this.name + ". Logical " + this.logicalReads + '/'
+                + this.totalReads;
         return ret;
     }
 }

@@ -98,38 +98,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         }
     }
 
-    /**
-     * Retrieves the connection URL to identify a database.
-     * 
-     * @param cl
-     *            Command line.
-     * @return Unique URL to the database.
-     */
-    private String getURL(ICommandLine cl) {
-        String ret;
-        String[] values = getURLValues(cl);
-        ret = values[0] + ':' + values[1] + ':' + values[2];
-        return ret;
-    }
-
-    /**
-     * Return the connection values.
-     * 
-     * @param cl
-     *            Command line.
-     * @return Array with parameters.
-     */
-    private String[] getURLValues(ICommandLine cl) {
-        String[] ret = new String[3];
-        final String hostname = cl.getOptionValue("hostname");
-        final String portNumberString = cl.getOptionValue("port");
-        final String databaseName = cl.getOptionValue("database");
-        ret[0] = hostname;
-        ret[1] = portNumberString;
-        ret[2] = databaseName;
-        return ret;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -234,6 +202,38 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     protected final String getPluginName() {
         return "CHECK_BUFFER_POOL_HIT_RATIO";
+    }
+
+    /**
+     * Retrieves the connection URL to identify a database.
+     * 
+     * @param cl
+     *            Command line.
+     * @return Unique URL to the database.
+     */
+    private String getURL(ICommandLine cl) {
+        String ret;
+        String[] values = getURLValues(cl);
+        ret = values[0] + ':' + values[1] + '/' + values[2];
+        return ret;
+    }
+
+    /**
+     * Return the connection values.
+     * 
+     * @param cl
+     *            Command line.
+     * @return Array with parameters.
+     */
+    private String[] getURLValues(ICommandLine cl) {
+        String[] ret = new String[3];
+        final String hostname = cl.getOptionValue("hostname");
+        final String portNumberString = cl.getOptionValue("port");
+        final String databaseName = cl.getOptionValue("database");
+        ret[0] = hostname;
+        ret[1] = portNumberString;
+        ret[2] = databaseName;
+        return ret;
     }
 
 }
