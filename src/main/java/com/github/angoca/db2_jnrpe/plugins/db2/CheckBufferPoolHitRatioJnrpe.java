@@ -57,7 +57,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         Set<String> bufferpoolNames = dB2Database.getBufferpools().keySet();
         // Checks the values.
         if (!dB2Database.isBufferpoolListUpdated()) {
-            System.out.println(">>>READ THRESHOLD FROM DATABASE");
             try {
                 final Map<String, BufferpoolRead> bufferpoolReads = CheckBufferPoolHitRatioDB2
                         .check(this.getConnection(cl));

@@ -79,7 +79,7 @@ public final class CheckBufferPoolHitRatioDB2 {
             Connection connection = null;
             try {
                 connection = ConnectionPoolsManager.getInstance()
-                        .getConnectionPool(dbConn).getConnection();
+                        .getConnectionPool(dbConn).getConnection(dbConn);
                 final PreparedStatement stmt = connection
                         .prepareStatement(CheckBufferPoolHitRatioDB2.queryAfter_v9_7);
                 final ResultSet res = stmt.executeQuery();
@@ -106,7 +106,7 @@ public final class CheckBufferPoolHitRatioDB2 {
                 res.close();
                 stmt.close();
                 ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                        .closeConnection(connection);
+                        .closeConnection(dbConn, connection);
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
@@ -131,7 +131,7 @@ public final class CheckBufferPoolHitRatioDB2 {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn).getConnection();
+                    .getConnectionPool(dbConn).getConnection(dbConn);
             final PreparedStatement stmt = connection
                     .prepareStatement(CheckBufferPoolHitRatioDB2.queryBufferpoolNames);
             final ResultSet res = stmt.executeQuery();
@@ -142,7 +142,7 @@ public final class CheckBufferPoolHitRatioDB2 {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
+                    .closeConnection(dbConn, connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -202,7 +202,7 @@ public final class CheckBufferPoolHitRatioDB2 {
         Thread.sleep(2000);
 
         hostname = "127.0.0.1";
-        portNumber = 50001;
+        portNumber = 50002;
         databaseName = "sample";
         username = "db2inst2";
         password = "db2inst2";

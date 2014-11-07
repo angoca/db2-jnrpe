@@ -38,7 +38,7 @@ public abstract class DB2Helper {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn).getConnection();
+                    .getConnectionPool(dbConn).getConnection(dbConn);
             PreparedStatement stmt = connection
                     .prepareStatement(queryAfter_v9_7);
             ResultSet res = null;
@@ -84,7 +84,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
+                    .closeConnection(dbConn, connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -111,7 +111,7 @@ public abstract class DB2Helper {
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(dbConn).getConnection();
+                    .getConnectionPool(dbConn).getConnection(dbConn);
             PreparedStatement stmt = connection
                     .prepareStatement(queryAfter_v9_7);
             ResultSet res = null;
@@ -214,7 +214,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(connection);
+                    .closeConnection(dbConn, connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -280,7 +280,7 @@ public abstract class DB2Helper {
                 + DB2Helper.getDB2MinorVersion(dbConn));
 
         hostname = "127.0.0.1";
-        portNumber = 50001;
+        portNumber = 50002;
         databaseName = "sample";
         username = "db2inst2";
         password = "db2inst2";

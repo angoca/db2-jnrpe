@@ -22,26 +22,27 @@ public class DBCP_Hikari extends ConnectionPool {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection Hikari");
-        final Connection conn = new DBCP_Hikari().initialize(
-                new DatabaseConnection(DBCP_Hikari.class.getName(),
-                        new Properties(), "db2inst1", "db2inst1") {
+        final DatabaseConnection dc1 = new DatabaseConnection(
+                DBCP_Hikari.class.getName(), new Properties(), "db2inst1",
+                "db2inst1") {
 
-                    {
-                        this.setURL("jdbc:db2://localhost:50000/sample");
-                    }
+            {
+                this.setURL("jdbc:db2://localhost:50000/sample");
+            }
 
-                    /*
-                     * (non-Javadoc)
-                     * 
-                     * @see
-                     * com.github.angoca.db2_jnrpe.database.DatabaseConnection
-                     * #getDriverClass()
-                     */
-                    @Override
-                    public String getDriverClass() {
-                        return "com.ibm.db2.jcc.DB2SimpleDataSource";
-                    }
-                }).getConnection();
+            /*
+             * (non-Javadoc)
+             * 
+             * @see com.github.angoca.db2_jnrpe.database.DatabaseConnection
+             * #getDriverClass()
+             */
+            @Override
+            public String getDriverClass() {
+                return "com.ibm.db2.jcc.DB2SimpleDataSource";
+            }
+        };
+        final Connection conn = new DBCP_Hikari().initialize(dc1)
+                .getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
@@ -60,11 +61,12 @@ public class DBCP_Hikari extends ConnectionPool {
      * 
      * @see
      * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection,
+     * java.sql.Connection)
      */
     @Override
-    public void closeConnection(final Connection connection)
-            throws DatabaseConnectionException {
+    public void closeConnection(final DatabaseConnection dbConn,
+            final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
                 connection.close();
@@ -78,10 +80,12 @@ public class DBCP_Hikari extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection()
+     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection
+     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
      */
     @Override
-    public Connection getConnection() throws DatabaseConnectionException {
+    public Connection getConnection(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
         try {
             return new HikariDataSource(this.config).getConnection();
         } catch (final SQLException e) {
