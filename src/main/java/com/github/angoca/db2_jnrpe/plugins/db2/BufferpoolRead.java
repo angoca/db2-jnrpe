@@ -50,7 +50,7 @@ public final class BufferpoolRead {
      *
      * @return Quantity of logical reads.s
      */
-    public int getLogicalReads() {
+    int getLogicalReads() {
         return this.logicalReads;
     }
 
@@ -59,7 +59,7 @@ public final class BufferpoolRead {
      *
      * @return Member of the database.
      */
-    public int getMember() {
+    int getMember() {
         return this.member;
     }
 
@@ -68,7 +68,7 @@ public final class BufferpoolRead {
      *
      * @return Name of the bufferpool.
      */
-    public String getName() {
+    String getName() {
         return this.name;
     }
 
@@ -77,7 +77,7 @@ public final class BufferpoolRead {
      *
      * @return Quantity of physical reads (total - logical).
      */
-    public int getPhysicalReads() {
+    int getPhysicalReads() {
         return this.totalReads - this.logicalReads;
     }
 
@@ -87,7 +87,7 @@ public final class BufferpoolRead {
      *
      * @return Ratio of the reads.
      */
-    public int getRatio() {
+    int getRatio() {
         int ret = 0;
         if (this.totalReads == 0) {
             ret = 100;
@@ -102,7 +102,7 @@ public final class BufferpoolRead {
      *
      * @return Total reads.
      */
-    public int getTotalReads() {
+    int getTotalReads() {
         return this.totalReads;
     }
 
