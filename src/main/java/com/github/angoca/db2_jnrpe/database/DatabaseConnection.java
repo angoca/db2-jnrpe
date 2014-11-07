@@ -65,7 +65,7 @@ public abstract class DatabaseConnection {
      *
      * @return Associated connection pool.
      */
-    public final String getConnectionsPool() {
+    public final String getConnectionsPoolName() {
         return this.connectionsPool;
     }
 
