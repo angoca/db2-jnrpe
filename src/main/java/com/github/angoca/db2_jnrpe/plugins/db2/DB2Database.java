@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public class Database {
+public class DB2Database {
     /**
      * Frequency to read the bufferpools. 30000 means each 5 minutes.
      */
@@ -27,7 +27,7 @@ public class Database {
      */
     private final String url;
 
-    public Database(final String url) {
+    public DB2Database(final String url) {
         this.url = url;
         this.bufferpools = new HashMap<String, BufferpoolRead>();
         this.lastBufferpoolRead = 0;
@@ -71,7 +71,7 @@ public class Database {
         if (this.lastBufferpoolRead == 0) {
             // Never set.
             ret = false;
-        } else if ((now - Database.BUFFERPOOL_FREQUENCY) > this.lastBufferpoolRead) {
+        } else if ((now - DB2Database.BUFFERPOOL_FREQUENCY) > this.lastBufferpoolRead) {
             ret = false;
         }
         return ret;
