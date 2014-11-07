@@ -251,19 +251,49 @@ public abstract class DB2Helper {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: Pool");
-        final String hostname = "localhost";
-        final int portNumber = 50000;
-        final String databaseName = "sample";
-        final String username = "db2inst1";
-        final String password = "db2inst1";
+        String hostname;
+        int portNumber;
+        String databaseName;
+        String username;
+        String password;
+        String databaseConnection;
+        String connectionPool;
+        DatabaseConnection dbConn;
 
-        final String databaseConnection = DB2Connection.class.getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        hostname = "localhost";
+        portNumber = 50000;
+        databaseName = "sample";
+        username = "db2inst1";
+        password = "db2inst1";
+
+        databaseConnection = DB2Connection.class.getName();
+        // connectionPool =
+        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // .getName();
+        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
                 .getName();
-        final DatabaseConnection dbConn = DatabaseConnectionsManager
-                .getInstance().getDatabaseConnection(connectionPool,
-                        databaseConnection, hostname, portNumber, databaseName,
-                        username, password);
+        dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
+        System.out.println("DB2 version: "
+                + DB2Helper.getDB2MajorVersion(dbConn) + " :: "
+                + DB2Helper.getDB2MinorVersion(dbConn));
+
+        hostname = "127.0.0.1";
+        portNumber = 50001;
+        databaseName = "sample";
+        username = "db2inst2";
+        password = "db2inst2";
+
+        databaseConnection = DB2Connection.class.getName();
+        // connectionPool =
+        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // .getName();
+        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+                .getName();
+        dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
         System.out.println("DB2 version: "
                 + DB2Helper.getDB2MajorVersion(dbConn) + " :: "
                 + DB2Helper.getDB2MinorVersion(dbConn));
