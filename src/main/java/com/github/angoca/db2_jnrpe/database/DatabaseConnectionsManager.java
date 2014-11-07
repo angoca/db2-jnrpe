@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Controls the connections.
+ * Controls the constructors for the different Database Connection. Each RDBMS
+ * can have a different properties to connect to the database, and this class
+ * wraps these properties to pass them to the connection pool.
  *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
@@ -102,7 +104,7 @@ public final class DatabaseConnectionsManager {
      * @param portNumber
      *            Port of the instance.
      * @param databaseName
-     *            Database name.
+     *            DB2Database name.
      * @param username
      *            Connection user.
      * @param password
