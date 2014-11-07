@@ -47,22 +47,22 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     public final void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
-        Database database = DatabasesManager.getInstance().getDatabase(
+        DB2Database dB2Database = DB2DatabasesManager.getInstance().getDatabase(
                 this.getURL(cl));
-        if (database == null) {
+        if (dB2Database == null) {
             final String url = this.getURL(cl);
-            database = new Database(url);
-            DatabasesManager.getInstance().add(url, database);
+            dB2Database = new DB2Database(url);
+            DB2DatabasesManager.getInstance().add(url, dB2Database);
         }
-        Set<String> bufferpoolNames = database.getBufferpools().keySet();
+        Set<String> bufferpoolNames = dB2Database.getBufferpools().keySet();
         // Checks the values.
-        if (!database.isBufferpoolListUpdated()) {
+        if (!dB2Database.isBufferpoolListUpdated()) {
             System.out.println(">>>READ THRESHOLD FROM DATABASE");
             try {
                 final Map<String, BufferpoolRead> bufferpoolReads = CheckBufferPoolHitRatioDB2
                         .check(this.getConnection(cl));
-                database.setBufferpoolReads(bufferpoolReads);
-                bufferpoolNames = database.getBufferpools().keySet();
+                dB2Database.setBufferpoolReads(bufferpoolReads);
+                bufferpoolNames = dB2Database.getBufferpools().keySet();
             } catch (DatabaseConnectionException | MetricGatheringException e) {
                 this.log.fatal("Error while retrieving names", e);
                 throw new BadThresholdException(
@@ -106,9 +106,9 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     public final Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
-        final Database database = DatabasesManager.getInstance().getDatabase(
+        final DB2Database dB2Database = DB2DatabasesManager.getInstance().getDatabase(
                 this.getURL(cl));
-        final Map<String, BufferpoolRead> bufferpoolReads = database
+        final Map<String, BufferpoolRead> bufferpoolReads = dB2Database
                 .getBufferpools();
         // Converts result to arrays and create metrics.
         BigDecimal ratio;
