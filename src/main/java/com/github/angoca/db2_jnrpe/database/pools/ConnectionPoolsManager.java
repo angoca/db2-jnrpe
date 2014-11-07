@@ -8,7 +8,9 @@ import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
 
 /**
- * Controls the singleton instance for the pool managers.
+ * Controls the singleton instance for the pool managers. There could be
+ * multiple pool managers (c3p0, Hikari, etc.) and this class control the
+ * instance for each pool.
  *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
@@ -54,12 +56,12 @@ public final class ConnectionPoolsManager {
      */
     public final ConnectionPool getConnectionPool(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
-        ConnectionPool connectionPool = this.connectionPools.get(dbConn
-                .getConnectionsPool());
+        final String poolName = dbConn.getConnectionsPoolName();
+        ConnectionPool connectionPool = this.connectionPools.get(poolName);
         if (connectionPool == null) {
             final Class<?> clazz;
             try {
-                clazz = Class.forName(dbConn.getConnectionsPool());
+                clazz = Class.forName(poolName);
             } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
             }
@@ -80,8 +82,7 @@ public final class ConnectionPoolsManager {
                 throw new DatabaseConnectionException(e);
             }
             connectionPool.initialize(dbConn);
-            this.connectionPools.put(dbConn.getConnectionsPool(),
-                    connectionPool);
+            this.connectionPools.put(poolName, connectionPool);
         }
         return connectionPool;
     }
