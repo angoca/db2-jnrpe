@@ -160,23 +160,33 @@ public final class CheckBufferPoolHitRatioDB2 {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: Connection with pool");
-        final String hostname = "localhost";
-        final int portNumber = 50000;
-        final String databaseName = "sample";
-        final String username = "db2inst1";
-        final String password = "db2inst1";
+        String hostname;
+        int portNumber;
+        String databaseName;
+        String username;
+        String password;
 
-        final String databaseConnection = DB2Connection.class.getName();
-        final String connectionPool = com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        Map<String, BufferpoolRead> bufferpoolsDesc;
+        Iterator<String> iter;
+        String databaseConnection;
+        String connectionPool;
+        DatabaseConnection dbConn;
+
+        hostname = "localhost";
+        portNumber = 50000;
+        databaseName = "sample";
+        username = "db2inst1";
+        password = "db2inst1";
+
+        databaseConnection = DB2Connection.class.getName();
+        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
                 .getName();
-        final DatabaseConnection dbConn = DatabaseConnectionsManager
-                .getInstance().getDatabaseConnection(connectionPool,
-                        databaseConnection, hostname, portNumber, databaseName,
-                        username, password);
+        dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
 
-        final Map<String, BufferpoolRead> bufferpoolsDesc = CheckBufferPoolHitRatioDB2
-                .check(dbConn);
-        final Iterator<String> iter = bufferpoolsDesc.keySet().iterator();
+        bufferpoolsDesc = CheckBufferPoolHitRatioDB2.check(dbConn);
+        iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
             final BufferpoolRead bpDesc = bufferpoolsDesc.get(name);
@@ -189,6 +199,34 @@ public final class CheckBufferPoolHitRatioDB2 {
 
             System.out.println(message);
         }
-        Thread.sleep(5000);
+        Thread.sleep(2000);
+
+        hostname = "127.0.0.1";
+        portNumber = 50001;
+        databaseName = "sample";
+        username = "db2inst2";
+        password = "db2inst2";
+
+        databaseConnection = DB2Connection.class.getName();
+        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+                .getName();
+        dbConn = DatabaseConnectionsManager.getInstance()
+                .getDatabaseConnection(connectionPool, databaseConnection,
+                        hostname, portNumber, databaseName, username, password);
+
+        bufferpoolsDesc = CheckBufferPoolHitRatioDB2.check(dbConn);
+        iter = bufferpoolsDesc.keySet().iterator();
+        while (iter.hasNext()) {
+            final String name = iter.next();
+            final BufferpoolRead bpDesc = bufferpoolsDesc.get(name);
+            final String message = String.format(
+                    "Bufferpool %s at member %s has %s "
+                            + "logical reads and %s total reads, with a hit "
+                            + "ratio of %s%%.", bpDesc.getName(),
+                    bpDesc.getMember(), bpDesc.getLogicalReads(),
+                    bpDesc.getTotalReads(), bpDesc.getRatio());
+
+            System.out.println(message);
+        }
     }
 }
