@@ -74,7 +74,7 @@ public final class DB2Connection extends DatabaseConnection {
     /**
      * Returns the database.
      *
-     * @return Database.
+     * @return DB2Database.
      */
     public final String getDatabaseName() {
         return this.databaseName;
