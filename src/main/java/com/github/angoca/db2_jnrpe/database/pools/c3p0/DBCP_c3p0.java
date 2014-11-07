@@ -32,12 +32,33 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection c3p0");
-        final Connection conn = new DBCP_c3p0().initialize(
+        Connection conn = new DBCP_c3p0().initialize(
                 new DatabaseConnection(DBCP_c3p0.class.getName(),
                         new Properties(), "db2inst1", "db2inst1") {
 
                     {
                         this.setURL("jdbc:db2://localhost:50000/sample");
+                    }
+
+                    /*
+                     * (non-Javadoc)
+                     * 
+                     * @see
+                     * com.github.angoca.db2_jnrpe.database.DatabaseConnection
+                     * #getDriverClass()
+                     */
+                    @Override
+                    public String getDriverClass() {
+                        return "com.ibm.db2.jcc.DB2Driver";
+                    }
+                }).getConnection();
+        System.out.println("Client Information: " + conn.getClientInfo());
+        conn = new DBCP_c3p0().initialize(
+                new DatabaseConnection(DBCP_c3p0.class.getName(),
+                        new Properties(), "db2admin", "db2admin") {
+
+                    {
+                        this.setURL("jdbc:db2://127.0.0.1:50001/sample");
                     }
 
                     /*
@@ -97,6 +118,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     @Override
     public final Connection getConnection() throws DatabaseConnectionException {
+        DBCP_c3p0.cpds.setJdbcUrl(dbConn.getURL());
         final String username = this.dbConn.getUsername();
         final String password = this.dbConn.getPassword();
         Connection connection;
@@ -124,7 +146,6 @@ public final class DBCP_c3p0 extends ConnectionPool {
         } catch (final PropertyVetoException e) {
             throw new DatabaseConnectionException(e);
         }
-        DBCP_c3p0.cpds.setJdbcUrl(dbConn.getURL());
         DBCP_c3p0.cpds.setProperties(dbConn.getConnectionProperties());
         return this;
     }
