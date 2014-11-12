@@ -18,7 +18,7 @@ public final class BufferpoolRead {
     /**
      * Name of the bufferpool.
      */
-    private String name;
+    private final String name;
     /**
      * Most recent value of total reads.
      */
@@ -39,7 +39,7 @@ public final class BufferpoolRead {
     BufferpoolRead(final String name, final int logical, final int total,
             final int member) {
         assert logical <= total : "Logical reads should be less that total reads.";
-        this.setName(name);
+        this.name = name;
         this.setTotalReads(total);
         this.setLogicalReads(logical);
         this.member = member;
@@ -119,16 +119,6 @@ public final class BufferpoolRead {
     }
 
     /**
-     * Sets a new name for the bufferpool.
-     *
-     * @param name
-     *            Bufferpool name.
-     */
-    private void setName(final String name) {
-        this.name = name;
-    }
-
-    /**
      * Updates the values of the read with the most recent ones if the last
      * update is old.
      *
@@ -164,5 +154,16 @@ public final class BufferpoolRead {
         final String ret = this.name + ";reads:" + this.logicalReads + '/'
                 + this.totalReads;
         return ret;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    protected BufferpoolRead clone() {
+        final BufferpoolRead copy = new BufferpoolRead(this.name,
+                this.logicalReads, this.totalReads, this.member);
+        return copy;
     }
 }
