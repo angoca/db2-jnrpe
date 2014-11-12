@@ -18,7 +18,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class Dbcp_c3p0 extends ConnectionPool {
+public final class DbcpC3p0 extends ConnectionPool {
 
     /**
      * Map of URL and its associated pool.
@@ -36,7 +36,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
     public static final void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection c3p0");
         final DatabaseConnection dc1 = new DatabaseConnection(
-                Dbcp_c3p0.class.getName(), new Properties(), "db2inst1",
+                DbcpC3p0.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
             {
@@ -54,10 +54,10 @@ public final class Dbcp_c3p0 extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2Driver";
             }
         };
-        Connection conn = new Dbcp_c3p0().initialize(dc1).getConnection(dc1);
+        Connection conn = new DbcpC3p0().initialize(dc1).getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
         final DatabaseConnection dc2 = new DatabaseConnection(
-                Dbcp_c3p0.class.getName(), new Properties(), "db2inst2",
+                DbcpC3p0.class.getName(), new Properties(), "db2inst2",
                 "db2inst2") {
 
             {
@@ -75,7 +75,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2Driver";
             }
         };
-        conn = new Dbcp_c3p0().initialize(dc2).getConnection(dc2);
+        conn = new DbcpC3p0().initialize(dc2).getConnection(dc2);
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
@@ -109,7 +109,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
     @Override
     public final Connection getConnection(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        if (Dbcp_c3p0.pools == null) {
+        if (DbcpC3p0.pools == null) {
             throw new DatabaseConnectionException(new Exception(
                     "Pool not initialized"));
         }
@@ -117,7 +117,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
         final String password = dbConn.getPassword();
         Connection connection;
         try {
-            ComboPooledDataSource pool = Dbcp_c3p0.pools.get(dbConn.getUrl());
+            ComboPooledDataSource pool = DbcpC3p0.pools.get(dbConn.getUrl());
             if (pool == null) {
                 pool = new ComboPooledDataSource();
                 try {
@@ -137,7 +137,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
                     pool.close();
                     throw new DatabaseConnectionException(e);
                 }
-                Dbcp_c3p0.pools.put(dbConn.getUrl(), pool);
+                DbcpC3p0.pools.put(dbConn.getUrl(), pool);
             }
             connection = pool.getConnection(username, password);
         } catch (final SQLException e) {
@@ -156,8 +156,8 @@ public final class Dbcp_c3p0 extends ConnectionPool {
     @Override
     public ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        if (Dbcp_c3p0.pools == null) {
-            Dbcp_c3p0.pools = new HashMap<String, ComboPooledDataSource>();
+        if (DbcpC3p0.pools == null) {
+            DbcpC3p0.pools = new HashMap<String, ComboPooledDataSource>();
         }
         return this;
     }
@@ -169,7 +169,7 @@ public final class Dbcp_c3p0 extends ConnectionPool {
      */
     @Override
     public String toString() {
-        final String ret = "[c3p0-" + Dbcp_c3p0.pools.size() + ']';
+        final String ret = "[c3p0-" + DbcpC3p0.pools.size() + ']';
         return ret;
     }
 }

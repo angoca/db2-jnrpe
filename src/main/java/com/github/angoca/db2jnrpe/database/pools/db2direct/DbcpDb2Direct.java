@@ -16,7 +16,7 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-04
  */
-public class Dbcp_db2Direct extends ConnectionPool {
+public class DbcpDb2Direct extends ConnectionPool {
 
     /**
      * Connection properties.

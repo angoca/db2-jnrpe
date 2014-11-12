@@ -10,7 +10,7 @@ import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class Dbcp_Hikari extends ConnectionPool {
+public class DbcpHikari extends ConnectionPool {
 
     /**
      * Tester.
@@ -23,7 +23,7 @@ public class Dbcp_Hikari extends ConnectionPool {
     public static final void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection Hikari");
         final DatabaseConnection dc1 = new DatabaseConnection(
-                Dbcp_Hikari.class.getName(), new Properties(), "db2inst1",
+                DbcpHikari.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
             {
@@ -41,14 +41,14 @@ public class Dbcp_Hikari extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2SimpleDataSource";
             }
         };
-        final Connection conn = new Dbcp_Hikari().initialize(dc1)
+        final Connection conn = new DbcpHikari().initialize(dc1)
                 .getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
     private final HikariConfig config;
 
-    public Dbcp_Hikari() {
+    public DbcpHikari() {
         this.config = new HikariConfig();
         this.config.addDataSourceProperty("cachePrepStmts", "true");
         this.config.addDataSourceProperty("prepStmtCacheSize", "250");

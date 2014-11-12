@@ -195,13 +195,13 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
         final String databaseConnection = DB2Connection.class.getName();
         String connectionPool;
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
                 .getName();
         // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.db2direct.Dbcp_db2Direct.class
+        // com.github.angoca.db2jnrpe.database.pools.db2direct.DbcpDb2Direct.class
         // .getName();
         // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
         // .getName();
         this.log.debug("Connection pool: " + connectionPool);
         DatabaseConnection dbConn = null;

@@ -268,9 +268,9 @@ public abstract class DB2Helper {
 
         databaseConnection = DB2Connection.class.getName();
         // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
         // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -287,9 +287,9 @@ public abstract class DB2Helper {
 
         databaseConnection = DB2Connection.class.getName();
         // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
         // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
