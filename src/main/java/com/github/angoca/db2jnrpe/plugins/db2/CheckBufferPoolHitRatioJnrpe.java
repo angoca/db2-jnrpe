@@ -48,7 +48,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * .utils.thresholds.ThresholdsEvaluatorBuilder, it.jnrpe.ICommandLine)
      */
     @Override
-    public final void configureThresholdEvaluatorBuilder(
+    public void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
         DB2Database db2Database = DB2DatabasesManager.getInstance()
@@ -113,7 +113,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
      */
     @Override
-    public final Collection<Metric> gatherMetrics(final ICommandLine cl)
+    public Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
         final List<Metric> res;
         if (this.bufferpoolReads != null) {
@@ -170,8 +170,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * @param cl
      *            Handler that contains the parameters.
      * @return Connection wrapper.
+     * @throws MetricGatheringException
+     *             If there is any error gathering the metrics.
      */
-    private final DatabaseConnection getConnection(final ICommandLine cl)
+    private DatabaseConnection getConnection(final ICommandLine cl)
             throws MetricGatheringException {
         assert cl != null;
 
@@ -227,7 +229,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      *            Command line.
      * @return Unique URL to the database.
      */
-    private String getId(ICommandLine cl) {
+    private String getId(final ICommandLine cl) {
         String ret;
         final String[] values = this.getUrlValues(cl);
         ret = values[0] + ':' + values[1] + '/' + values[2];
@@ -240,7 +242,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * @see it.jnrpe.plugins.PluginBase#getPluginName()
      */
     @Override
-    protected final String getPluginName() {
+    protected String getPluginName() {
         return "CHECK_BUFFER_POOL_HIT_RATIO";
     }
 
@@ -251,7 +253,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      *            Command line.
      * @return Array with parameters.
      */
-    private String[] getUrlValues(ICommandLine cl) {
+    private String[] getUrlValues(final ICommandLine cl) {
         final String[] ret = new String[3];
         final String hostname = cl.getOptionValue("hostname");
         final String portNumberString = cl.getOptionValue("port");

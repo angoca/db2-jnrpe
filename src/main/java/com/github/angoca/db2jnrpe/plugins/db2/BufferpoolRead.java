@@ -12,7 +12,7 @@ public final class BufferpoolRead {
      */
     private int logicalReads = 0;
     /**
-     * Member of the database
+     * Member of the database.
      */
     private final int member;
     /**
@@ -35,22 +35,23 @@ public final class BufferpoolRead {
     /**
      * Creates a set of most recent reads for a bufferpool.
      *
-     * @param name
+     * @param bpName
      *            Name of the bufferpool.
      * @param logical
      *            Quantity of logical reads.
      * @param total
      *            Quantity of total reads.
-     * @param member
+     * @param dbMember
      *            Member of the database.
      */
-    BufferpoolRead(final String name, final int logical, final int total,
-            final int member) {
-        assert logical <= total : "Logical reads should be less that total reads.";
-        this.name = name;
+    BufferpoolRead(final String bpName, final int logical,
+            final int total, final int dbMember) {
+        assert logical <= total : "Logical reads should be less "
+                + "that total reads.";
+        this.name = bpName;
         this.setTotalReads(total);
         this.setLogicalReads(logical);
-        this.member = member;
+        this.member = dbMember;
     }
 
     /*

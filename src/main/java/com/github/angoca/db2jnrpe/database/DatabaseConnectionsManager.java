@@ -25,7 +25,7 @@ public final class DatabaseConnectionsManager {
      *
      * @return Singleton instance.
      */
-    public static final DatabaseConnectionsManager getInstance() {
+    public static DatabaseConnectionsManager getInstance() {
         if (DatabaseConnectionsManager.instance == null) {
             DatabaseConnectionsManager.instance = new DatabaseConnectionsManager();
         }
@@ -45,7 +45,7 @@ public final class DatabaseConnectionsManager {
     /**
      * Properties to connect to the databases.
      */
-    protected final Properties defaultProperties;
+    private final Properties defaultProperties;
 
     /**
      * Creates the singleton instance.
@@ -66,7 +66,7 @@ public final class DatabaseConnectionsManager {
      *             If any error occurs while retrieving the constructor.
      */
     @SuppressWarnings("unchecked")
-    private final Constructor<DatabaseConnection> getConstructor(
+    private  Constructor<DatabaseConnection> getConstructor(
             final String databaseConnectionName)
             throws DatabaseConnectionException {
         Constructor<DatabaseConnection> constructor = this.constructors
@@ -99,6 +99,8 @@ public final class DatabaseConnectionsManager {
      * @param connectionsPool
      *            Associated connection pool.
      * @param databaseConnection
+     *            Name of the class that contains the properties for the
+     *            database.
      * @param hostname
      *            Name of the server or IP.
      * @param portNumber
@@ -113,11 +115,11 @@ public final class DatabaseConnectionsManager {
      * @throws DatabaseConnectionException
      *             If any error occurs that instantiating the constructor.
      */
-    public final DatabaseConnection getDatabaseConnection(
+    public  DatabaseConnection getDatabaseConnection(
             final String connectionsPool, final String databaseConnection,
-            String hostname, final int portNumber, final String databaseName,
-            final String username, final String password)
-            throws DatabaseConnectionException {
+            final String hostname, final int portNumber,
+            final String databaseName, final String username,
+            final String password) throws DatabaseConnectionException {
         final String connKey = username + '@' + hostname + ':' + portNumber
                 + '/' + databaseName;
         DatabaseConnection dbConn = this.connectionProps.get(connKey);

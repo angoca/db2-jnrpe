@@ -30,10 +30,10 @@ public final class DbcpC3p0 extends ConnectionPool {
      *
      * @param args
      *            Arguments.
-     * @throws SQLException
+     * @throws Exception
      *             If any error occurs.
      */
-    public static final void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection c3p0");
         final DatabaseConnection dc1 = new DatabaseConnection(
                 DbcpC3p0.class.getName(), new Properties(), "db2inst1",
@@ -88,7 +88,7 @@ public final class DbcpC3p0 extends ConnectionPool {
      * java.sql.Connection)
      */
     @Override
-    public final void closeConnection(final DatabaseConnection dbConn,
+    public void closeConnection(final DatabaseConnection dbConn,
             final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
@@ -107,7 +107,7 @@ public final class DbcpC3p0 extends ConnectionPool {
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
-    public final Connection getConnection(final DatabaseConnection dbConn)
+    public Connection getConnection(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
         if (DbcpC3p0.pools == null) {
             throw new DatabaseConnectionException(new Exception(
@@ -149,8 +149,7 @@ public final class DbcpC3p0 extends ConnectionPool {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
+     * @see com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
      * com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override

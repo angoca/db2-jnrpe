@@ -25,20 +25,40 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersions;
 public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
     /**
+     * Position of column for member.
+     */
+    private static final int COL_POS_MEMBER = 4;
+
+    /**
+     * Position of column for total reads.
+     */
+    private static final int COL_POS_TOTAL_READS = 3;
+
+    /**
+     * Position of column logical reads.
+     */
+    private static final int COL_POS_LOGICAL_READS = 2;
+
+    /**
+     * Position of column bpname.
+     */
+    private static final int COL_POS_BPNAME = 1;
+
+    /**
      * Columns of the table.
      */
-    public static final String[] keys = { "BP_NAME", "LOGICAL_READS",
+    public static final String[] KEYS = { "BP_NAME", "LOGICAL_READS",
             "PHYSICAL_READS", "HIT_RATIO", "MEMBER" };
 
     /**
      * Prevent multiple concurrent executions.
      */
-    private static final Map<String, Integer> locks = new HashMap<String, Integer>();
+    private static final Map<String, Integer> LOCKS = new HashMap<String, Integer>();
 
     /**
      * Query for DB2 after v9.7.
      */
-    private static final String queryAfter_v9_7 = "WITH BPMETRICS AS ("
+    private static final String QUERY_AFTER_V97 = "WITH BPMETRICS AS ("
             + " SELECT BP_NAME, "
             + " POOL_DATA_L_READS + POOL_TEMP_DATA_L_READS + "
             + " POOL_XDA_L_READS + POOL_TEMP_XDA_L_READS + "
@@ -64,7 +84,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * @throws Exception
      *             Any exception.
      */
-    public static final void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         System.out.println("Test: Connection with pool");
         String hostname;
         int portNumber;
@@ -155,23 +175,24 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
     /**
      * Creates the object associating a connection properties.
      *
-     * @param dbConn
+     * @param connProps
      *            Connection properties.
+     * @param db2database
+     *            DB2 database that conntains the info.
      */
-    public CheckBufferPoolHitRatioDB2(final DatabaseConnection dbConn,
-            final DB2Database db2db) {
-        this.dbConn = dbConn;
-        this.db2db = db2db;
+    public CheckBufferPoolHitRatioDB2(final DatabaseConnection connProps,
+            final DB2Database db2database) {
+        this.dbConn = connProps;
+        this.db2db = db2database;
     }
 
     /**
      * Checks the bufferpool hit ratio with the given database connection.
      *
-     * @return List of bufferpool reads.
      * @throws DatabaseConnectionException
      *             If any problem occur while accessing the database.
      */
-    final void check() throws DatabaseConnectionException {
+    void check() throws DatabaseConnectionException {
         assert this.dbConn != null;
         final Map<String, BufferpoolRead> allValues = new HashMap<String, BufferpoolRead>();
         final DB2MajorVersions version = DB2Helper
@@ -185,7 +206,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                         .getConnectionPool(this.dbConn)
                         .getConnection(this.dbConn);
                 final PreparedStatement stmt = connection
-                        .prepareStatement(CheckBufferPoolHitRatioDB2.queryAfter_v9_7);
+                        .prepareStatement(CheckBufferPoolHitRatioDB2.QUERY_AFTER_V97);
                 final ResultSet res = stmt.executeQuery();
 
                 BufferpoolRead read;
@@ -195,13 +216,13 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 int member;
                 while (res.next()) {
                     // Name.
-                    name = res.getString(1);
+                    name = res.getString(COL_POS_BPNAME);
                     // Logical reads.
-                    logical = res.getInt(2);
+                    logical = res.getInt(COL_POS_LOGICAL_READS);
                     // Physical reads.
-                    physical = res.getInt(3);
+                    physical = res.getInt(COL_POS_TOTAL_READS);
                     // Member
-                    member = res.getInt(4);
+                    member = res.getInt(COL_POS_MEMBER);
 
                     read = new BufferpoolRead(name, logical,
                             logical + physical, member);
@@ -235,11 +256,11 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
             // database. This is a problem when the database is not available,
             // or it has a big workload, and multiple connections are
             // established.
-            if (!CheckBufferPoolHitRatioDB2.locks.containsKey(this.db2db
+            if (!CheckBufferPoolHitRatioDB2.LOCKS.containsKey(this.db2db
                     .getId())) {
-                CheckBufferPoolHitRatioDB2.locks.put(this.db2db.getId(), 1);
+                CheckBufferPoolHitRatioDB2.LOCKS.put(this.db2db.getId(), 1);
                 this.check();
-                CheckBufferPoolHitRatioDB2.locks.remove(this.db2db.getId());
+                CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
             }
         } catch (final DatabaseConnectionException e) {
             e.printStackTrace();

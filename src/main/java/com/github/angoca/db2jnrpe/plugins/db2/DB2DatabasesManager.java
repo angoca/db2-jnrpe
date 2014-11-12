@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public class DB2DatabasesManager {
+public final class DB2DatabasesManager {
     /**
      * Singleton instance.
      */

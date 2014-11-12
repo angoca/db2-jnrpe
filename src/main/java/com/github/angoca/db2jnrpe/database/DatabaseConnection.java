@@ -12,7 +12,7 @@ public abstract class DatabaseConnection {
     /**
      * Connection properties.
      */
-    protected final Properties connectionProperties;
+    private final Properties connectionProperties;
 
     /**
      * Associated connection pool.
@@ -25,7 +25,7 @@ public abstract class DatabaseConnection {
     /**
      * URL to connect to the database.
      */
-    protected String url;
+    private String url;
     /**
      * Username to access the database.
      */
@@ -35,23 +35,23 @@ public abstract class DatabaseConnection {
      * Creates an object with all properties to establish a connection to the
      * database.
      *
-     * @param connectionsPool
+     * @param connsPool
      *            Associated connection pool.
      * @param defaultProperties
      *            Properties to establish the connection.
-     * @param username
+     * @param user
      *            Username to connect to the database.
-     * @param password
+     * @param passwd
      *            Password of the username.
      */
-    protected DatabaseConnection(final String connectionsPool,
-            final Properties defaultProperties, final String username,
-            final String password) {
-        this.connectionsPool = connectionsPool;
+    protected DatabaseConnection(final String connsPool,
+            final Properties defaultProperties, final String user,
+            final String passwd) {
+        this.connectionsPool = connsPool;
 
         this.connectionProperties = defaultProperties;
-        this.username = username;
-        this.password = password;
+        this.username = user;
+        this.password = passwd;
     }
 
     /**
@@ -109,11 +109,11 @@ public abstract class DatabaseConnection {
     /**
      * Establishes the complete URL to connect to the database.
      *
-     * @param url
+     * @param dbUrl
      *            Complete URL to access the database.
      */
-    public final void setUrl(final String url) {
-        this.url = url;
+    public final void setUrl(final String dbUrl) {
+        this.url = dbUrl;
     }
 
     /*
@@ -122,7 +122,7 @@ public abstract class DatabaseConnection {
      * @see java.lang.Object#toString()
      */
     @Override
-    public String toString() {
+    public final String toString() {
         final String ret = '{' + this.username + '@' + this.url
                 + this.connectionProperties.toString() + '}';
         return ret;

@@ -30,14 +30,18 @@ public class DB2Database {
      */
     private long lastBufferpoolRead = 0;
 
-    public DB2Database(final String id) {
-        this.id = id;
+    /**
+     * Creates a database with an ID.
+     * @param dbId Unique id to identify this database.
+     */
+    public DB2Database(final String dbId) {
+        this.id = dbId;
         this.bufferpools = new HashMap<String, BufferpoolRead>();
         this.lastBufferpoolRead = 0;
     }
 
     /**
-     * Clone the set of bufferpools
+     * Clone the set of bufferpools.
      *
      * @return Copy of the set of bufferpools.
      */
@@ -55,7 +59,7 @@ public class DB2Database {
      *
      * @return Map of bufferpools.
      */
-    Map<String, BufferpoolRead> getBufferpools() {
+    final Map<String, BufferpoolRead> getBufferpools() {
         return this.bufferpools;
     }
 
@@ -71,7 +75,7 @@ public class DB2Database {
      * @throws UnknownValueException
      *             If the bufferpool values have not been read.
      */
-    Map<String, BufferpoolRead> getBufferpoolsAndRefresh(
+    final Map<String, BufferpoolRead> getBufferpoolsAndRefresh(
             final DatabaseConnection dbConn)
             throws DatabaseConnectionException, UnknownValueException {
         if (this.lastBufferpoolRead == 0) {
@@ -91,7 +95,7 @@ public class DB2Database {
      *
      * @return ID of the database.
      */
-    String getId() {
+    final String getId() {
         return this.id;
     }
 
@@ -100,7 +104,7 @@ public class DB2Database {
      *
      * @return Time of last read.
      */
-    long getLastRefresh() {
+    final long getLastRefresh() {
         return this.lastBufferpoolRead;
     }
 
@@ -127,7 +131,7 @@ public class DB2Database {
      * @param bufferpoolReads
      *            Bufferpool reads.
      */
-    void setBufferpoolReads(final Map<String, BufferpoolRead> bufferpoolReads) {
+    final void setBufferpoolReads(final Map<String, BufferpoolRead> bufferpoolReads) {
         this.bufferpools = bufferpoolReads;
         this.lastBufferpoolRead = System.currentTimeMillis();
     }
@@ -138,7 +142,7 @@ public class DB2Database {
      * @see java.lang.Object#toString()
      */
     @Override
-    public String toString() {
+    public final String toString() {
         final String ret = this.id + " with " + this.bufferpools.size()
                 + " bufferpools. Last at " + this.lastBufferpoolRead;
         return ret;

@@ -39,12 +39,13 @@ public abstract class ConnectionPool {
             throws DatabaseConnectionException;
 
     /**
-     * Initialize the Connection Pool
+     * Initialize the Connection Pool.
      *
      * @param dbConn
      *            Configuration parameters.
      * @throws DatabaseConnectionException
      *             If any error occurs.
+     * @return Return the associated connection pool.
      */
     public abstract ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException;

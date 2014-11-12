@@ -16,13 +16,13 @@ public final class DB2Connection extends DatabaseConnection {
      */
     private static int qty = 0;
     /**
-     * Name of the database
+     * Name of the database.
      */
     private final String databaseName;
     /**
      * Description of the DB2 driver.
      */
-    protected final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
+    private final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
     /**
      * Name of the server.
      */
@@ -40,11 +40,11 @@ public final class DB2Connection extends DatabaseConnection {
      *            Associate connection pool.
      * @param defaultProperties
      *            Properties to connect to the database.
-     * @param hostname
+     * @param host
      *            Name of the server.
-     * @param portNumber
+     * @param port
      *            Port of the instance.
-     * @param databaseName
+     * @param dbName
      *            database.
      * @param username
      *            Connection user.
@@ -52,23 +52,22 @@ public final class DB2Connection extends DatabaseConnection {
      *            Password.
      */
     public DB2Connection(final String connectionsPool,
-            final Properties defaultProperties, final String hostname,
-            final int portNumber, final String databaseName,
-            final String username, final String password) {
+            final Properties defaultProperties, final String host,
+            final int port, final String dbName, final String username,
+            final String password) {
         super(connectionsPool, defaultProperties, username, password);
         DB2Connection.qty = DB2Connection.qty + 1;
         // Changes the application name.
-        this.connectionProperties.put("clientProgramName", "db2-jnrpe-"
+        this.getConnectionProperties().put("clientProgramName", "db2-jnrpe-"
                 + DB2Connection.qty);
         // Shows descriptive message when errors.
-        this.connectionProperties.put("retrieveMessagesFromServerOnGetMessage",
+        this.getConnectionProperties().put("retrieveMessagesFromServerOnGetMessage",
                 "true");
 
-        this.setUrl("jdbc:db2://" + hostname + ":" + portNumber + "/"
-                + databaseName);
-        this.hostname = hostname;
-        this.portNumber = portNumber;
-        this.databaseName = databaseName;
+        this.setUrl("jdbc:db2://" + host + ":" + port + "/" + dbName);
+        this.hostname = host;
+        this.portNumber = port;
+        this.databaseName = dbName;
     }
 
     /**
@@ -76,7 +75,7 @@ public final class DB2Connection extends DatabaseConnection {
      *
      * @return DB2Database.
      */
-    public final String getDatabaseName() {
+    public String getDatabaseName() {
         return this.databaseName;
     }
 
@@ -87,7 +86,7 @@ public final class DB2Connection extends DatabaseConnection {
      * com.github.angoca.db2jnrpe.database.DatabaseConnection#getDriverClass()
      */
     @Override
-    public final String getDriverClass() {
+    public String getDriverClass() {
         return this.driverClass;
     }
 
@@ -96,7 +95,7 @@ public final class DB2Connection extends DatabaseConnection {
      *
      * @return Hostname.
      */
-    public final String getHostname() {
+    public String getHostname() {
         return this.hostname;
     }
 
@@ -105,7 +104,7 @@ public final class DB2Connection extends DatabaseConnection {
      *
      * @return Port.
      */
-    public final int getPortNumber() {
+    public int getPortNumber() {
         return this.portNumber;
     }
 }

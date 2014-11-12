@@ -26,7 +26,7 @@ public final class ConnectionPoolsManager {
      *
      * @return Returns the singleton instance.
      */
-    public static final ConnectionPoolsManager getInstance() {
+    public static ConnectionPoolsManager getInstance() {
         if (ConnectionPoolsManager.instance == null) {
             ConnectionPoolsManager.instance = new ConnectionPoolsManager();
         }
@@ -48,13 +48,13 @@ public final class ConnectionPoolsManager {
     /**
      * Retrieves a connection from the connection pool.
      *
-     * @param connectionPoolName
-     *            Name of the connection pool to retrieve.
+     * @param dbConn
+     *            Properties for the connection.
      * @return Connection pool.
      * @throws DatabaseConnectionException
      *             Any exception is wrapped in this exception.
      */
-    public final ConnectionPool getConnectionPool(
+    public  ConnectionPool getConnectionPool(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         final String poolName = dbConn.getConnectionsPoolName();
         ConnectionPool connectionPool = this.connectionPools.get(poolName);

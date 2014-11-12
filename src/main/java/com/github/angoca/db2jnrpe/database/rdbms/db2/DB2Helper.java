@@ -20,6 +20,11 @@ import com.ibm.db2.jcc.DB2Sqlca;
  */
 public abstract class DB2Helper {
     /**
+     * Routine was not found SQL0440.
+     */
+    private static final int NO_ROUTINE = -440;
+
+    /**
      * Returns the corresponding DB2 version of the database server.
      *
      * @param dbConn
@@ -31,23 +36,23 @@ public abstract class DB2Helper {
     public static final DB2MajorVersions getDB2MajorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MajorVersions version = DB2MajorVersions.UNKNOWN;
-        final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
+        final String queryBeforeV97 = "SELECT PROD_RELEASE "
                 + "FROM SYSIBMADM.ENV_PROD_INFO";
-        final String queryAfter_v9_7 = "SELECT PROD_RELEASE "
+        final String queryAfterV97 = "SELECT PROD_RELEASE "
                 + "FROM TABLE(SYSPROC.ENV_GET_PROD_INFO())";
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
                     .getConnectionPool(dbConn).getConnection(dbConn);
             PreparedStatement stmt = connection
-                    .prepareStatement(queryAfter_v9_7);
+                    .prepareStatement(queryAfterV97);
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
                 final int code = DB2Helper.getSqlCode(sqle);
-                if (code == -440) {
-                    stmt = connection.prepareStatement(queryBefore_v9_7);
+                if (code == NO_ROUTINE) {
+                    stmt = connection.prepareStatement(queryBeforeV97);
                     res = stmt.executeQuery();
                 } else {
                     throw sqle;
@@ -57,7 +62,7 @@ public abstract class DB2Helper {
             String versionText;
             while (res.next()) {
                 versionText = res.getString(1);
-                if (versionText == DB2MajorVersions.V8_1.getName()) {
+                if (versionText.compareTo(DB2MajorVersions.V8_1.getName()) == 0) {
                     version = DB2MajorVersions.V8_1;
                 } else if (versionText.compareTo(DB2MajorVersions.V9_1
                         .getName()) == 0) {
@@ -104,23 +109,23 @@ public abstract class DB2Helper {
     public static final DB2MinorVersion getDB2MinorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MinorVersion version = DB2MinorVersion.UNKNOWN;
-        final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
+        final String queryBeforeV97 = "SELECT PROD_RELEASE "
                 + "FROM SYSIBMADM.ENV_PROD_INFO";
-        final String queryAfter_v9_7 = "SELECT SERVICE_LEVEL "
+        final String queryAfterV97 = "SELECT SERVICE_LEVEL "
                 + "FROM SYSIBMADM.ENV_INST_INFO";
         Connection connection = null;
         try {
             connection = ConnectionPoolsManager.getInstance()
                     .getConnectionPool(dbConn).getConnection(dbConn);
             PreparedStatement stmt = connection
-                    .prepareStatement(queryAfter_v9_7);
+                    .prepareStatement(queryAfterV97);
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
                 final int code = DB2Helper.getSqlCode(sqle);
-                if (code == -440) {
-                    stmt = connection.prepareStatement(queryBefore_v9_7);
+                if (code == NO_ROUTINE) {
+                    stmt = connection.prepareStatement(queryBeforeV97);
                     res = stmt.executeQuery();
                 } else {
                     throw sqle;

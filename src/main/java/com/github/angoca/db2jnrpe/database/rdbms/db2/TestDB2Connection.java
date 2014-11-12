@@ -13,6 +13,14 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnection;
  * @version 2014-11-03
  */
 public final class TestDB2Connection {
+
+    /**
+     * Empty constructor.
+     */
+    private TestDB2Connection() {
+        // Nothing.
+    }
+
     /**
      * Tester.
      *
@@ -21,7 +29,7 @@ public final class TestDB2Connection {
      * @throws Exception
      *             Any exception.
      */
-    public static final void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         System.out.println("Test: Connection");
         final DatabaseConnection dbConn = new DB2Connection("",
                 new Properties(), "localhost", 50000, "sample", "db2inst1",

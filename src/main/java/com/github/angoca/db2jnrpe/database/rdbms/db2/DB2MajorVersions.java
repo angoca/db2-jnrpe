@@ -57,14 +57,14 @@ public enum DB2MajorVersions {
     /**
      * Constructor for DB2 versions.
      *
-     * @param name
+     * @param versionName
      *            Name of the DB2 version.
-     * @param value
+     * @param val
      *            Value that identifies the version.
      */
-    private DB2MajorVersions(final String name, final int value) {
-        this.name = name;
-        this.value = value;
+    private DB2MajorVersions(final String versionName, final int val) {
+        this.name = versionName;
+        this.value = val;
     }
 
     /**
@@ -81,7 +81,7 @@ public enum DB2MajorVersions {
      *
      * @return Id of the version.
      */
-    private final int getValue() {
+    private int getValue() {
         return this.value;
     }
 

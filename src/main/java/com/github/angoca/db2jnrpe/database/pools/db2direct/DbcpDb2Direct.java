@@ -32,7 +32,7 @@ public class DbcpDb2Direct extends ConnectionPool {
      * java.sql.Connection)
      */
     @Override
-    public void closeConnection(final DatabaseConnection dbConn,
+    public final void closeConnection(final DatabaseConnection dbConn,
             final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
@@ -51,7 +51,7 @@ public class DbcpDb2Direct extends ConnectionPool {
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
-    public Connection getConnection(final DatabaseConnection dbConn)
+    public final Connection getConnection(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
         Connection connection = null;
         final Properties props = this.db2Conn.getConnectionProperties();
@@ -74,7 +74,7 @@ public class DbcpDb2Direct extends ConnectionPool {
      * com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
-    public ConnectionPool initialize(final DatabaseConnection dbConn)
+    public final ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
         try {
             Class.forName(dbConn.getDriverClass());
