@@ -129,7 +129,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                         + name;
                 this.log.debug("Metrics: " + name);
-                ratio = new BigDecimal(bpDesc.getRatio());
+                ratio = new BigDecimal(bpDesc.getLastRatio());
                 final String message = String.format(
                         "Bufferpool %s at member %s has %s logical reads "
                                 + "and %s physical reads, with a hit "
