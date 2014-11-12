@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.database;
+package com.github.angoca.db2jnrpe.database;
 
 /**
  * Wraps any exception generated while using the database.
@@ -11,7 +11,7 @@ public final class DatabaseConnectionException extends Exception {
     /**
      * Generated Id.
      */
-    private final static long serialVersionUID = 2299386533338530974L;
+    private static final long serialVersionUID = 2299386533338530974L;
 
     /**
      * Creates an exception by wrapping the cause exception.

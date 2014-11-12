@@ -2,7 +2,7 @@
 <plugins xmlns="http://jnrpe.sourceforge.net/plugins" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://jnrpe.sourceforge.net/plugins plugin.xsd">
  <plugin name="CHECK_BUFFER_POOL_HIT_RATIO"
-  class="com.github.angoca.db2_jnrpe.plugins.db2.CheckBufferPoolHitRatioJnrpe">
+  class="com.github.angoca.db2jnrpe.plugins.db2.CheckBufferPoolHitRatioJnrpe">
   <description>
 <![CDATA[
 This command shows the hit ratio for a given or all bufferpools.

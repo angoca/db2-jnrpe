@@ -1,10 +1,10 @@
-package com.github.angoca.db2_jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
  * Models a database with its connection URL.
@@ -91,7 +91,7 @@ public class DB2Database {
      *
      * @return ID of the database.
      */
-    String getID() {
+    String getId() {
         return this.id;
     }
 

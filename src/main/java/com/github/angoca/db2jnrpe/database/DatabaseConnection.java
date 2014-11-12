@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.database;
+package com.github.angoca.db2jnrpe.database;
 
 import java.util.Properties;
 
@@ -9,7 +9,10 @@ import java.util.Properties;
  * @version 2014-11-03
  */
 public abstract class DatabaseConnection {
-    final protected Properties connectionProperties;
+    /**
+     * Connection properties.
+     */
+    protected final Properties connectionProperties;
 
     /**
      * Associated connection pool.
@@ -90,7 +93,7 @@ public abstract class DatabaseConnection {
      *
      * @return URL to access the database.
      */
-    public final String getURL() {
+    public final String getUrl() {
         return this.url;
     }
 
@@ -109,7 +112,7 @@ public abstract class DatabaseConnection {
      * @param url
      *            Complete URL to access the database.
      */
-    public final void setURL(final String url) {
+    public final void setUrl(final String url) {
         this.url = url;
     }
 

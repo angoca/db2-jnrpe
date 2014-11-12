@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 /**
  * Exception that represents when values in cache have not been read. Normally,

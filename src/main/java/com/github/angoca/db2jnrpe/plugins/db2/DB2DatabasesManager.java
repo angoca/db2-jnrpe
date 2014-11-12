@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 import java.util.HashMap;
 import java.util.Map;

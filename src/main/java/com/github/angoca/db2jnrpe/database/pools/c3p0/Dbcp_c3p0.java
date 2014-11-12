@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.database.pools.c3p0;
+package com.github.angoca.db2jnrpe.database.pools.c3p0;
 
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2_jnrpe.database.pools.ConnectionPool;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
@@ -18,7 +18,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class DBCP_c3p0 extends ConnectionPool {
+public final class Dbcp_c3p0 extends ConnectionPool {
 
     /**
      * Map of URL and its associated pool.
@@ -33,20 +33,20 @@ public final class DBCP_c3p0 extends ConnectionPool {
      * @throws SQLException
      *             If any error occurs.
      */
-    public final static void main(final String[] args) throws Exception {
+    public static final void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection c3p0");
         final DatabaseConnection dc1 = new DatabaseConnection(
-                DBCP_c3p0.class.getName(), new Properties(), "db2inst1",
+                Dbcp_c3p0.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
             {
-                this.setURL("jdbc:db2://localhost:50000/sample");
+                this.setUrl("jdbc:db2://localhost:50000/sample");
             }
 
             /*
              * (non-Javadoc)
              * 
-             * @see com.github.angoca.db2_jnrpe.database.DatabaseConnection
+             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -54,20 +54,20 @@ public final class DBCP_c3p0 extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2Driver";
             }
         };
-        Connection conn = new DBCP_c3p0().initialize(dc1).getConnection(dc1);
+        Connection conn = new Dbcp_c3p0().initialize(dc1).getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
         final DatabaseConnection dc2 = new DatabaseConnection(
-                DBCP_c3p0.class.getName(), new Properties(), "db2inst2",
+                Dbcp_c3p0.class.getName(), new Properties(), "db2inst2",
                 "db2inst2") {
 
             {
-                this.setURL("jdbc:db2://127.0.0.1:50002/sample");
+                this.setUrl("jdbc:db2://127.0.0.1:50002/sample");
             }
 
             /*
              * (non-Javadoc)
              * 
-             * @see com.github.angoca.db2_jnrpe.database.DatabaseConnection
+             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -75,7 +75,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2Driver";
             }
         };
-        conn = new DBCP_c3p0().initialize(dc2).getConnection(dc2);
+        conn = new Dbcp_c3p0().initialize(dc2).getConnection(dc2);
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
@@ -83,8 +83,8 @@ public final class DBCP_c3p0 extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection,
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
+     * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
      * java.sql.Connection)
      */
     @Override
@@ -103,13 +103,13 @@ public final class DBCP_c3p0 extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
+     * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
     public final Connection getConnection(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        if (DBCP_c3p0.pools == null) {
+        if (Dbcp_c3p0.pools == null) {
             throw new DatabaseConnectionException(new Exception(
                     "Pool not initialized"));
         }
@@ -117,7 +117,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
         final String password = dbConn.getPassword();
         Connection connection;
         try {
-            ComboPooledDataSource pool = DBCP_c3p0.pools.get(dbConn.getURL());
+            ComboPooledDataSource pool = Dbcp_c3p0.pools.get(dbConn.getUrl());
             if (pool == null) {
                 pool = new ComboPooledDataSource();
                 try {
@@ -126,7 +126,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
                     pool.close();
                     throw new DatabaseConnectionException(e);
                 }
-                pool.setJdbcUrl(dbConn.getURL());
+                pool.setJdbcUrl(dbConn.getUrl());
                 pool.setMinPoolSize(3);
                 pool.setAcquireIncrement(5);
                 pool.setMaxPoolSize(20);
@@ -137,7 +137,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
                     pool.close();
                     throw new DatabaseConnectionException(e);
                 }
-                DBCP_c3p0.pools.put(dbConn.getURL(), pool);
+                Dbcp_c3p0.pools.put(dbConn.getUrl(), pool);
             }
             connection = pool.getConnection(username, password);
         } catch (final SQLException e) {
@@ -150,14 +150,14 @@ public final class DBCP_c3p0 extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
-     * com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
+     * com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
     public ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        if (DBCP_c3p0.pools == null) {
-            DBCP_c3p0.pools = new HashMap<String, ComboPooledDataSource>();
+        if (Dbcp_c3p0.pools == null) {
+            Dbcp_c3p0.pools = new HashMap<String, ComboPooledDataSource>();
         }
         return this;
     }
@@ -169,7 +169,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     @Override
     public String toString() {
-        final String ret = "[c3p0-" + DBCP_c3p0.pools.size() + ']';
+        final String ret = "[c3p0-" + Dbcp_c3p0.pools.size() + ']';
         return ret;
     }
 }

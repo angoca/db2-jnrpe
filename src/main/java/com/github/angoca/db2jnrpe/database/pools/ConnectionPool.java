@@ -1,9 +1,9 @@
-package com.github.angoca.db2_jnrpe.database.pools;
+package com.github.angoca.db2jnrpe.database.pools;
 
 import java.sql.Connection;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
  * Structure of a connection pool.

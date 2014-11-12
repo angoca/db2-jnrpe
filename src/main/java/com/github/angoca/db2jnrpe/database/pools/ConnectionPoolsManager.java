@@ -1,11 +1,11 @@
-package com.github.angoca.db2_jnrpe.database.pools;
+package com.github.angoca.db2jnrpe.database.pools;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
  * Controls the singleton instance for the pool managers. There could be
@@ -26,7 +26,7 @@ public final class ConnectionPoolsManager {
      *
      * @return Returns the singleton instance.
      */
-    public final static ConnectionPoolsManager getInstance() {
+    public static final ConnectionPoolsManager getInstance() {
         if (ConnectionPoolsManager.instance == null) {
             ConnectionPoolsManager.instance = new ConnectionPoolsManager();
         }
@@ -36,7 +36,7 @@ public final class ConnectionPoolsManager {
     /**
      * List of connection pools, matching the name with itself.
      */
-    final private Map<String, ConnectionPool> connectionPools;
+    private final Map<String, ConnectionPool> connectionPools;
 
     /**
      * Creates the singleton.

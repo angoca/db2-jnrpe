@@ -1,14 +1,14 @@
-package com.github.angoca.db2_jnrpe.database.rdbms.db2;
+package com.github.angoca.db2jnrpe.database.rdbms.db2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsManager;
-import com.github.angoca.db2_jnrpe.database.pools.ConnectionPoolsManager;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
 import com.ibm.db2.jcc.DB2Diagnosable;
 import com.ibm.db2.jcc.DB2Sqlca;
 
@@ -28,7 +28,7 @@ public abstract class DB2Helper {
      * @throws DatabaseConnectionException
      *             If any error occurs while accessing the database.
      */
-    public final static DB2MajorVersions getDB2MajorVersion(
+    public static final DB2MajorVersions getDB2MajorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MajorVersions version = DB2MajorVersions.UNKNOWN;
         final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
@@ -45,7 +45,7 @@ public abstract class DB2Helper {
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
-                final int code = DB2Helper.getSQLCode(sqle);
+                final int code = DB2Helper.getSqlCode(sqle);
                 if (code == -440) {
                     stmt = connection.prepareStatement(queryBefore_v9_7);
                     res = stmt.executeQuery();
@@ -54,27 +54,27 @@ public abstract class DB2Helper {
                 }
             }
 
-            String version_text;
+            String versionText;
             while (res.next()) {
-                version_text = res.getString(1);
-                if (version_text == DB2MajorVersions.V8_1.getName()) {
+                versionText = res.getString(1);
+                if (versionText == DB2MajorVersions.V8_1.getName()) {
                     version = DB2MajorVersions.V8_1;
-                } else if (version_text.compareTo(DB2MajorVersions.V9_1
+                } else if (versionText.compareTo(DB2MajorVersions.V9_1
                         .getName()) == 0) {
                     version = DB2MajorVersions.V9_1;
-                } else if (version_text.compareTo(DB2MajorVersions.V9_5
+                } else if (versionText.compareTo(DB2MajorVersions.V9_5
                         .getName()) == 0) {
                     version = DB2MajorVersions.V9_5;
-                } else if (version_text.compareTo(DB2MajorVersions.V9_7
+                } else if (versionText.compareTo(DB2MajorVersions.V9_7
                         .getName()) == 0) {
                     version = DB2MajorVersions.V9_7;
-                } else if (version_text.compareTo(DB2MajorVersions.V9_8
+                } else if (versionText.compareTo(DB2MajorVersions.V9_8
                         .getName()) == 0) {
                     version = DB2MajorVersions.V9_8;
-                } else if (version_text.compareTo(DB2MajorVersions.V10_1
+                } else if (versionText.compareTo(DB2MajorVersions.V10_1
                         .getName()) == 0) {
                     version = DB2MajorVersions.V10_1;
-                } else if (version_text.compareTo(DB2MajorVersions.V10_5
+                } else if (versionText.compareTo(DB2MajorVersions.V10_5
                         .getName()) == 0) {
                     version = DB2MajorVersions.V10_5;
                 } else {
@@ -101,7 +101,7 @@ public abstract class DB2Helper {
      * @throws DatabaseConnectionException
      *             If any error occurs while accessing the database.
      */
-    public final static DB2MinorVersion getDB2MinorVersion(
+    public static final DB2MinorVersion getDB2MinorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
         DB2MinorVersion version = DB2MinorVersion.UNKNOWN;
         final String queryBefore_v9_7 = "SELECT PROD_RELEASE "
@@ -118,7 +118,7 @@ public abstract class DB2Helper {
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
-                final int code = DB2Helper.getSQLCode(sqle);
+                final int code = DB2Helper.getSqlCode(sqle);
                 if (code == -440) {
                     stmt = connection.prepareStatement(queryBefore_v9_7);
                     res = stmt.executeQuery();
@@ -127,84 +127,84 @@ public abstract class DB2Helper {
                 }
             }
 
-            String version_text;
+            String versionText;
             while (res.next()) {
-                version_text = res.getString(1);
-                if (version_text.compareTo(DB2MinorVersion.V9_7_GA.getName()) == 0) {
+                versionText = res.getString(1);
+                if (versionText.compareTo(DB2MinorVersion.V9_7_GA.getName()) == 0) {
                     version = DB2MinorVersion.V9_7_GA;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_1
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_1
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_1;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_2
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_2
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_2;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_3
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_3
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_3;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_4
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_4
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_4;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_5
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_5
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_5;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_6
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_6
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_6;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_7
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_7
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_7;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_8
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_8
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_8;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_7_9
+                } else if (versionText.compareTo(DB2MinorVersion.V9_7_9
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_7_9;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_GA
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_GA
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_GA;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_1
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_1
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_1;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_2
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_2
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_2;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_3
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_3
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_3;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_4
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_4
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_4;
-                } else if (version_text.compareTo(DB2MinorVersion.V9_8_5
+                } else if (versionText.compareTo(DB2MinorVersion.V9_8_5
                         .getName()) == 0) {
                     version = DB2MinorVersion.V9_8_5;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_1_GA
+                } else if (versionText.compareTo(DB2MinorVersion.V10_1_GA
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_1_GA;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_1_1
+                } else if (versionText.compareTo(DB2MinorVersion.V10_1_1
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_1_1;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_1_2
+                } else if (versionText.compareTo(DB2MinorVersion.V10_1_2
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_1_2;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_1_3
+                } else if (versionText.compareTo(DB2MinorVersion.V10_1_3
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_1_3;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_1_4
+                } else if (versionText.compareTo(DB2MinorVersion.V10_1_4
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_1_4;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_5_GA
+                } else if (versionText.compareTo(DB2MinorVersion.V10_5_GA
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_5_GA;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_5_1
+                } else if (versionText.compareTo(DB2MinorVersion.V10_5_1
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_5_1;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_5_2
+                } else if (versionText.compareTo(DB2MinorVersion.V10_5_2
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_5_2;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_5_3
+                } else if (versionText.compareTo(DB2MinorVersion.V10_5_3
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_5_3;
-                } else if (version_text.compareTo(DB2MinorVersion.V10_5_4
+                } else if (versionText.compareTo(DB2MinorVersion.V10_5_4
                         .getName()) == 0) {
                     version = DB2MinorVersion.V10_5_4;
                 } else {
@@ -229,7 +229,7 @@ public abstract class DB2Helper {
      *            Exception to process.
      * @return SQLcode.
      */
-    final static int getSQLCode(final SQLException sqle) {
+    static final int getSqlCode(final SQLException sqle) {
         int ret = 0;
         if (sqle instanceof DB2Diagnosable) {
             final DB2Diagnosable diagnosable = (DB2Diagnosable) sqle;
@@ -249,7 +249,7 @@ public abstract class DB2Helper {
      * @throws Exception
      *             Any exception.
      */
-    public final static void main(final String[] args) throws Exception {
+    public static final void main(final String[] args) throws Exception {
         System.out.println("Test: Pool");
         String hostname;
         int portNumber;
@@ -268,9 +268,9 @@ public abstract class DB2Helper {
 
         databaseConnection = DB2Connection.class.getName();
         // connectionPool =
-        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
         // .getName();
-        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -287,9 +287,9 @@ public abstract class DB2Helper {
 
         databaseConnection = DB2Connection.class.getName();
         // connectionPool =
-        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
         // .getName();
-        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -305,7 +305,7 @@ public abstract class DB2Helper {
      * @param sqle
      *            Exception to process.
      */
-    public final static void processException(SQLException sqle) {
+    public static final void processException(SQLException sqle) {
         // Check whether there are more SQLExceptions to process
         while (sqle != null) {
             if (sqle instanceof DB2Diagnosable) {

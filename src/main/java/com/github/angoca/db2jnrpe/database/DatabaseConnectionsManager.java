@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.database;
+package com.github.angoca.db2jnrpe.database;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +25,7 @@ public final class DatabaseConnectionsManager {
      *
      * @return Singleton instance.
      */
-    public final static DatabaseConnectionsManager getInstance() {
+    public static final DatabaseConnectionsManager getInstance() {
         if (DatabaseConnectionsManager.instance == null) {
             DatabaseConnectionsManager.instance = new DatabaseConnectionsManager();
         }

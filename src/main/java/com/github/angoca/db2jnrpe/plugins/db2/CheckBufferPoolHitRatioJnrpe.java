@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 import it.jnrpe.ICommandLine;
 import it.jnrpe.Status;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsManager;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 
 /**
  * This is the bridge between jNRPE and the connection manager (correction and
@@ -52,9 +52,9 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
         DB2Database db2Database = DB2DatabasesManager.getInstance()
-                .getDatabase(this.getID(cl));
+                .getDatabase(this.getId(cl));
         if (db2Database == null) {
-            final String id = this.getID(cl);
+            final String id = this.getId(cl);
             db2Database = new DB2Database(id);
             DB2DatabasesManager.getInstance().add(id, db2Database);
         }
@@ -148,7 +148,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             final boolean metadata = cl.hasOption("metadata");
             if (metadata) {
                 final DB2Database db2Database = DB2DatabasesManager
-                        .getInstance().getDatabase(this.getID(cl));
+                        .getInstance().getDatabase(this.getId(cl));
                 res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
                         .getLastRefresh()), null, null));
                 res.add(new Metric("Cache-old", "", new BigDecimal(System
@@ -175,7 +175,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             throws MetricGatheringException {
         assert cl != null;
 
-        final String[] values = this.getURLValues(cl);
+        final String[] values = this.getUrlValues(cl);
         final String hostname = values[0];
         int portNumber;
         final String portNumberString = values[1];
@@ -195,13 +195,13 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
         final String databaseConnection = DB2Connection.class.getName();
         String connectionPool;
-        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
                 .getName();
         // connectionPool =
-        // com.github.angoca.db2_jnrpe.database.pools.db2direct.DBCP_db2Direct.class
+        // com.github.angoca.db2jnrpe.database.pools.db2direct.Dbcp_db2Direct.class
         // .getName();
         // connectionPool =
-        // com.github.angoca.db2_jnrpe.database.pools.hikari.DBCP_Hikari.class
+        // com.github.angoca.db2jnrpe.database.pools.hikari.Dbcp_Hikari.class
         // .getName();
         this.log.debug("Connection pool: " + connectionPool);
         DatabaseConnection dbConn = null;
@@ -227,9 +227,9 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      *            Command line.
      * @return Unique URL to the database.
      */
-    private String getID(ICommandLine cl) {
+    private String getId(ICommandLine cl) {
         String ret;
-        final String[] values = this.getURLValues(cl);
+        final String[] values = this.getUrlValues(cl);
         ret = values[0] + ':' + values[1] + '/' + values[2];
         return ret;
     }
@@ -251,7 +251,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      *            Command line.
      * @return Array with parameters.
      */
-    private String[] getURLValues(ICommandLine cl) {
+    private String[] getUrlValues(ICommandLine cl) {
         final String[] ret = new String[3];
         final String hostname = cl.getOptionValue("hostname");
         final String portNumberString = cl.getOptionValue("port");

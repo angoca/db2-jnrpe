@@ -1,14 +1,14 @@
-package com.github.angoca.db2_jnrpe.database.pools.db2direct;
+package com.github.angoca.db2jnrpe.database.pools.db2direct;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2_jnrpe.database.pools.ConnectionPool;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 
 /**
  * Connection pool using direct DB2 driver.
@@ -16,7 +16,7 @@ import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-04
  */
-public class DBCP_db2Direct extends ConnectionPool {
+public class Dbcp_db2Direct extends ConnectionPool {
 
     /**
      * Connection properties.
@@ -27,8 +27,8 @@ public class DBCP_db2Direct extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection,
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
+     * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
      * java.sql.Connection)
      */
     @Override
@@ -47,8 +47,8 @@ public class DBCP_db2Direct extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
+     * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
     public Connection getConnection(final DatabaseConnection dbConn)
@@ -58,7 +58,7 @@ public class DBCP_db2Direct extends ConnectionPool {
         props.put("user", this.db2Conn.getUsername());
         props.put("password", this.db2Conn.getPassword());
         try {
-            connection = DriverManager.getConnection(this.db2Conn.getURL(),
+            connection = DriverManager.getConnection(this.db2Conn.getUrl(),
                     props);
         } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
@@ -70,8 +70,8 @@ public class DBCP_db2Direct extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.pools.ConnectionPool#initialize(
-     * com.github.angoca.db2_jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
+     * com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
     public ConnectionPool initialize(final DatabaseConnection dbConn)

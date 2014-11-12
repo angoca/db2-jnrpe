@@ -1,8 +1,8 @@
-package com.github.angoca.db2_jnrpe.database.rdbms.db2;
+package com.github.angoca.db2jnrpe.database.rdbms.db2;
 
 import java.util.Properties;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 
 /**
  * Description of the parameter for a DB2 connection.
@@ -64,7 +64,7 @@ public final class DB2Connection extends DatabaseConnection {
         this.connectionProperties.put("retrieveMessagesFromServerOnGetMessage",
                 "true");
 
-        this.setURL("jdbc:db2://" + hostname + ":" + portNumber + "/"
+        this.setUrl("jdbc:db2://" + hostname + ":" + portNumber + "/"
                 + databaseName);
         this.hostname = hostname;
         this.portNumber = portNumber;
@@ -84,7 +84,7 @@ public final class DB2Connection extends DatabaseConnection {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2_jnrpe.database.DatabaseConnection#getDriverClass()
+     * com.github.angoca.db2jnrpe.database.DatabaseConnection#getDriverClass()
      */
     @Override
     public final String getDriverClass() {

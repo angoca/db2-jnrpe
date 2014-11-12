@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2_jnrpe.database.DatabaseConnectionsManager;
-import com.github.angoca.db2_jnrpe.database.pools.ConnectionPoolsManager;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Connection;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2Helper;
-import com.github.angoca.db2_jnrpe.database.rdbms.db2.DB2MajorVersions;
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Helper;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersions;
 
 /**
  * Connects to the database and retrieve the values about buffer pool hit ratio.
@@ -27,7 +27,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
     /**
      * Columns of the table.
      */
-    public final static String[] keys = { "BP_NAME", "LOGICAL_READS",
+    public static final String[] keys = { "BP_NAME", "LOGICAL_READS",
             "PHYSICAL_READS", "HIT_RATIO", "MEMBER" };
 
     /**
@@ -38,7 +38,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
     /**
      * Query for DB2 after v9.7.
      */
-    private final static String queryAfter_v9_7 = "WITH BPMETRICS AS ("
+    private static final String queryAfter_v9_7 = "WITH BPMETRICS AS ("
             + " SELECT BP_NAME, "
             + " POOL_DATA_L_READS + POOL_TEMP_DATA_L_READS + "
             + " POOL_XDA_L_READS + POOL_TEMP_XDA_L_READS + "
@@ -64,7 +64,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * @throws Exception
      *             Any exception.
      */
-    public final static void main(final String[] args) throws Exception {
+    public static final void main(final String[] args) throws Exception {
         System.out.println("Test: Connection with pool");
         String hostname;
         int portNumber;
@@ -85,17 +85,17 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
         password = "db2inst1";
 
         databaseConnection = DB2Connection.class.getName();
-        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
                         hostname, portNumber, databaseName, username, password);
 
-        DB2DatabasesManager.getInstance().add(dbConn.getURL(),
-                new DB2Database(dbConn.getURL()));
+        DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
+                new DB2Database(dbConn.getUrl()));
         new CheckBufferPoolHitRatioDB2(dbConn, new DB2Database("1")).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
-                .getDatabase(dbConn.getURL()).getBufferpools();
+                .getDatabase(dbConn.getUrl()).getBufferpools();
         iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
@@ -118,7 +118,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
         password = "db2inst2";
 
         databaseConnection = DB2Connection.class.getName();
-        connectionPool = com.github.angoca.db2_jnrpe.database.pools.c3p0.DBCP_c3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.Dbcp_c3p0.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -126,7 +126,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
         new CheckBufferPoolHitRatioDB2(dbConn, new DB2Database("2")).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
-                .getDatabase(dbConn.getURL()).getBufferpools();
+                .getDatabase(dbConn.getUrl()).getBufferpools();
         iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
@@ -218,7 +218,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
             }
         }
 
-        DB2DatabasesManager.getInstance().getDatabase(this.db2db.getID())
+        DB2DatabasesManager.getInstance().getDatabase(this.db2db.getId())
                 .setBufferpoolReads(allValues);
     }
 
@@ -236,10 +236,10 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
             // or it has a big workload, and multiple connections are
             // established.
             if (!CheckBufferPoolHitRatioDB2.locks.containsKey(this.db2db
-                    .getID())) {
-                CheckBufferPoolHitRatioDB2.locks.put(this.db2db.getID(), 1);
+                    .getId())) {
+                CheckBufferPoolHitRatioDB2.locks.put(this.db2db.getId(), 1);
                 this.check();
-                CheckBufferPoolHitRatioDB2.locks.remove(this.db2db.getID());
+                CheckBufferPoolHitRatioDB2.locks.remove(this.db2db.getId());
             }
         } catch (final DatabaseConnectionException e) {
             e.printStackTrace();

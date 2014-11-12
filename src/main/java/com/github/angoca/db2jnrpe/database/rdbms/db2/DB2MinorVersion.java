@@ -1,4 +1,4 @@
-package com.github.angoca.db2_jnrpe.database.rdbms.db2;
+package com.github.angoca.db2jnrpe.database.rdbms.db2;
 
 /**
  * Different list of DB2 minor versions.
