@@ -1,7 +1,6 @@
 package com.github.angoca.db2_jnrpe.plugins.db2;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.github.angoca.db2_jnrpe.database.DatabaseConnection;
@@ -23,18 +22,41 @@ public class DB2Database {
      */
     private Map<String, BufferpoolRead> bufferpools;
     /**
-     * Time of the last bufferpools read.
-     */
-    private long lastBufferpoolRead = 0;
-    /**
      * Identification of the database.
      */
     private final String id;
+    /**
+     * Time of the last bufferpools read.
+     */
+    private long lastBufferpoolRead = 0;
 
     public DB2Database(final String id) {
         this.id = id;
         this.bufferpools = new HashMap<String, BufferpoolRead>();
         this.lastBufferpoolRead = 0;
+    }
+
+    /**
+     * Clone the set of bufferpools
+     *
+     * @return Copy of the set of bufferpools.
+     */
+    private Map<String, BufferpoolRead> cloneBufferpools() {
+        final Map<String, BufferpoolRead> copy = new HashMap<String, BufferpoolRead>();
+        for (final String key : this.bufferpools.keySet()) {
+            final BufferpoolRead clone = this.bufferpools.get(key).clone();
+            copy.put(key, clone);
+        }
+        return copy;
+    }
+
+    /**
+     * Retrieves the map of bufferpools.
+     *
+     * @return Map of bufferpools.
+     */
+    Map<String, BufferpoolRead> getBufferpools() {
+        return this.bufferpools;
     }
 
     /**
@@ -65,28 +87,12 @@ public class DB2Database {
     }
 
     /**
-     * Clone the set of bufferpools
-     * 
-     * @return Copy of the set of bufferpools.
+     * Returns the ID of the database.
+     *
+     * @return ID of the database.
      */
-    private Map<String, BufferpoolRead> cloneBufferpools() {
-        Map<String, BufferpoolRead> copy = new HashMap<String, BufferpoolRead>();
-        for (Iterator<String> iterator = this.bufferpools.keySet().iterator(); iterator
-                .hasNext();) {
-            String key = iterator.next();
-            BufferpoolRead clone = this.bufferpools.get(key).clone();
-            copy.put(key, clone);
-        }
-        return copy;
-    }
-
-    /**
-     * Retrieves the map of bufferpools.
-     * 
-     * @return Map of bufferpools.
-     */
-    Map<String, BufferpoolRead> getBufferpools() {
-        return this.bufferpools;
+    String getID() {
+        return this.id;
     }
 
     /**
@@ -96,15 +102,6 @@ public class DB2Database {
      */
     long getLastRefresh() {
         return this.lastBufferpoolRead;
-    }
-
-    /**
-     * Returns the ID of the database.
-     *
-     * @return ID of the database.
-     */
-    String getID() {
-        return this.id;
     }
 
     /**

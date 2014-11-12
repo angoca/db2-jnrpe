@@ -20,10 +20,6 @@ public final class BufferpoolRead {
      */
     private final String name;
     /**
-     * Most recent value of total reads.
-     */
-    private int totalReads = 0;
-    /**
      * Previous read of logical reads.
      */
     private int previousLogicalReads = 0;
@@ -31,6 +27,10 @@ public final class BufferpoolRead {
      * Previous read of total reads.
      */
     private int previousTotalReads = 0;
+    /**
+     * Most recent value of total reads.
+     */
+    private int totalReads = 0;
 
     /**
      * Creates a set of most recent reads for a bufferpool.
@@ -51,6 +51,40 @@ public final class BufferpoolRead {
         this.setTotalReads(total);
         this.setLogicalReads(logical);
         this.member = member;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    protected BufferpoolRead clone() {
+        final BufferpoolRead copy = new BufferpoolRead(this.name,
+                this.logicalReads, this.totalReads, this.member);
+        return copy;
+    }
+
+    /**
+     * Returns the most recent ratio between logical reads and total reads
+     * (logical + physical reads). This is calculated between the previous read
+     * values an dhte current ones.
+     *
+     * @return Ratio of the reads.
+     */
+    int getLastRatio() {
+        int ret = 0;
+        if (this.totalReads == 0) {
+            ret = 100;
+        } else if (this.previousTotalReads == 0) {
+            ret = this.getRatio();
+        } else if (this.previousLogicalReads == this.totalReads) {
+            ret = 100;
+        } else {
+            ret = (this.logicalReads - this.previousLogicalReads)
+                    / (this.totalReads - this.previousTotalReads);
+        }
+        return ret;
     }
 
     /**
@@ -101,28 +135,6 @@ public final class BufferpoolRead {
             ret = 100;
         } else {
             ret = this.logicalReads / this.totalReads;
-        }
-        return ret;
-    }
-
-    /**
-     * Returns the most recent ratio between logical reads and total reads
-     * (logical + physical reads). This is calculated between the previous read
-     * values an dhte current ones.
-     *
-     * @return Ratio of the reads.
-     */
-    int getLastRatio() {
-        int ret = 0;
-        if (this.totalReads == 0) {
-            ret = 100;
-        } else if (this.previousTotalReads == 0) {
-            ret = getRatio();
-        } else if (this.previousLogicalReads == this.totalReads) {
-            ret = 100;
-        } else {
-            ret = (this.logicalReads - this.previousLogicalReads)
-                    / (this.totalReads - this.previousTotalReads);
         }
         return ret;
     }
@@ -186,16 +198,5 @@ public final class BufferpoolRead {
         final String ret = this.name + ";reads:" + this.logicalReads + '/'
                 + this.totalReads;
         return ret;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
-    protected BufferpoolRead clone() {
-        final BufferpoolRead copy = new BufferpoolRead(this.name,
-                this.logicalReads, this.totalReads, this.member);
-        return copy;
     }
 }

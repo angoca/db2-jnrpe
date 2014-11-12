@@ -120,8 +120,8 @@ public abstract class DatabaseConnection {
      */
     @Override
     public String toString() {
-        String ret = '{' + this.username + '@' + this.url
-                + connectionProperties.toString() + '}';
+        final String ret = '{' + this.username + '@' + this.url
+                + this.connectionProperties.toString() + '}';
         return ret;
     }
 }

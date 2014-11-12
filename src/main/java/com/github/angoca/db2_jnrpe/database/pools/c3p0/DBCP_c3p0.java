@@ -21,6 +21,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public final class DBCP_c3p0 extends ConnectionPool {
 
     /**
+     * Map of URL and its associated pool.
+     */
+    private static Map<String, ComboPooledDataSource> pools = null;
+
+    /**
      * Tester.
      *
      * @param args
@@ -30,7 +35,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     public final static void main(final String[] args) throws Exception {
         System.out.println("Test: DatabaseConnection c3p0");
-        DatabaseConnection dc1 = new DatabaseConnection(
+        final DatabaseConnection dc1 = new DatabaseConnection(
                 DBCP_c3p0.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
@@ -51,7 +56,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
         };
         Connection conn = new DBCP_c3p0().initialize(dc1).getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
-        DatabaseConnection dc2 = new DatabaseConnection(
+        final DatabaseConnection dc2 = new DatabaseConnection(
                 DBCP_c3p0.class.getName(), new Properties(), "db2inst2",
                 "db2inst2") {
 
@@ -73,11 +78,6 @@ public final class DBCP_c3p0 extends ConnectionPool {
         conn = new DBCP_c3p0().initialize(dc2).getConnection(dc2);
         System.out.println("Client Information: " + conn.getClientInfo());
     }
-
-    /**
-     * Map of URL and its associated pool.
-     */
-    private static Map<String, ComboPooledDataSource> pools = null;
 
     /*
      * (non-Javadoc)
@@ -169,7 +169,7 @@ public final class DBCP_c3p0 extends ConnectionPool {
      */
     @Override
     public String toString() {
-        String ret = "[c3p0-" + DBCP_c3p0.pools.size() + ']';
+        final String ret = "[c3p0-" + DBCP_c3p0.pools.size() + ']';
         return ret;
     }
 }

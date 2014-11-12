@@ -60,14 +60,14 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         }
         Set<String> bufferpoolNames = null;
         try {
-            bufferpoolReads = db2Database.getBufferpoolsAndRefresh(this
+            this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(this
                     .getConnection(cl));
-            bufferpoolNames = bufferpoolReads.keySet();
+            bufferpoolNames = this.bufferpoolReads.keySet();
         } catch (MetricGatheringException | DatabaseConnectionException e) {
             this.log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
                     + "for threshold from the database: " + e.getMessage(), e);
-        } catch (UnknownValueException e) {
+        } catch (final UnknownValueException e) {
             // There are not values in the cache. Do nothing.
         }
         if (this.bufferpoolReads != null) {
@@ -122,10 +122,11 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             BigDecimal min;
             BigDecimal max;
             res = new ArrayList<Metric>();
-            final Iterator<String> iter = bufferpoolReads.keySet().iterator();
+            final Iterator<String> iter = this.bufferpoolReads.keySet()
+                    .iterator();
             while (iter.hasNext()) {
                 String name = iter.next();
-                final BufferpoolRead bpDesc = bufferpoolReads.get(name);
+                final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
                 name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
                         + name;
                 this.log.debug("Metrics: " + name);
@@ -146,8 +147,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             // Metadata
             final boolean metadata = cl.hasOption("metadata");
             if (metadata) {
-                DB2Database db2Database = DB2DatabasesManager.getInstance()
-                        .getDatabase(this.getID(cl));
+                final DB2Database db2Database = DB2DatabasesManager
+                        .getInstance().getDatabase(this.getID(cl));
                 res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
                         .getLastRefresh()), null, null));
                 res.add(new Metric("Cache-old", "", new BigDecimal(System
@@ -219,16 +220,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         return dbConn;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see it.jnrpe.plugins.PluginBase#getPluginName()
-     */
-    @Override
-    protected final String getPluginName() {
-        return "CHECK_BUFFER_POOL_HIT_RATIO";
-    }
-
     /**
      * Retrieves an ID to identify a database.
      *
@@ -241,6 +232,16 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         final String[] values = this.getURLValues(cl);
         ret = values[0] + ':' + values[1] + '/' + values[2];
         return ret;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see it.jnrpe.plugins.PluginBase#getPluginName()
+     */
+    @Override
+    protected final String getPluginName() {
+        return "CHECK_BUFFER_POOL_HIT_RATIO";
     }
 
     /**

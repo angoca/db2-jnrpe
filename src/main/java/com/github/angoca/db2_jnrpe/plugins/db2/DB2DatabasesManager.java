@@ -60,7 +60,7 @@ public class DB2DatabasesManager {
      * @return The database that corresponds to the given ID.
      */
     DB2Database getDatabase(final String id) {
-        DB2Database db = this.db2Databases.get(id);
+        final DB2Database db = this.db2Databases.get(id);
         return db;
     }
 
