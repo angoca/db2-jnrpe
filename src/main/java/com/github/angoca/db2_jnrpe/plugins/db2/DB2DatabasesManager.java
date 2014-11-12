@@ -29,46 +29,47 @@ public class DB2DatabasesManager {
     }
 
     /**
-     * List of dB2Databases.
+     * List of db2Databases.
      */
-    private final Map<String, DB2Database> dB2Databases;
+    private final Map<String, DB2Database> db2Databases;
 
     /**
      * Creates the singleton.
      */
     private DB2DatabasesManager() {
-        this.dB2Databases = new HashMap<String, DB2Database>();
+        this.db2Databases = new HashMap<String, DB2Database>();
     }
 
     /**
      * Adds a database in the set.
      *
-     * @param url
-     *            Unique URL to identify this database.
-     * @param dB2Database
+     * @param id
+     *            ID to identify the database.
+     * @param db2Database
      *            DB2Database.
      */
-    public void add(final String url, final DB2Database dB2Database) {
-        this.dB2Databases.put(url, dB2Database);
+    public void add(final String id, final DB2Database db2Database) {
+        this.db2Databases.put(id, db2Database);
     }
 
     /**
-     * Retrieves a database given its URL.
+     * Retrieves a database given its ID.
      *
-     * @param name
-     *            URL of the database.
-     * @return The database that corresponds to the given url.
+     * @param id
+     *            Id of the database.
+     * @return The database that corresponds to the given ID.
      */
-    DB2Database getDatabase(final String url) {
-        return this.dB2Databases.get(url);
+    DB2Database getDatabase(final String id) {
+        DB2Database db = this.db2Databases.get(id);
+        return db;
     }
 
     /**
-     * Retrieves all dB2Databases.
+     * Retrieves all db2Databases.
      *
-     * @return Map of dB2Databases.
+     * @return Map of db2Databases.
      */
     Map<String, DB2Database> getDatabases() {
-        return this.dB2Databases;
+        return this.db2Databases;
     }
 }
