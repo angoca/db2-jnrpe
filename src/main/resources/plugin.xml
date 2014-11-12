@@ -33,6 +33,10 @@ This command shows the hit ratio for a given or all bufferpools.
     <option shortName="T" longName="threshold"
      description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
      required="false" argName="Threshold" hasArgs="true" />
+
+    <option shortName="M" longName="metadata"
+     description="Metadata of the cached values" required="false"
+     hasArgs="false" />
    </options>
   </command-line>
  </plugin>
