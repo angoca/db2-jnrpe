@@ -63,7 +63,11 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(this
                     .getConnection(cl));
             bufferpoolNames = this.bufferpoolReads.keySet();
-        } catch (MetricGatheringException | DatabaseConnectionException e) {
+        } catch (MetricGatheringException e) {
+            this.log.fatal("Error while retrieving names", e);
+            throw new BadThresholdException("Problem retrieving the values "
+                    + "for threshold from the database: " + e.getMessage(), e);
+        } catch (DatabaseConnectionException e) {
             this.log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
                     + "for threshold from the database: " + e.getMessage(), e);
