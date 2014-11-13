@@ -32,7 +32,9 @@ public class DB2Database {
 
     /**
      * Creates a database with an ID.
-     * @param dbId Unique id to identify this database.
+     * 
+     * @param dbId
+     *            Unique id to identify this database.
      */
     public DB2Database(final String dbId) {
         this.id = dbId;
@@ -131,7 +133,8 @@ public class DB2Database {
      * @param bufferpoolReads
      *            Bufferpool reads.
      */
-    final void setBufferpoolReads(final Map<String, BufferpoolRead> bufferpoolReads) {
+    final void setBufferpoolReads(
+            final Map<String, BufferpoolRead> bufferpoolReads) {
         this.bufferpools = bufferpoolReads;
         this.lastBufferpoolRead = System.currentTimeMillis();
     }

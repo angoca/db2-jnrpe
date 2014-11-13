@@ -25,6 +25,16 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersions;
 public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
     /**
+     * Position of column bpname.
+     */
+    private static final int COL_POS_BPNAME = 1;
+
+    /**
+     * Position of column logical reads.
+     */
+    private static final int COL_POS_LOGICAL_READS = 2;
+
+    /**
      * Position of column for member.
      */
     private static final int COL_POS_MEMBER = 4;
@@ -33,16 +43,6 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * Position of column for total reads.
      */
     private static final int COL_POS_TOTAL_READS = 3;
-
-    /**
-     * Position of column logical reads.
-     */
-    private static final int COL_POS_LOGICAL_READS = 2;
-
-    /**
-     * Position of column bpname.
-     */
-    private static final int COL_POS_BPNAME = 1;
 
     /**
      * Columns of the table.
@@ -216,13 +216,17 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 int member;
                 while (res.next()) {
                     // Name.
-                    name = res.getString(COL_POS_BPNAME);
+                    name = res
+                            .getString(CheckBufferPoolHitRatioDB2.COL_POS_BPNAME);
                     // Logical reads.
-                    logical = res.getInt(COL_POS_LOGICAL_READS);
+                    logical = res
+                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_LOGICAL_READS);
                     // Physical reads.
-                    physical = res.getInt(COL_POS_TOTAL_READS);
+                    physical = res
+                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_TOTAL_READS);
                     // Member
-                    member = res.getInt(COL_POS_MEMBER);
+                    member = res
+                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_MEMBER);
 
                     read = new BufferpoolRead(name, logical,
                             logical + physical, member);

@@ -44,8 +44,8 @@ public final class BufferpoolRead {
      * @param dbMember
      *            Member of the database.
      */
-    BufferpoolRead(final String bpName, final int logical,
-            final int total, final int dbMember) {
+    BufferpoolRead(final String bpName, final int logical, final int total,
+            final int dbMember) {
         assert logical <= total : "Logical reads should be less "
                 + "that total reads.";
         this.name = bpName;

@@ -44,14 +44,13 @@ public abstract class DB2Helper {
         try {
             connection = ConnectionPoolsManager.getInstance()
                     .getConnectionPool(dbConn).getConnection(dbConn);
-            PreparedStatement stmt = connection
-                    .prepareStatement(queryAfterV97);
+            PreparedStatement stmt = connection.prepareStatement(queryAfterV97);
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
                 final int code = DB2Helper.getSqlCode(sqle);
-                if (code == NO_ROUTINE) {
+                if (code == DB2Helper.NO_ROUTINE) {
                     stmt = connection.prepareStatement(queryBeforeV97);
                     res = stmt.executeQuery();
                 } else {
@@ -117,14 +116,13 @@ public abstract class DB2Helper {
         try {
             connection = ConnectionPoolsManager.getInstance()
                     .getConnectionPool(dbConn).getConnection(dbConn);
-            PreparedStatement stmt = connection
-                    .prepareStatement(queryAfterV97);
+            PreparedStatement stmt = connection.prepareStatement(queryAfterV97);
             ResultSet res = null;
             try {
                 res = stmt.executeQuery();
             } catch (final SQLException sqle) {
                 final int code = DB2Helper.getSqlCode(sqle);
-                if (code == NO_ROUTINE) {
+                if (code == DB2Helper.NO_ROUTINE) {
                     stmt = connection.prepareStatement(queryBeforeV97);
                     res = stmt.executeQuery();
                 } else {

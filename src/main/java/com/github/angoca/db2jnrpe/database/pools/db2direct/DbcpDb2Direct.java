@@ -69,8 +69,7 @@ public class DbcpDb2Direct extends ConnectionPool {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
+     * @see com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
      * com.github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override

@@ -66,7 +66,7 @@ public final class DatabaseConnectionsManager {
      *             If any error occurs while retrieving the constructor.
      */
     @SuppressWarnings("unchecked")
-    private  Constructor<DatabaseConnection> getConstructor(
+    private Constructor<DatabaseConnection> getConstructor(
             final String databaseConnectionName)
             throws DatabaseConnectionException {
         Constructor<DatabaseConnection> constructor = this.constructors
@@ -115,7 +115,7 @@ public final class DatabaseConnectionsManager {
      * @throws DatabaseConnectionException
      *             If any error occurs that instantiating the constructor.
      */
-    public  DatabaseConnection getDatabaseConnection(
+    public DatabaseConnection getDatabaseConnection(
             final String connectionsPool, final String databaseConnection,
             final String hostname, final int portNumber,
             final String databaseName, final String username,

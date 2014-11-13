@@ -58,11 +58,11 @@ public final class DB2Connection extends DatabaseConnection {
         super(connectionsPool, defaultProperties, username, password);
         DB2Connection.qty = DB2Connection.qty + 1;
         // Changes the application name.
-        this.getConnectionProperties().put("clientProgramName", "db2-jnrpe-"
-                + DB2Connection.qty);
+        this.getConnectionProperties().put("clientProgramName",
+                "db2-jnrpe-" + DB2Connection.qty);
         // Shows descriptive message when errors.
-        this.getConnectionProperties().put("retrieveMessagesFromServerOnGetMessage",
-                "true");
+        this.getConnectionProperties().put(
+                "retrieveMessagesFromServerOnGetMessage", "true");
 
         this.setUrl("jdbc:db2://" + host + ":" + port + "/" + dbName);
         this.hostname = host;

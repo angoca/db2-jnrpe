@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Implementation of the connection pool with Hikari.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */

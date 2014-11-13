@@ -15,13 +15,6 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 public final class TestDB2Connection {
 
     /**
-     * Empty constructor.
-     */
-    private TestDB2Connection() {
-        // Nothing.
-    }
-
-    /**
      * Tester.
      *
      * @param args
@@ -38,5 +31,12 @@ public final class TestDB2Connection {
         final Connection conn = DriverManager.getConnection(dbConn.getUrl(),
                 dbConn.getUsername(), dbConn.getPassword());
         System.out.println("Client Information: " + conn.getClientInfo());
+    }
+
+    /**
+     * Empty constructor.
+     */
+    private TestDB2Connection() {
+        // Nothing.
     }
 }

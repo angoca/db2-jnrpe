@@ -54,8 +54,8 @@ public final class ConnectionPoolsManager {
      * @throws DatabaseConnectionException
      *             Any exception is wrapped in this exception.
      */
-    public  ConnectionPool getConnectionPool(
-            final DatabaseConnection dbConn) throws DatabaseConnectionException {
+    public ConnectionPool getConnectionPool(final DatabaseConnection dbConn)
+            throws DatabaseConnectionException {
         final String poolName = dbConn.getConnectionsPoolName();
         ConnectionPool connectionPool = this.connectionPools.get(poolName);
         if (connectionPool == null) {
