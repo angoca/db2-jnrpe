@@ -61,7 +61,7 @@ public final class DbcpC3p0 extends ConnectionPool {
                 "db2inst2") {
 
             {
-                this.setUrl("jdbc:db2://127.0.0.1:50002/sample");
+                this.setUrl("jdbc:db2://127.0.0.1:50000/sample2");
             }
 
             /*

@@ -2,6 +2,8 @@ package com.github.angoca.db2jnrpe.database.pools.hikari;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.github.angoca.db2jnrpe.database.DatabaseConnection;
@@ -19,6 +21,11 @@ import com.zaxxer.hikari.HikariDataSource;
 public class DbcpHikari extends ConnectionPool {
 
     /**
+     * Map of URL and its associated pool.
+     */
+    private static Map<String, HikariDataSource> pools = null;
+
+    /**
      * Tester.
      *
      * @param args
@@ -33,7 +40,7 @@ public class DbcpHikari extends ConnectionPool {
                 "db2inst1") {
 
             {
-                this.setUrl("jdbc:db2://localhost:50000/sample");
+                this.setUrl("jdbc:db2://127.0.0.1:50000/sample2");
             }
 
             /*
@@ -47,25 +54,29 @@ public class DbcpHikari extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2SimpleDataSource";
             }
         };
-        final Connection conn = new DbcpHikari().initialize(dc1).getConnection(
-                dc1);
-        System.out.println("Client Information: " + conn.getClientInfo());
-    }
+        Connection conn1 = new DbcpHikari().initialize(dc1).getConnection(dc1);
+        System.out.println("Client Information: " + conn1.getClientInfo());
+        final DatabaseConnection dc2 = new DatabaseConnection(
+                DbcpHikari.class.getName(), new Properties(), "db2inst2",
+                "db2inst2") {
 
-    /**
-     * Configuration for Hikari.
-     */
-    private final HikariConfig config;
+            {
+                this.setUrl("jdbc:db2://127.0.0.1:50000/sample");
+            }
 
-    /**
-     * Constructor for Hikari implementation.
-     */
-    public DbcpHikari() {
-        this.config = new HikariConfig();
-        this.config.addDataSourceProperty("cachePrepStmts", "true");
-        this.config.addDataSourceProperty("prepStmtCacheSize", "250");
-        this.config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        this.config.addDataSourceProperty("useServerPrepStmts", "true");
+            /*
+             * (non-Javadoc)
+             * 
+             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
+             * #getDriverClass()
+             */
+            @Override
+            public String getDriverClass() {
+                return "com.ibm.db2.jcc.DB2Driver";
+            }
+        };
+        Connection conn2 = new DbcpHikari().initialize(dc2).getConnection(dc2);
+        System.out.println("Client Information: " + conn2.getClientInfo());
     }
 
     /*
@@ -98,8 +109,25 @@ public class DbcpHikari extends ConnectionPool {
     @Override
     public final Connection getConnection(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
+        HikariDataSource ds = DbcpHikari.pools.get(dbConn.getUrl());
+        if (ds == null) {
+            HikariConfig config = new HikariConfig();
+            config.addDataSourceProperty("cachePrepStmts", "true");
+            config.addDataSourceProperty("prepStmtCacheSize", "250");
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            config.addDataSourceProperty("useServerPrepStmts", "true");
+            config.addDataSourceProperty("blockingReadConnectionTimeout ",
+                    "1000");
+            config.setJdbcUrl(dbConn.getUrl());
+            config.setUsername(dbConn.getUsername());
+            config.setPassword(dbConn.getPassword());
+            config.setDataSourceProperties(dbConn.getConnectionProperties());
+            ds = new HikariDataSource(config);
+            DbcpHikari.pools.put(dbConn.getUrl(), ds);
+        }
+
         try {
-            return new HikariDataSource(this.config).getConnection();
+            return ds.getConnection();
         } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
         }
@@ -115,10 +143,9 @@ public class DbcpHikari extends ConnectionPool {
     @Override
     public final ConnectionPool initialize(final DatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        this.config.setJdbcUrl(dbConn.getUrl());
-        this.config.setUsername(dbConn.getUsername());
-        this.config.setPassword(dbConn.getPassword());
-        this.config.setDataSourceProperties(dbConn.getConnectionProperties());
+        if (DbcpHikari.pools == null) {
+            DbcpHikari.pools = new HashMap<String, HikariDataSource>();
+        }
         return this;
     }
 }
