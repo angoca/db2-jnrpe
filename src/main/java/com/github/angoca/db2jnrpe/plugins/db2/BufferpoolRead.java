@@ -63,6 +63,8 @@ public final class BufferpoolRead {
     protected BufferpoolRead clone() {
         final BufferpoolRead copy = new BufferpoolRead(this.name,
                 this.logicalReads, this.totalReads, this.member);
+        copy.previousLogicalReads = this.previousLogicalReads;
+        copy.previousTotalReads = this.previousTotalReads;
         return copy;
     }
 
@@ -73,16 +75,16 @@ public final class BufferpoolRead {
      *
      * @return Ratio of the reads.
      */
-    int getLastRatio() {
-        int ret = 0;
+    double getLastRatio() {
+        double ret = 0;
         if (this.totalReads == 0) {
             ret = 100;
         } else if (this.previousTotalReads == 0) {
             ret = this.getRatio();
-        } else if (this.previousLogicalReads == this.totalReads) {
+        } else if (this.previousTotalReads == this.totalReads) {
             ret = 100;
         } else {
-            ret = (this.logicalReads - this.previousLogicalReads)
+            ret = (double)(this.logicalReads - this.previousLogicalReads) * 100
                     / (this.totalReads - this.previousTotalReads);
         }
         return ret;
@@ -130,12 +132,13 @@ public final class BufferpoolRead {
      *
      * @return Ratio of the reads.
      */
-    int getRatio() {
-        int ret = 0;
+    double getRatio() {
+        double ret = 0;
         if (this.totalReads == 0) {
+            // No reads until now.
             ret = 100;
         } else {
-            ret = this.logicalReads / this.totalReads;
+            ret = (double) this.logicalReads * 100 / this.totalReads;
         }
         return ret;
     }
