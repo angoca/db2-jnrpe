@@ -73,7 +73,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             throws BadThresholdException {
         Set<String> bufferpoolNames;
         try {
-            bufferpoolNames = getDatabaseInfo(this.getId(cl),
+            bufferpoolNames = this.getDatabaseInfo(this.getId(cl),
                     this.getConnection(cl));
         } catch (MetricGatheringException e) {
             this.log.fatal("Error while retrieving names", e);

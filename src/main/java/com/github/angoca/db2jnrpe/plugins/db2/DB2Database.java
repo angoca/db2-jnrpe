@@ -128,14 +128,20 @@ public class DB2Database {
     }
 
     /**
-     * Sets a new set of bufferpools reads.
-     *
-     * @param bufferpoolReads
-     *            Bufferpool reads.
+     * Adds a bufferpool read to the database.
+     * 
+     * @param bpr
+     *            Bufferpool read.
      */
-    final void setBufferpoolReads(
-            final Map<String, BufferpoolRead> bufferpoolReads) {
-        this.bufferpools = bufferpoolReads;
+    final void addBufferpoolRead(final BufferpoolRead bpr) {
+        this.bufferpools.put(bpr.getName(), bpr);
+    }
+
+    /**
+     * Updates the value of the last bufferpool read. This is general to all
+     * bufferpools because they are updated at the same time.
+     */
+    final void updateLastBufferpoolRead() {
         this.lastBufferpoolRead = System.currentTimeMillis();
     }
 

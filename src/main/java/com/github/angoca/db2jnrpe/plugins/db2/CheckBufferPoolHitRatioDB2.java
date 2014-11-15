@@ -113,7 +113,8 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
         DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
                 new DB2Database(dbConn.getUrl()));
-        new CheckBufferPoolHitRatioDB2(dbConn, new DB2Database("1")).check();
+        new CheckBufferPoolHitRatioDB2(dbConn, DB2DatabasesManager
+                .getInstance().getDatabase(dbConn.getUrl())).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
                 .getDatabase(dbConn.getUrl()).getBufferpools();
         iter = bufferpoolsDesc.keySet().iterator();
@@ -144,7 +145,10 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 .getDatabaseConnection(connectionPool, databaseConnection,
                         hostname, portNumber, databaseName, username, password);
 
-        new CheckBufferPoolHitRatioDB2(dbConn, new DB2Database("2")).check();
+        DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
+                new DB2Database(dbConn.getUrl()));
+        new CheckBufferPoolHitRatioDB2(dbConn, DB2DatabasesManager
+                .getInstance().getDatabase(dbConn.getUrl())).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
                 .getDatabase(dbConn.getUrl()).getBufferpools();
         iter = bufferpoolsDesc.keySet().iterator();
@@ -194,7 +198,6 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      */
     void check() throws DatabaseConnectionException {
         assert this.dbConn != null;
-        final Map<String, BufferpoolRead> allValues = new HashMap<String, BufferpoolRead>();
         final DB2MajorVersions version = DB2Helper
                 .getDB2MajorVersion(this.dbConn);
         // This query cannot be executed in a database with db2 v9.5 or before.
@@ -214,6 +217,9 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 int logical;
                 int physical;
                 int member;
+                DB2Database db = DB2DatabasesManager.getInstance().getDatabase(
+                        this.db2db.getId());
+                Map<String, BufferpoolRead> bps = db.getBufferpools();
                 while (res.next()) {
                     // Name.
                     name = res
@@ -228,10 +234,16 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                     member = res
                             .getInt(CheckBufferPoolHitRatioDB2.COL_POS_MEMBER);
 
-                    read = new BufferpoolRead(name, logical,
-                            logical + physical, member);
-                    allValues.put(name, read);
+                    read = bps.get(name);
+                    if (read == null) {
+                        read = new BufferpoolRead(name, logical, logical
+                                + physical, member);
+                        db.addBufferpoolRead(read);
+                    } else {
+                        read.setReads(logical, logical + physical);
+                    }
                 }
+                db.updateLastBufferpoolRead();
                 res.close();
                 stmt.close();
                 ConnectionPoolsManager.getInstance()
@@ -242,9 +254,6 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 throw new DatabaseConnectionException(sqle);
             }
         }
-
-        DB2DatabasesManager.getInstance().getDatabase(this.db2db.getId())
-                .setBufferpoolReads(allValues);
     }
 
     /*
