@@ -35,6 +35,26 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      * Prefix for thresholds.
      */
     private static final String THRESHOLD_NAME_BUFFERPOOL = "bufferpool_hit_ratio-";
+
+    public static void main(String[] args) throws Exception {
+        DatabaseConnection dbConn = null;
+        dbConn = DatabaseConnectionsManager
+                .getInstance()
+                .getDatabaseConnection(
+                        com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
+                                .getName(), DB2Connection.class.getName(),
+                        "localhost", 50000, "sample", "db2inst1", "db2inst1");
+        String id = "localhost:50000/sample";
+
+        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        Thread.sleep(5000);
+        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        Thread.sleep(5000);
+        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        Thread.sleep(5000);
+        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+    }
+
     /**
      * List of bufferpools.
      */
@@ -51,28 +71,14 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     public void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
-        DB2Database db2Database = DB2DatabasesManager.getInstance()
-                .getDatabase(this.getId(cl));
-        if (db2Database == null) {
-            final String id = this.getId(cl);
-            db2Database = new DB2Database(id);
-            DB2DatabasesManager.getInstance().add(id, db2Database);
-        }
-        Set<String> bufferpoolNames = null;
+        Set<String> bufferpoolNames;
         try {
-            this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(this
-                    .getConnection(cl));
-            bufferpoolNames = this.bufferpoolReads.keySet();
+            bufferpoolNames = getDatabaseInfo(this.getId(cl),
+                    this.getConnection(cl));
         } catch (MetricGatheringException e) {
             this.log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
                     + "for threshold from the database: " + e.getMessage(), e);
-        } catch (DatabaseConnectionException e) {
-            this.log.fatal("Error while retrieving names", e);
-            throw new BadThresholdException("Problem retrieving the values "
-                    + "for threshold from the database: " + e.getMessage(), e);
-        } catch (final UnknownValueException e) {
-            // There are not values in the cache. Do nothing.
         }
         if (this.bufferpoolReads != null) {
             final String bufferpoolName = cl.getOptionValue("bufferpool");
@@ -109,6 +115,28 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             thrb.withLegacyThreshold("Cache-data", null, null, null);
             thrb.withLegacyThreshold("Cache-old", null, null, null);
         }
+    }
+
+    private Set<String> getDatabaseInfo(final String id,
+            final DatabaseConnection conn) throws BadThresholdException {
+        DB2Database db2Database = DB2DatabasesManager.getInstance()
+                .getDatabase(id);
+        if (db2Database == null) {
+            db2Database = new DB2Database(id);
+            DB2DatabasesManager.getInstance().add(id, db2Database);
+        }
+        Set<String> bufferpoolNames = null;
+        try {
+            this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(conn);
+            bufferpoolNames = this.bufferpoolReads.keySet();
+        } catch (DatabaseConnectionException e) {
+            this.log.fatal("Error while retrieving names", e);
+            throw new BadThresholdException("Problem retrieving the values "
+                    + "for threshold from the database: " + e.getMessage(), e);
+        } catch (final UnknownValueException e) {
+            // There are not values in the cache. Do nothing.
+        }
+        return bufferpoolNames;
     }
 
     /*
@@ -159,6 +187,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                         .currentTimeMillis() - db2Database.getLastRefresh()),
                         null, null));
             }
+            this.bufferpoolReads = null;
         } else {
             throw new MetricGatheringException("Values have not been gathered",
                     Status.UNKNOWN, null);
