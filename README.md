@@ -27,6 +27,7 @@ The installation process consist in:
 * Download the requiered libraries:
  * Hikari
  * JavaAssist
+ * SFL4J API
 * Copy the DB2 driver in the same directory.
 * Configure the jnrpe.ini file with the plugins.
 * Start the JNRPE server.
