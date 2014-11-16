@@ -31,11 +31,6 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
  */
 public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
-    /**
-     * Prefix for thresholds.
-     */
-    private static final String THRESHOLD_NAME_BUFFERPOOL = "bufferpool_hit_ratio-";
-
     public static void main(String[] args) throws Exception {
         DatabaseConnection dbConn = null;
         dbConn = DatabaseConnectionsManager
@@ -83,21 +78,16 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         if (this.bufferpoolReads != null) {
             final String bufferpoolName = cl.getOptionValue("bufferpool");
             if ((bufferpoolName == null) || (bufferpoolName.compareTo("") == 0)) {
-                String name;
                 for (final String string : bufferpoolNames) {
                     final String bpName = string;
-                    name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                            + bpName;
-                    this.log.debug("Threshold for bufferpool: " + name);
-                    thrb.withLegacyThreshold(name, null,
+                    this.log.debug("Threshold for bufferpool: " + bpName);
+                    thrb.withLegacyThreshold(bpName, null,
                             cl.getOptionValue("warning", "90"),
                             cl.getOptionValue("critical", "95"));
                 }
             } else if (bufferpoolNames.contains(bufferpoolName)) {
                 this.log.debug("Threshold for bufferpool: " + bufferpoolName);
-                thrb.withLegacyThreshold(
-                        CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                                + bufferpoolName, null,
+                thrb.withLegacyThreshold(bufferpoolName, null,
                         cl.getOptionValue("warning", "90"),
                         cl.getOptionValue("critical", "95"));
             } else {
@@ -151,28 +141,22 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         if (this.bufferpoolReads != null) {
             // Converts result to arrays and create metrics.
             BigDecimal ratio;
-            BigDecimal min;
-            BigDecimal max;
             res = new ArrayList<Metric>();
             final Iterator<String> iter = this.bufferpoolReads.keySet()
                     .iterator();
             while (iter.hasNext()) {
                 String name = iter.next();
                 final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
-                name = CheckBufferPoolHitRatioJnrpe.THRESHOLD_NAME_BUFFERPOOL
-                        + name;
                 this.log.debug("Metrics: " + name);
                 ratio = new BigDecimal(bpDesc.getLastRatio());
                 final String message = String.format(
-                        "Bufferpool %s at member %s has %s logical reads "
-                                + "and %s physical reads, with a hit "
-                                + "ratio of %s%%.", name, bpDesc.getMember(),
+                        "Bufferpool %s at member %d has %d logical reads "
+                                + "and %d physical reads, with a hit "
+                                + "ratio of %.1f%%.", name, bpDesc.getMember(),
                         bpDesc.getLogicalReads(), bpDesc.getPhysicalReads(),
                         ratio);
-                min = new BigDecimal(0);
-                max = new BigDecimal(100);
 
-                res.add(new Metric(name, message, ratio, min, max));
+                res.add(new Metric(name, message, ratio, null, null));
             }
             this.log.debug(res.size() + " metrics");
 
