@@ -7,7 +7,9 @@ This is a set of plugins to monitor DB2 via Nagios. It relies on the JNRPE frame
 * Create plugins for other RDBMS using the benefitcs of Java.
 
 The difference between this set of plugins and other available in the market is that a Java daemon allows to reduce the overhead on the database. Other scripts, establishes one or multiple connections to query the elements in the database, and this creates a big overhead in the database. This set of plugins keeps the connection active thanks to a connection pool (Hikari or C3p0) and this reduces the overhead of connection establishment.
+
 Also, many plugins queries the same values to monitor similar elements. For example, for each bufferpool, other queries has to query the database several times to retrieve the same information and then filter it according to the parameters. This set of plugins queries the database once, and keep the information in a cache to be used for multiple commands.
+
 With a cache system, this plugin can compares values with the previous measures, in order to give an instant performance. No extra files are required, just a daemon executing.
 
 # Plugins
