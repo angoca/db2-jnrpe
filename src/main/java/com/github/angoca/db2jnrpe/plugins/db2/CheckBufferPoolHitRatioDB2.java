@@ -58,8 +58,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
     /**
      * Query for DB2 after v9.7.
      */
-    private static final String QUERY_AFTER_V97 = "WITH BPMETRICS AS ("
-            + " SELECT BP_NAME, "
+    private static final String QUERY_AFTER_V97 = "SELECT BP_NAME, "
             + " POOL_DATA_L_READS + POOL_TEMP_DATA_L_READS + "
             + " POOL_XDA_L_READS + POOL_TEMP_XDA_L_READS + "
             + " POOL_INDEX_L_READS + POOL_TEMP_INDEX_L_READS "
@@ -69,12 +68,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
             + " POOL_XDA_P_READS + POOL_TEMP_XDA_P_READS "
             + " AS PHYSICAL_READS, MEMBER "
             + " FROM TABLE(MON_GET_BUFFERPOOL('', -2)) AS METRICS "
-            + " WHERE BP_NAME NOT LIKE 'IBMSYSTEMBP%') "
-            + "SELECT BP_NAME, LOGICAL_READS, PHYSICAL_READS, "
-            + "CASE WHEN LOGICAL_READS > 0 "
-            + " THEN DEC((1 - (FLOAT(PHYSICAL_READS) "
-            + " / FLOAT(LOGICAL_READS))) * 100, 5, 2) ELSE NULL "
-            + "END AS HIT_RATIO, MEMBER FROM BPMETRICS";
+            + " WHERE BP_NAME NOT LIKE 'IBMSYSTEMBP%'";
 
     /**
      * Tester.
@@ -275,7 +269,8 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 this.check();
                 CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
             }
-        } catch (final DatabaseConnectionException e) {
+        } catch (final Exception e) {
+            CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
             e.printStackTrace();
         }
     }
