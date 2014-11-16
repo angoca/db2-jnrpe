@@ -30,3 +30,5 @@ The installation process consist in:
 * Start the JNRPE server.
 * Configure Nagios to call the plugins.
 * Restart Nagios.
+
+A more detailed installation guide can be found in the wiki: https://github.com/angoca/db2-jnrpe/wiki/Install
