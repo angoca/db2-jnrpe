@@ -41,13 +41,13 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                         "localhost", 50000, "sample", "db2inst1", "db2inst1");
         String id = "localhost:50000/sample";
 
-        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getDatabaseInfo(id, dbConn);
+        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
     }
 
     /**
@@ -67,8 +67,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
             throws BadThresholdException {
         Set<String> bufferpoolNames;
+        final String dbId = this.getId(cl);
+        this.log.warn("Database: " + dbId);
         try {
-            bufferpoolNames = this.getDatabaseInfo(this.getId(cl),
+            bufferpoolNames = this.getBufferpoolNames(dbId,
                     this.getConnection(cl));
         } catch (MetricGatheringException e) {
             this.log.fatal("Error while retrieving names", e);
@@ -107,7 +109,18 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         }
     }
 
-    private Set<String> getDatabaseInfo(final String id,
+    /**
+     * Returns the names of the bufferpoools.
+     * 
+     * @param id
+     *            Database id.
+     * @param conn
+     *            Connection to the database.
+     * @return Set of bufferpool names.
+     * @throws BadThresholdException
+     *             If there is an error retrieving the values.
+     */
+    private Set<String> getBufferpoolNames(final String id,
             final DatabaseConnection conn) throws BadThresholdException {
         DB2Database db2Database = DB2DatabasesManager.getInstance()
                 .getDatabase(id);
@@ -137,8 +150,16 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     public Collection<Metric> gatherMetrics(final ICommandLine cl)
             throws MetricGatheringException {
+        final String dbId = this.getId(cl);
+        this.log.warn("Database: " + dbId);
         final List<Metric> res;
         if (this.bufferpoolReads != null) {
+            if (DB2DatabasesManager.getInstance().getDatabase(dbId)
+                    .isRecentBufferpoolRead()) {
+                this.log.warn("Values are old");
+                throw new MetricGatheringException("Values are not recent",
+                        Status.UNKNOWN, null);
+            }
             // Converts result to arrays and create metrics.
             BigDecimal ratio;
             res = new ArrayList<Metric>();
@@ -147,8 +168,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             while (iter.hasNext()) {
                 String name = iter.next();
                 final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
-                this.log.debug("Metrics: " + name);
                 ratio = new BigDecimal(bpDesc.getLastRatio());
+                this.log.debug("Metrics: bufferpool " + name + " with " + ratio);
                 final String message = String.format(
                         "Bufferpool %s at member %d has %d logical reads "
                                 + "and %d physical reads, with a hit "
@@ -173,6 +194,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             }
             this.bufferpoolReads = null;
         } else {
+            this.log.warn("No values");
             throw new MetricGatheringException("Values have not been gathered",
                     Status.UNKNOWN, null);
         }
