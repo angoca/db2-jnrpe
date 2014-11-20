@@ -3,6 +3,9 @@ package com.github.angoca.db2jnrpe.plugins.db2;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
@@ -29,6 +32,10 @@ public class DB2Database {
      * Time of the last bufferpools read.
      */
     private long lastBufferpoolRead = 0;
+    /**
+     * Logger.
+     */
+    private static Logger log = LoggerFactory.getLogger(DB2Database.class);
 
     /**
      * Creates a database with an ID.
@@ -40,6 +47,7 @@ public class DB2Database {
         this.id = dbId;
         this.bufferpools = new HashMap<String, BufferpoolRead>();
         this.lastBufferpoolRead = 0;
+        log.debug("New database " + dbId);
     }
 
     /**
@@ -89,6 +97,8 @@ public class DB2Database {
             // previous values.
             new Thread(new CheckBufferPoolHitRatioDB2(dbConn, this)).start();
         }
+        log.info(this.id + "::Values returned taken at "
+                + this.lastBufferpoolRead);
         return this.cloneBufferpools();
     }
 
@@ -108,6 +118,20 @@ public class DB2Database {
      */
     final long getLastRefresh() {
         return this.lastBufferpoolRead;
+    }
+
+    /**
+     * Checks if the values are recent or not.
+     * 
+     * @return True if the values are not old, false otherwise.
+     */
+    final boolean isRecentBufferpoolRead() {
+        boolean ret = true;
+        final long now = System.currentTimeMillis();
+        if ((now - (2 * DB2Database.BUFFERPOOL_FREQUENCY)) < this.lastBufferpoolRead) {
+            ret = false;
+        }
+        return ret;
     }
 
     /**

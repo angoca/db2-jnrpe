@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
@@ -43,6 +46,12 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * Position of column for total reads.
      */
     private static final int COL_POS_TOTAL_READS = 3;
+
+    /**
+     * Logger.
+     */
+    private static Logger log = LoggerFactory
+            .getLogger(CheckBufferPoolHitRatioDB2.class);
 
     /**
      * Columns of the table.
@@ -176,7 +185,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * @param connProps
      *            Connection properties.
      * @param db2database
-     *            DB2 database that conntains the info.
+     *            DB2 database that contains the info.
      */
     public CheckBufferPoolHitRatioDB2(final DatabaseConnection connProps,
             final DB2Database db2database) {
@@ -228,12 +237,17 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                     member = res
                             .getInt(CheckBufferPoolHitRatioDB2.COL_POS_MEMBER);
 
+                    log.info(this.dbConn.getUrl() + "::Name " + name
+                            + ", logical " + logical + ", physical " + physical
+                            + ", member " + member);
                     read = bps.get(name);
                     if (read == null) {
+                        log.debug(this.dbConn.getUrl() + "::New bufferpool");
                         read = new BufferpoolRead(name, logical, logical
                                 + physical, member);
                         db.addBufferpoolRead(read);
                     } else {
+                        log.debug(this.dbConn.getUrl() + "::Bufferpool updated");
                         read.setReads(logical, logical + physical);
                     }
                 }
@@ -268,8 +282,13 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 CheckBufferPoolHitRatioDB2.LOCKS.put(this.db2db.getId(), 1);
                 this.check();
                 CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
+            } else {
+                log.warn(this.dbConn.getUrl() + "::There is a lock for: "
+                        + this.db2db.getId());
             }
         } catch (final Exception e) {
+            log.error(this.dbConn.getUrl()
+                    + "::Error while reading bufferpool values", e);
             CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
             e.printStackTrace();
         }
