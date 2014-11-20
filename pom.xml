@@ -22,6 +22,11 @@
    <version>2.2.4</version>
   </dependency>
   <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>slf4j-api</artifactId>
+   <version>1.6.4</version>
+  </dependency>
+  <dependency>
    <!-- You need to install the DB2 driver -->
    <!-- mvn install:install-file -Dfile="C:\Program Files\IBM\SQLLIB\java\db2jcc4.jar" 
     -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->
