@@ -71,7 +71,7 @@ public final class BufferpoolRead {
     /**
      * Returns the most recent ratio between logical reads and total reads
      * (logical + physical reads). This is calculated between the previous read
-     * values an dhte current ones.
+     * values an the current ones.
      *
      * @return Ratio of the reads.
      */
@@ -84,8 +84,8 @@ public final class BufferpoolRead {
         } else if (this.previousTotalReads == this.totalReads) {
             ret = 100;
         } else {
-            ret = (double)(this.logicalReads - this.previousLogicalReads) * 100
-                    / (this.totalReads - this.previousTotalReads);
+            ret = (double) (this.logicalReads - this.previousLogicalReads)
+                    * 100 / (this.totalReads - this.previousTotalReads);
         }
         return ret;
     }
