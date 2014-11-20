@@ -9,6 +9,7 @@ import it.jnrpe.utils.BadThresholdException;
 import it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +32,15 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
  */
 public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
 
-    public static void main(String[] args) throws Exception {
+    /**
+     * Tests the complete chain.
+     * 
+     * @param args
+     *            Nothing.
+     * @throws Exception
+     *             If any error occur.
+     */
+    public static void main(final String[] args) throws Exception {
         DatabaseConnection dbConn = null;
         dbConn = DatabaseConnectionsManager
                 .getInstance()
@@ -80,13 +89,15 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         if (this.bufferpoolReads != null) {
             final String bufferpoolName = cl.getOptionValue("bufferpool");
             if ((bufferpoolName == null) || (bufferpoolName.compareTo("") == 0)) {
+                String logMessage = "Threshold for BPs: ";
                 for (final String string : bufferpoolNames) {
                     final String bpName = string;
-                    this.log.debug("Threshold for bufferpool: " + bpName);
+                    logMessage += bpName + " ";
                     thrb.withLegacyThreshold(bpName, null,
                             cl.getOptionValue("warning", "90"),
                             cl.getOptionValue("critical", "95"));
                 }
+                this.log.debug(logMessage);
             } else if (bufferpoolNames.contains(bufferpoolName)) {
                 this.log.debug("Threshold for bufferpool: " + bufferpoolName);
                 thrb.withLegacyThreshold(bufferpoolName, null,
@@ -156,7 +167,9 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         if (this.bufferpoolReads != null) {
             if (DB2DatabasesManager.getInstance().getDatabase(dbId)
                     .isRecentBufferpoolRead()) {
-                this.log.warn("Values are old");
+                this.log.warn("Values are old: "
+                        + new Timestamp(DB2DatabasesManager.getInstance()
+                                .getDatabase(dbId).getLastRefresh()));
                 throw new MetricGatheringException("Values are not recent",
                         Status.UNKNOWN, null);
             }
@@ -165,21 +178,21 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             res = new ArrayList<Metric>();
             final Iterator<String> iter = this.bufferpoolReads.keySet()
                     .iterator();
+            String logMessage = "Metrics: ";
             while (iter.hasNext()) {
                 String name = iter.next();
                 final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
                 ratio = new BigDecimal(bpDesc.getLastRatio());
-                this.log.debug("Metrics: bufferpool " + name + " with " + ratio);
+                logMessage += String.format("BP %s: %.1f%% ", name, ratio);
                 final String message = String.format(
-                        "Bufferpool %s at member %d has %d logical reads "
-                                + "and %d physical reads, with a hit "
-                                + "ratio of %.1f%%.", name, bpDesc.getMember(),
+                        "BP %s::%d has %d LR and %d PR, with a ratio of "
+                                + "%.1f%%.", name, bpDesc.getMember(),
                         bpDesc.getLogicalReads(), bpDesc.getPhysicalReads(),
                         ratio);
 
                 res.add(new Metric(name, message, ratio, null, null));
             }
-            this.log.debug(res.size() + " metrics");
+            this.log.debug(res.size() + " metrics. " + logMessage);
 
             // Metadata
             final boolean metadata = cl.hasOption("metadata");
@@ -194,7 +207,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
             }
             this.bufferpoolReads = null;
         } else {
-            this.log.warn("No values");
+            this.log.warn(dbId + "::No values");
             throw new MetricGatheringException("Values have not been gathered",
                     Status.UNKNOWN, null);
         }
@@ -220,7 +233,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         final String hostname = values[0];
         int portNumber;
         final String portNumberString = values[1];
-        this.log.debug("Port number: " + portNumberString);
         try {
             portNumber = Integer.valueOf(portNumberString);
         } catch (final NumberFormatException ne) {
@@ -231,8 +243,8 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         final String databaseName = values[2];
         final String username = cl.getOptionValue("username");
         final String password = cl.getOptionValue("password");
-        this.log.debug("Hostname " + hostname + "-Port " + portNumber + "-db"
-                + databaseName + "-user " + username);
+        this.log.debug("Hostname:" + hostname + ";Port:" + portNumber + ";DB:"
+                + databaseName + ";User:" + username);
 
         final String databaseConnection = DB2Connection.class.getName();
         String connectionPool;
