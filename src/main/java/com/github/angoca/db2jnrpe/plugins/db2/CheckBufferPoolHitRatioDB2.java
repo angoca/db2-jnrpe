@@ -217,8 +217,8 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
                 BufferpoolRead read;
                 String name;
-                int logical;
-                int physical;
+                long logical;
+                long physical;
                 int member;
                 DB2Database db = DB2DatabasesManager.getInstance().getDatabase(
                         this.db2db.getId());
@@ -229,10 +229,10 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                             .getString(CheckBufferPoolHitRatioDB2.COL_POS_BPNAME);
                     // Logical reads.
                     logical = res
-                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_LOGICAL_READS);
+                            .getLong(CheckBufferPoolHitRatioDB2.COL_POS_LOGICAL_READS);
                     // Physical reads.
                     physical = res
-                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_TOTAL_READS);
+                            .getLong(CheckBufferPoolHitRatioDB2.COL_POS_TOTAL_READS);
                     // Member
                     member = res
                             .getInt(CheckBufferPoolHitRatioDB2.COL_POS_MEMBER);

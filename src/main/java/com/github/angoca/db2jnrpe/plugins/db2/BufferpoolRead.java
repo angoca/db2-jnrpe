@@ -10,7 +10,7 @@ public final class BufferpoolRead {
     /**
      * Most recent value of logical reads.
      */
-    private int logicalReads = 0;
+    private long logicalReads = 0;
     /**
      * Member of the database.
      */
@@ -22,15 +22,15 @@ public final class BufferpoolRead {
     /**
      * Previous read of logical reads.
      */
-    private int previousLogicalReads = 0;
+    private long previousLogicalReads = 0;
     /**
      * Previous read of total reads.
      */
-    private int previousTotalReads = 0;
+    private long previousTotalReads = 0;
     /**
      * Most recent value of total reads.
      */
-    private int totalReads = 0;
+    private long totalReads = 0;
 
     /**
      * Creates a set of most recent reads for a bufferpool.
@@ -44,7 +44,7 @@ public final class BufferpoolRead {
      * @param dbMember
      *            Member of the database.
      */
-    BufferpoolRead(final String bpName, final int logical, final int total,
+    BufferpoolRead(final String bpName, final long logical, final long total,
             final int dbMember) {
         assert logical <= total : "Logical reads should be less "
                 + "that total reads.";
@@ -95,7 +95,7 @@ public final class BufferpoolRead {
      *
      * @return Quantity of logical reads.s
      */
-    int getLogicalReads() {
+    long getLogicalReads() {
         return this.logicalReads;
     }
 
@@ -122,7 +122,7 @@ public final class BufferpoolRead {
      *
      * @return Quantity of physical reads (total - logical).
      */
-    int getPhysicalReads() {
+    long getPhysicalReads() {
         return this.totalReads - this.logicalReads;
     }
 
@@ -148,7 +148,7 @@ public final class BufferpoolRead {
      *
      * @return Total reads.
      */
-    int getTotalReads() {
+    long getTotalReads() {
         return this.totalReads;
     }
 
@@ -158,10 +158,16 @@ public final class BufferpoolRead {
      * @param logical
      *            Quantity of logical reads.
      */
-    private void setLogicalReads(final int logical) {
+    private void setLogicalReads(final long logical) {
         assert logical > 0 : "Logical reads should be greater than zero.";
         assert logical < this.totalReads : "Logical reads should be less that total reads.";
-        this.previousLogicalReads = this.logicalReads;
+
+        if (logical < this.logicalReads) {
+            // The database was recycled between two checks.
+            this.previousLogicalReads = 0;
+        } else {
+            this.previousLogicalReads = this.logicalReads;
+        }
         this.logicalReads = logical;
     }
 
@@ -174,7 +180,7 @@ public final class BufferpoolRead {
      * @param total
      *            Quantity of total reads.
      */
-    void setReads(final int logical, final int total) {
+    void setReads(final long logical, final long total) {
         this.setLogicalReads(logical);
         this.setTotalReads(total);
     }
@@ -185,10 +191,16 @@ public final class BufferpoolRead {
      * @param total
      *            Quantity of total reads.
      */
-    private void setTotalReads(final int total) {
+    private void setTotalReads(final long total) {
         assert total > 0 : "Total reads should be greater than zero.";
         assert this.logicalReads < total : "Logical reads should be less that total reads.";
-        this.previousTotalReads = this.totalReads;
+
+        if (total < this.totalReads) {
+            // The database was recycled between two checks.
+            this.previousTotalReads = 0;
+        } else {
+            this.previousTotalReads = this.totalReads;
+        }
         this.totalReads = total;
     }
 
