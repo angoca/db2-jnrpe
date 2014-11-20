@@ -1,5 +1,6 @@
 package com.github.angoca.db2jnrpe.plugins.db2;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public class DB2Database {
             new Thread(new CheckBufferPoolHitRatioDB2(dbConn, this)).start();
         }
         log.info(this.id + "::Values returned taken at "
-                + this.lastBufferpoolRead);
+                + new Timestamp(this.lastBufferpoolRead));
         return this.cloneBufferpools();
     }
 
