@@ -121,6 +121,8 @@ public class DbcpHikari extends ConnectionPool {
             config.setJdbcUrl(dbConn.getUrl());
             config.setUsername(dbConn.getUsername());
             config.setPassword(dbConn.getPassword());
+            config.setMinimumIdle(1);
+            config.setMaximumPoolSize(5);
             config.setDataSourceProperties(dbConn.getConnectionProperties());
             ds = new HikariDataSource(config);
             DbcpHikari.pools.put(dbConn.getUrl(), ds);
