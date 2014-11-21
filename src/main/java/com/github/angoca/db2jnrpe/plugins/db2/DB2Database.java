@@ -86,7 +86,7 @@ public class DB2Database {
      * @throws UnknownValueException
      *             If the bufferpool values have not been read.
      */
-    final Map<String, BufferpoolRead> getBufferpoolsAndRefresh(
+    public final Map<String, BufferpoolRead> getBufferpoolsAndRefresh(
             final DatabaseConnection dbConn)
             throws DatabaseConnectionException, UnknownValueException {
         if (this.lastBufferpoolRead == 0) {
@@ -117,7 +117,7 @@ public class DB2Database {
      *
      * @return Time of last read.
      */
-    final long getLastRefresh() {
+    public final long getLastRefresh() {
         return this.lastBufferpoolRead;
     }
 
@@ -126,7 +126,7 @@ public class DB2Database {
      * 
      * @return True if the values are not old, false otherwise.
      */
-    final boolean isRecentBufferpoolRead() {
+    public final boolean isRecentBufferpoolRead() {
         boolean ret = true;
         final long now = System.currentTimeMillis();
         if ((now - (2 * DB2Database.BUFFERPOOL_FREQUENCY)) < this.lastBufferpoolRead) {

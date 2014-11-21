@@ -20,7 +20,7 @@ public class UnknownValueException extends Exception {
      * @param reason
      *            Reason of the exception.
      */
-    public UnknownValueException(final String reason) {
+    UnknownValueException(final String reason) {
         super(reason);
     }
 

@@ -21,7 +21,7 @@ public final class DB2DatabasesManager {
      *
      * @return Singleton.
      */
-    static DB2DatabasesManager getInstance() {
+    public static DB2DatabasesManager getInstance() {
         if (DB2DatabasesManager.singleton == null) {
             DB2DatabasesManager.singleton = new DB2DatabasesManager();
         }
@@ -59,7 +59,7 @@ public final class DB2DatabasesManager {
      *            Id of the database.
      * @return The database that corresponds to the given ID.
      */
-    DB2Database getDatabase(final String id) {
+    public DB2Database getDatabase(final String id) {
         final DB2Database db = this.db2Databases.get(id);
         return db;
     }

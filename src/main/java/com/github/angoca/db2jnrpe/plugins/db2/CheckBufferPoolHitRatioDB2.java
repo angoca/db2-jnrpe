@@ -189,7 +189,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * @param db2database
      *            DB2 database that contains the info.
      */
-    public CheckBufferPoolHitRatioDB2(final DatabaseConnection connProps,
+    CheckBufferPoolHitRatioDB2(final DatabaseConnection connProps,
             final DB2Database db2database) {
         this.dbConn = connProps;
         this.db2db = db2database;
