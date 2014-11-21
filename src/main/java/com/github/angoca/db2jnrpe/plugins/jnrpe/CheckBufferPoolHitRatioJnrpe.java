@@ -165,7 +165,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
             throws MetricGatheringException {
         final String dbId = this.getId(cl);
         this.log.warn("Database: " + dbId);
-        final List<Metric> res;
+        final List<Metric> res = new ArrayList<Metric>();
         if (this.bufferpoolReads != null) {
             if (DB2DatabasesManager.getInstance().getDatabase(dbId)
                     .isRecentBufferpoolRead()) {
@@ -177,7 +177,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
             }
             // Converts result to arrays and create metrics.
             BigDecimal ratio;
-            res = new ArrayList<Metric>();
             final Iterator<String> iter = this.bufferpoolReads.keySet()
                     .iterator();
             String logMessage = "Metrics: ";
