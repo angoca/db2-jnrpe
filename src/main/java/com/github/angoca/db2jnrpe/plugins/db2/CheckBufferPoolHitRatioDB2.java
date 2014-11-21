@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -223,6 +225,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 DB2Database db = DB2DatabasesManager.getInstance().getDatabase(
                         this.db2db.getId());
                 Map<String, BufferpoolRead> bps = db.getBufferpools();
+                final List<String> reads = new ArrayList<String>();
                 while (res.next()) {
                     // Name.
                     name = res
@@ -249,6 +252,14 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                     } else {
                         log.debug(this.dbConn.getUrl() + "::Bufferpool updated");
                         read.setReads(logical, logical + physical);
+                    }
+                    reads.add(name);
+                }
+                // Checks the list of bufferpool read to delete the inexistent
+                // reads.
+                for (String bpName : db.getBufferpools().keySet()) {
+                    if (!reads.contains(bpName)) {
+                        db.getBufferpools().remove(bpName);
                     }
                 }
                 db.updateLastBufferpoolRead();
