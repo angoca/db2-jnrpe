@@ -1,4 +1,4 @@
-package com.github.angoca.db2jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.jnrpe;
 
 import it.jnrpe.ICommandLine;
 import it.jnrpe.Status;
@@ -21,6 +21,10 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
+import com.github.angoca.db2jnrpe.plugins.db2.BufferpoolRead;
+import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
+import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
+import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
  * This is the bridge between jNRPE and the connection manager (correction and
