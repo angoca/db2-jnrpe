@@ -4,7 +4,6 @@ import it.jnrpe.ICommandLine;
 import it.jnrpe.Status;
 import it.jnrpe.plugins.Metric;
 import it.jnrpe.plugins.MetricGatheringException;
-import it.jnrpe.plugins.PluginBase;
 import it.jnrpe.utils.BadThresholdException;
 import it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder;
 
@@ -27,14 +26,13 @@ import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
 import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
- * This is the bridge between jNRPE and the connection manager (correction and
- * connections pool). This class does not have direct dependencies with any DB2
- * component.
+ * This plugin allows to see the bufferpool hit ratio of the bufferpool or a
+ * single bufferpool.
  *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
+public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
 
     /**
      * Tests the complete chain.
@@ -98,15 +96,15 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
                     final String bpName = string;
                     logMessage += bpName + " ";
                     thrb.withLegacyThreshold(bpName, null,
-                            cl.getOptionValue("warning", "90"),
-                            cl.getOptionValue("critical", "95"));
+                            cl.getOptionValue("warning", "95"),
+                            cl.getOptionValue("critical", "90"));
                 }
                 this.log.debug(logMessage);
             } else if (bufferpoolNames.contains(bufferpoolName)) {
                 this.log.debug("Threshold for bufferpool: " + bufferpoolName);
                 thrb.withLegacyThreshold(bufferpoolName, null,
-                        cl.getOptionValue("warning", "90"),
-                        cl.getOptionValue("critical", "95"));
+                        cl.getOptionValue("warning", "95"),
+                        cl.getOptionValue("critical", "90"));
             } else {
                 this.log.error("The bufferpool " + bufferpoolName
                         + " does not exist");
@@ -219,78 +217,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
         return res;
     }
 
-    /**
-     * Given the connection parameters, it returns an object that wraps the
-     * pooled connection.
-     *
-     * @param cl
-     *            Handler that contains the parameters.
-     * @return Connection wrapper.
-     * @throws MetricGatheringException
-     *             If there is any error gathering the metrics.
-     */
-    private DatabaseConnection getConnection(final ICommandLine cl)
-            throws MetricGatheringException {
-        assert cl != null;
-
-        final String[] values = this.getUrlValues(cl);
-        final String hostname = values[0];
-        int portNumber;
-        final String portNumberString = values[1];
-        try {
-            portNumber = Integer.valueOf(portNumberString);
-        } catch (final NumberFormatException ne) {
-            this.log.error("Invalid port number " + portNumberString);
-            throw new MetricGatheringException(
-                    "Invalid format for port number", Status.UNKNOWN, ne);
-        }
-        final String databaseName = values[2];
-        final String username = cl.getOptionValue("username");
-        final String password = cl.getOptionValue("password");
-        this.log.debug("Hostname:" + hostname + ";Port:" + portNumber + ";DB:"
-                + databaseName + ";User:" + username);
-
-        final String databaseConnection = DB2Connection.class.getName();
-        String connectionPool;
-        // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
-        // .getName();
-        // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.db2direct.DbcpDb2Direct.class
-        // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
-                .getName();
-        this.log.debug("Connection pool: " + connectionPool);
-        DatabaseConnection dbConn = null;
-        try {
-            dbConn = DatabaseConnectionsManager.getInstance()
-                    .getDatabaseConnection(connectionPool, databaseConnection,
-                            hostname, portNumber, databaseName, username,
-                            password);
-        } catch (final DatabaseConnectionException dbe) {
-            this.log.fatal("Error while establishing conncetion", dbe);
-            throw new MetricGatheringException("Error accesing the database",
-                    Status.UNKNOWN, dbe);
-        }
-
-        assert dbConn != null;
-        return dbConn;
-    }
-
-    /**
-     * Retrieves an ID to identify a database.
-     *
-     * @param cl
-     *            Command line.
-     * @return Unique URL to the database.
-     */
-    private String getId(final ICommandLine cl) {
-        String ret;
-        final String[] values = this.getUrlValues(cl);
-        ret = values[0] + ':' + values[1] + '/' + values[2];
-        return ret;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -299,24 +225,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
     @Override
     protected String getPluginName() {
         return "CHECK_BUFFERPOOL_HIT_RATIO";
-    }
-
-    /**
-     * Return the connection values.
-     *
-     * @param cl
-     *            Command line.
-     * @return Array with parameters.
-     */
-    private String[] getUrlValues(final ICommandLine cl) {
-        final String[] ret = new String[3];
-        final String hostname = cl.getOptionValue("hostname");
-        final String portNumberString = cl.getOptionValue("port");
-        final String databaseName = cl.getOptionValue("database");
-        ret[0] = hostname;
-        ret[1] = portNumberString;
-        ret[2] = databaseName;
-        return ret;
     }
 
 }
