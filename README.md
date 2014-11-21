@@ -41,6 +41,10 @@ This is the list of available DB2 plugins:
 bufferpools, by measuring the hit ratio between the most recent measures.
 
 
+# Prerequisites
+
+In order to run this set of plugins, it is necessary to have Java 6 or 7.
+
 # Install
 
 The installation process consist in:
