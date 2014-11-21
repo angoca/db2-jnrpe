@@ -294,7 +294,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends PluginBase {
      */
     @Override
     protected String getPluginName() {
-        return "CHECK_BUFFER_POOL_HIT_RATIO";
+        return "CHECK_BUFFERPOOL_HIT_RATIO";
     }
 
     /**
