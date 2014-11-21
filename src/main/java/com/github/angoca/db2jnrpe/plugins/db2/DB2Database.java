@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.angoca.db2jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
  * Models a database with its connection URL.
@@ -18,9 +17,29 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
  */
 public class DB2Database {
     /**
+     * Normal frequency for all elements.
+     */
+    private static final long STANDARD_FREQUENCY = 300000;
+    /**
      * Frequency to read the bufferpools. 30000 means each 5 minutes.
      */
-    private static final long BUFFERPOOL_FREQUENCY = 300000;
+    private static final long BUFFERPOOL_FREQUENCY = STANDARD_FREQUENCY;
+    /**
+     * Load frequency to calculate the load.
+     */
+    private static final long LOAD_FREQUENCY = STANDARD_FREQUENCY;
+    /**
+     * Name of the Update/Insert/Delete metric.
+     */
+    public static final String UID_LOAD = "Uid";
+    /**
+     * Name of the select metric.
+     */
+    public static final String SELECT_LOAD = "Select";
+    /**
+     * Name of the commit metric.
+     */
+    public static final String COMMIT_LOAD = "Commit";
     /**
      * Hash of bufferpools reads.
      */
@@ -33,6 +52,14 @@ public class DB2Database {
      * Time of the last bufferpools read.
      */
     private long lastBufferpoolRead = 0;
+    /**
+     * Time of the last load read.
+     */
+    private long lastLoadRead = 0;
+    /**
+     * List of load database values.
+     */
+    private Map<String, Long> loadValues;
     /**
      * Logger.
      */
@@ -47,7 +74,7 @@ public class DB2Database {
     public DB2Database(final String dbId) {
         this.id = dbId;
         this.bufferpools = new HashMap<String, BufferpoolRead>();
-        this.lastBufferpoolRead = 0;
+        this.loadValues = new HashMap<String, Long>();
         log.debug("New database " + dbId);
     }
 
@@ -91,14 +118,11 @@ public class DB2Database {
      * @param dbConn
      *            Connection properties.
      * @return Map of bufferpools.
-     * @throws DatabaseConnectionException
-     *             If there is a problem while updating the values.
      * @throws UnknownValueException
      *             If the bufferpool values have not been read.
      */
     public final Map<String, BufferpoolRead> getBufferpoolsAndRefresh(
-            final DatabaseConnection dbConn)
-            throws DatabaseConnectionException, UnknownValueException {
+            final DatabaseConnection dbConn) throws UnknownValueException {
         if (this.lastBufferpoolRead == 0) {
             new Thread(new CheckBufferPoolHitRatioDB2(dbConn, this)).start();
             throw new UnknownValueException(
@@ -108,9 +132,72 @@ public class DB2Database {
             // previous values.
             new Thread(new CheckBufferPoolHitRatioDB2(dbConn, this)).start();
         }
-        log.info(this.id + "::Values returned taken at "
+        log.info(this.id + "::Bufferpool values returned taken at "
                 + new Timestamp(this.lastBufferpoolRead));
         return this.cloneBufferpools();
+    }
+
+    /**
+     * Retrieves the values of the load. The keys are the following three
+     * constant:<br/>
+     * <ul>
+     * <li>UID_LOAD</li>
+     * <li>SELECT_LOAD</li>
+     * <li>COMMIT_LOAD</li>
+     * </ul>
+     * 
+     * @param dbConn
+     *            Connection properties.
+     * @return The map that contains the load values.
+     * @throws UnknownValueException
+     *             If the values have not been read.
+     */
+    public final Map<String, Long> getLoadValuesAndRefresh(
+            final DatabaseConnection dbConn) throws UnknownValueException {
+        if (this.lastLoadRead == 0) {
+            // TODO
+            new Thread().start();
+            throw new UnknownValueException("Load values have not been read");
+        } else if (!this.isLoadValuesUpdate()) {
+            // Updates for the next time. The current execution returns the
+            // previous values.
+            // TODO
+            new Thread().start();
+        }
+        log.info(this.id + "::Load values returned taken at "
+                + new Timestamp(this.lastBufferpoolRead));
+        return this.cloneLoadValues();
+    }
+
+    /**
+     * Clone the set of load values.
+     * 
+     * @return Copy of the set of values.
+     */
+    private Map<String, Long> cloneLoadValues() {
+        final Map<String, Long> copy = new HashMap<String, Long>();
+        for (final String key : this.loadValues.keySet()) {
+            final long clone = this.loadValues.get(key);
+            copy.put(key, clone);
+        }
+        return copy;
+    }
+
+    /**
+     * Checks if the load values should be updated.
+     * 
+     * @return True if the list of load values is outdated or it is still valid.
+     */
+    private boolean isLoadValuesUpdate() {
+        boolean ret = true;
+        final long now = System.currentTimeMillis();
+        if (this.lastLoadRead == 0) {
+            // Never set.
+            ret = false;
+        } else if ((now - DB2Database.LOAD_FREQUENCY) > this.lastBufferpoolRead) {
+            ret = false;
+        }
+        return ret;
     }
 
     /**
@@ -127,7 +214,7 @@ public class DB2Database {
      *
      * @return Time of last read.
      */
-    public final long getLastRefresh() {
+    public final long getLastBufferpoolRefresh() {
         return this.lastBufferpoolRead;
     }
 

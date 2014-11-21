@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.angoca.db2jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 import com.github.angoca.db2jnrpe.plugins.db2.BufferpoolRead;
@@ -145,10 +144,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
         try {
             this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(conn);
             bufferpoolNames = this.bufferpoolReads.keySet();
-        } catch (DatabaseConnectionException e) {
-            this.log.fatal("Error while retrieving names", e);
-            throw new BadThresholdException("Problem retrieving the values "
-                    + "for threshold from the database: " + e.getMessage(), e);
         } catch (final UnknownValueException e) {
             // There are not values in the cache. Do nothing.
         }
@@ -171,7 +166,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
                     .isRecentBufferpoolRead()) {
                 this.log.warn("Values are old: "
                         + new Timestamp(DB2DatabasesManager.getInstance()
-                                .getDatabase(dbId).getLastRefresh()));
+                                .getDatabase(dbId).getLastBufferpoolRefresh()));
                 throw new MetricGatheringException("Values are not recent",
                         Status.UNKNOWN, null);
             }
@@ -201,10 +196,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
                 final DB2Database db2Database = DB2DatabasesManager
                         .getInstance().getDatabase(this.getId(cl));
                 res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
-                        .getLastRefresh()), null, null));
+                        .getLastBufferpoolRefresh()), null, null));
                 res.add(new Metric("Cache-old", "", new BigDecimal(System
-                        .currentTimeMillis() - db2Database.getLastRefresh()),
-                        null, null));
+                        .currentTimeMillis()
+                        - db2Database.getLastBufferpoolRefresh()), null, null));
             }
             this.bufferpoolReads = null;
         } else {
