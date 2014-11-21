@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins xmlns="http://jnrpe.sourceforge.net/plugins" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://jnrpe.sourceforge.net/plugins plugin.xsd">
- <plugin name="CHECK_BUFFER_POOL_HIT_RATIO"
-  class="com.github.angoca.db2jnrpe.plugins.db2.CheckBufferPoolHitRatioJnrpe">
+ xsi:schemaLocation="https://github.com/ziccardi/jnrpe/blob/master/jnrpe-plugins/src/main/resources plugin.xsd">
+ <plugin name="CHECK_BUFFERPOOL_HIT_RATIO"
+  class="com.github.angoca.db2jnrpe.plugins.jnrpe.CheckBufferPoolHitRatioJnrpe">
   <description>
 <![CDATA[
 This command shows the hit ratio for a given or all bufferpools.
@@ -29,6 +29,43 @@ This command shows the hit ratio for a given or all bufferpools.
     <option shortName="b" longName="bufferpool"
      description="Name of the bufferpool to check" required="false"
      hasArgs="true" argName="BufferpooNamel" optionalArgs="false" />
+
+    <option shortName="T" longName="threshold"
+     description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
+     required="false" argName="Threshold" hasArgs="true" />
+
+    <option shortName="M" longName="metadata"
+     description="Metadata of the cached values" required="false"
+     hasArgs="false" />
+   </options>
+  </command-line>
+ </plugin>
+
+ <plugin name="check_database_load"
+  class="com.github.angoca.db2jnrpe.plugins.jnrpe.CheckDatabaseLoadPlugin">
+  <description>
+<![CDATA[
+This allows to measure the load of the database between two checks.
+]]>
+  </description>
+  <command-line>
+   <options>
+    <option shortName="h" longName="hostname"
+     description="Hostname where the database resides" required="true"
+     hasArgs="true" argName="Hostname/IP" optionalArgs="false" />
+    <option shortName="p" longName="port" description="Port number of the instance"
+     required="true" hasArgs="true" argName="PortNumber" optionalArgs="false" />
+    <option shortName="d" longName="database" description="Name of the database"
+     required="true" hasArgs="true" argName="DatabaseName" optionalArgs="false" />
+    <option shortName="u" longName="username"
+     description="Username to connect to the database" required="true"
+     hasArgs="true" argName="Username" optionalArgs="false" />
+    <option shortName="P" longName="password" description="Password"
+     required="true" hasArgs="true" argName="Password" optionalArgs="false" />
+    <option shortName="w" longName="warning" description="The warning threshold"
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
+    <option shortName="c" longName="critical" description="The critical threshold"
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
 
     <option shortName="T" longName="threshold"
      description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
