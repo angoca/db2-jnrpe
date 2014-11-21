@@ -257,11 +257,13 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 }
                 // Checks the list of bufferpool read to delete the inexistent
                 // reads.
+                final Map<String, BufferpoolRead> newBps = new HashMap<String, BufferpoolRead>();
                 for (String bpName : db.getBufferpools().keySet()) {
-                    if (!reads.contains(bpName)) {
-                        db.getBufferpools().remove(bpName);
+                    if (reads.contains(bpName)) {
+                        newBps.put(bpName, db.getBufferpools().get(bpName));
                     }
                 }
+                db.setBufferpools(newBps);
                 db.updateLastBufferpoolRead();
                 res.close();
                 stmt.close();
