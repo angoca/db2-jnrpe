@@ -75,6 +75,16 @@ public class DB2Database {
     }
 
     /**
+     * Set the bufferpool reads.
+     * 
+     * @param bps
+     *            Set of bufferpool reads.
+     */
+    final void setBufferpools(final Map<String, BufferpoolRead> bps) {
+        this.bufferpools = bps;
+    }
+
+    /**
      * Retrieves the map of bufferpools and update the information async for the
      * next call.
      *
