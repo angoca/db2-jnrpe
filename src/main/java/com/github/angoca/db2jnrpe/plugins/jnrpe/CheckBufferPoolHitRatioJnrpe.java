@@ -20,6 +20,7 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 import com.github.angoca.db2jnrpe.plugins.db2.BufferpoolRead;
+import com.github.angoca.db2jnrpe.plugins.db2.Bufferpools;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
 import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
@@ -31,25 +32,26 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
+public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
 
     /**
      * Tests the complete chain.
-     * 
+     *
      * @param args
      *            Nothing.
      * @throws Exception
      *             If any error occur.
      */
     public static void main(final String[] args) throws Exception {
+        // CHECKSTYLE:OFF
         DatabaseConnection dbConn = null;
         dbConn = DatabaseConnectionsManager
                 .getInstance()
                 .getDatabaseConnection(
                         com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                                 .getName(), DB2Connection.class.getName(),
-                        "localhost", 50000, "sample", "db2inst1", "db2inst1");
-        String id = "localhost:50000/sample";
+                        "localhost", 50000, "sample", "db2admin", "AngocA81");
+        final String id = "localhost:50000/sample";
 
         new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
@@ -58,6 +60,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
         new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
         new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
+        // CHECKSTYLE:ON
     }
 
     /**
@@ -82,7 +85,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
         try {
             bufferpoolNames = this.getBufferpoolNames(dbId,
                     this.getConnection(cl));
-        } catch (MetricGatheringException e) {
+        } catch (final MetricGatheringException e) {
             this.log.fatal("Error while retrieving names", e);
             throw new BadThresholdException("Problem retrieving the values "
                     + "for threshold from the database: " + e.getMessage(), e);
@@ -121,9 +124,92 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
+     */
+    @Override
+    public Collection<Metric> gatherMetrics(final ICommandLine cl)
+            throws MetricGatheringException {
+        final String dbId = this.getId(cl);
+        this.log.warn("Database: " + dbId);
+        final List<Metric> res = new ArrayList<Metric>();
+        if (this.bufferpoolReads != null) {
+            if (DB2DatabasesManager.getInstance().getDatabase(dbId)
+                    .getBufferpools().isRecentBufferpoolRead()) {
+                this.log.warn("Values are old: "
+                        + new Timestamp(DB2DatabasesManager.getInstance()
+                                .getDatabase(dbId).getBufferpools()
+                                .getLastBufferpoolRefresh()));
+                throw new MetricGatheringException("Values are not recent",
+                        Status.UNKNOWN, null);
+            }
+            // Converts result to arrays and create metrics.
+            BigDecimal ratio;
+            final Iterator<String> iter = this.bufferpoolReads.keySet()
+                    .iterator();
+            String logMessage = "Metrics: ";
+            while (iter.hasNext()) {
+                final String name = iter.next();
+                final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
+                ratio = new BigDecimal(bpDesc.getLastRatio());
+                logMessage += String.format("BP %s: %.1f%% ", name, ratio);
+                String logStr = getSimplifiedValue(bpDesc.getLogicalReads());
+                String phyStr = getSimplifiedValue(bpDesc.getPhysicalReads());
+                final String message = String.format(
+                        "%s at %d has %s LR and %d PR, ratio of " + "%.1f%%.",
+                        name, bpDesc.getMember(), logStr, phyStr, ratio);
+
+                res.add(new Metric(name, message, ratio, null, null));
+            }
+            this.log.debug(res.size() + " metrics. " + logMessage);
+
+            // Metadata
+            final boolean metadata = cl.hasOption("metadata");
+            if (metadata) {
+                final DB2Database db2Database = DB2DatabasesManager
+                        .getInstance().getDatabase(this.getId(cl));
+                res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
+                        .getBufferpools().getLastBufferpoolRefresh()), null,
+                        null));
+                res.add(new Metric("Cache-old", "", new BigDecimal(System
+                        .currentTimeMillis()
+                        - db2Database.getBufferpools()
+                                .getLastBufferpoolRefresh()), null, null));
+            }
+            this.bufferpoolReads = null;
+        } else {
+            this.log.warn(dbId + "::No values");
+            throw new MetricGatheringException("Values have not been gathered",
+                    Status.UNKNOWN, null);
+        }
+
+        return res;
+    }
+
+    /**
+     * Returns a simplified value for long values.
+     * 
+     * @param value
+     *            Value with a log of digits.
+     * @return Metrical notation to simplify big values.
+     */
+    private String getSimplifiedValue(final long value) {
+        String logStr;
+        if (value > 1000000) {
+            logStr = (value / 1000000) + "M";
+        } else if (value > 1000) {
+            logStr = (value / 1000) + "K";
+        } else {
+            logStr = value + "";
+        }
+        return logStr;
+    }
+
     /**
      * Returns the names of the bufferpoools.
-     * 
+     *
      * @param id
      *            Database id.
      * @param conn
@@ -142,73 +228,16 @@ public final class CheckBufferPoolHitRatioJnrpe extends DB2PluginBase {
         }
         Set<String> bufferpoolNames = null;
         try {
-            this.bufferpoolReads = db2Database.getBufferpoolsAndRefresh(conn);
-            bufferpoolNames = this.bufferpoolReads.keySet();
+            Bufferpools bufferpools = db2Database
+                    .getBufferpoolsAndRefresh(conn);
+            if (bufferpools != null) {
+                this.bufferpoolReads = bufferpools.getBufferpoolReads();
+                bufferpoolNames = this.bufferpoolReads.keySet();
+            }
         } catch (final UnknownValueException e) {
             // There are not values in the cache. Do nothing.
         }
         return bufferpoolNames;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
-     */
-    @Override
-    public Collection<Metric> gatherMetrics(final ICommandLine cl)
-            throws MetricGatheringException {
-        final String dbId = this.getId(cl);
-        this.log.warn("Database: " + dbId);
-        final List<Metric> res = new ArrayList<Metric>();
-        if (this.bufferpoolReads != null) {
-            if (DB2DatabasesManager.getInstance().getDatabase(dbId)
-                    .isRecentBufferpoolRead()) {
-                this.log.warn("Values are old: "
-                        + new Timestamp(DB2DatabasesManager.getInstance()
-                                .getDatabase(dbId).getLastBufferpoolRefresh()));
-                throw new MetricGatheringException("Values are not recent",
-                        Status.UNKNOWN, null);
-            }
-            // Converts result to arrays and create metrics.
-            BigDecimal ratio;
-            final Iterator<String> iter = this.bufferpoolReads.keySet()
-                    .iterator();
-            String logMessage = "Metrics: ";
-            while (iter.hasNext()) {
-                String name = iter.next();
-                final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
-                ratio = new BigDecimal(bpDesc.getLastRatio());
-                logMessage += String.format("BP %s: %.1f%% ", name, ratio);
-                final String message = String.format(
-                        "BP %s::%d has %d LR and %d PR, with a ratio of "
-                                + "%.1f%%.", name, bpDesc.getMember(),
-                        bpDesc.getLogicalReads(), bpDesc.getPhysicalReads(),
-                        ratio);
-
-                res.add(new Metric(name, message, ratio, null, null));
-            }
-            this.log.debug(res.size() + " metrics. " + logMessage);
-
-            // Metadata
-            final boolean metadata = cl.hasOption("metadata");
-            if (metadata) {
-                final DB2Database db2Database = DB2DatabasesManager
-                        .getInstance().getDatabase(this.getId(cl));
-                res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
-                        .getLastBufferpoolRefresh()), null, null));
-                res.add(new Metric("Cache-old", "", new BigDecimal(System
-                        .currentTimeMillis()
-                        - db2Database.getLastBufferpoolRefresh()), null, null));
-            }
-            this.bufferpoolReads = null;
-        } else {
-            this.log.warn(dbId + "::No values");
-            throw new MetricGatheringException("Values have not been gathered",
-                    Status.UNKNOWN, null);
-        }
-
-        return res;
     }
 
     /*
