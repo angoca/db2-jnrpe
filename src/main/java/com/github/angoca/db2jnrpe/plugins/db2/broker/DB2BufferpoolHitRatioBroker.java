@@ -1,4 +1,4 @@
-package com.github.angoca.db2jnrpe.plugins.db2;
+package com.github.angoca.db2jnrpe.plugins.db2.broker;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,14 +20,20 @@ import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Helper;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersions;
+import com.github.angoca.db2jnrpe.plugins.db2.BufferpoolRead;
+import com.github.angoca.db2jnrpe.plugins.db2.Bufferpools;
+import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
+import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
 
 /**
- * Connects to the database and retrieve the values about buffer pool hit ratio.
+ * Queries the database to retrieve the information about the bufferpool hit
+ * ratio.
  *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class CheckBufferPoolHitRatioDB2 implements Runnable {
+public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
+        implements Runnable {
 
     /**
      * Position of column bpname.
@@ -53,21 +59,11 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * Logger.
      */
     private static Logger log = LoggerFactory
-            .getLogger(CheckBufferPoolHitRatioDB2.class);
+            .getLogger(DB2BufferpoolHitRatioBroker.class);
 
     /**
-     * Columns of the table.
-     */
-    public static final String[] KEYS = { "BP_NAME", "LOGICAL_READS",
-            "PHYSICAL_READS", "HIT_RATIO", "MEMBER" };
-
-    /**
-     * Prevent multiple concurrent executions.
-     */
-    private static final Map<String, Integer> LOCKS = new HashMap<String, Integer>();
-
-    /**
-     * Query for DB2 after v9.7.
+     * Query to get the values of the logical and physical reads (for DB2 after
+     * v9.7).
      */
     private static final String QUERY_AFTER_V97 = "SELECT BP_NAME, "
             + " POOL_DATA_L_READS + POOL_TEMP_DATA_L_READS + "
@@ -90,6 +86,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      *             Any exception.
      */
     public static void main(final String[] args) throws Exception {
+        // CHECKSTYLE:OFF
         System.out.println("Test: Connection with pool");
         String hostname;
         int portNumber;
@@ -110,7 +107,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
         password = "db2inst1";
 
         databaseConnection = DB2Connection.class.getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -118,10 +115,11 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
         DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
                 new DB2Database(dbConn.getUrl()));
-        new CheckBufferPoolHitRatioDB2(dbConn, DB2DatabasesManager
+        new DB2BufferpoolHitRatioBroker(dbConn, DB2DatabasesManager
                 .getInstance().getDatabase(dbConn.getUrl())).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
-                .getDatabase(dbConn.getUrl()).getBufferpools();
+                .getDatabase(dbConn.getUrl()).getBufferpools()
+                .getBufferpoolReads();
         iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
@@ -144,7 +142,7 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
         password = "db2inst2";
 
         databaseConnection = DB2Connection.class.getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                 .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
@@ -152,10 +150,11 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
         DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
                 new DB2Database(dbConn.getUrl()));
-        new CheckBufferPoolHitRatioDB2(dbConn, DB2DatabasesManager
+        new DB2BufferpoolHitRatioBroker(dbConn, DB2DatabasesManager
                 .getInstance().getDatabase(dbConn.getUrl())).check();
         bufferpoolsDesc = DB2DatabasesManager.getInstance()
-                .getDatabase(dbConn.getUrl()).getBufferpools();
+                .getDatabase(dbConn.getUrl()).getBufferpools()
+                .getBufferpoolReads();
         iter = bufferpoolsDesc.keySet().iterator();
         while (iter.hasNext()) {
             final String name = iter.next();
@@ -169,17 +168,8 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
 
             System.out.println(message);
         }
+        // CHECKSTYLE:ON
     }
-
-    /**
-     * DB2 database.
-     */
-    private final DB2Database db2db;
-
-    /**
-     * Connection properties.
-     */
-    private final DatabaseConnection dbConn;
 
     /**
      * Creates the object associating a connection properties.
@@ -189,32 +179,33 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      * @param db2database
      *            DB2 database that contains the info.
      */
-    CheckBufferPoolHitRatioDB2(final DatabaseConnection connProps,
+    public DB2BufferpoolHitRatioBroker(final DatabaseConnection connProps,
             final DB2Database db2database) {
-        this.dbConn = connProps;
-        this.db2db = db2database;
+        this.setDBConnection(connProps);
+        this.setDB2database(db2database);
     }
 
-    /**
-     * Checks the bufferpool hit ratio with the given database connection.
-     *
-     * @throws DatabaseConnectionException
-     *             If any problem occur while accessing the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.angoca.db2jnrpe.plugins.db2.broker.AbstractDB2Broker#check()
      */
-    void check() throws DatabaseConnectionException {
-        assert this.dbConn != null;
-        final DB2MajorVersions version = DB2Helper
-                .getDB2MajorVersion(this.dbConn);
+    @Override
+    protected void check() throws DatabaseConnectionException {
+        assert this.getDatabaseConnection() != null;
+        final DB2MajorVersions version = DB2Helper.getDB2MajorVersion(this
+                .getDatabaseConnection());
         // This query cannot be executed in a database with db2 v9.5 or before.
         if (version.isEqualOrMoreRecentThan(DB2MajorVersions.V9_7)) {
 
             Connection connection = null;
             try {
                 connection = ConnectionPoolsManager.getInstance()
-                        .getConnectionPool(this.dbConn)
-                        .getConnection(this.dbConn);
+                        .getConnectionPool(this.getDatabaseConnection())
+                        .getConnection(this.getDatabaseConnection());
                 final PreparedStatement stmt = connection
-                        .prepareStatement(CheckBufferPoolHitRatioDB2.QUERY_AFTER_V97);
+                        .prepareStatement(DB2BufferpoolHitRatioBroker.QUERY_AFTER_V97);
                 final ResultSet res = stmt.executeQuery();
 
                 BufferpoolRead read;
@@ -222,35 +213,47 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 long logical;
                 long physical;
                 int member;
-                DB2Database db = DB2DatabasesManager.getInstance().getDatabase(
-                        this.db2db.getId());
-                Map<String, BufferpoolRead> bps = db.getBufferpools();
+                Bufferpools bufferpools;
                 final List<String> reads = new ArrayList<String>();
                 while (res.next()) {
                     // Name.
                     name = res
-                            .getString(CheckBufferPoolHitRatioDB2.COL_POS_BPNAME);
+                            .getString(DB2BufferpoolHitRatioBroker.COL_POS_BPNAME);
                     // Logical reads.
                     logical = res
-                            .getLong(CheckBufferPoolHitRatioDB2.COL_POS_LOGICAL_READS);
+                            .getLong(DB2BufferpoolHitRatioBroker.COL_POS_LOGICAL_READS);
                     // Physical reads.
                     physical = res
-                            .getLong(CheckBufferPoolHitRatioDB2.COL_POS_TOTAL_READS);
+                            .getLong(DB2BufferpoolHitRatioBroker.COL_POS_TOTAL_READS);
                     // Member
                     member = res
-                            .getInt(CheckBufferPoolHitRatioDB2.COL_POS_MEMBER);
+                            .getInt(DB2BufferpoolHitRatioBroker.COL_POS_MEMBER);
 
-                    log.info(this.dbConn.getUrl() + "::Name " + name
-                            + ", logical " + logical + ", physical " + physical
-                            + ", member " + member);
-                    read = bps.get(name);
+                    DB2BufferpoolHitRatioBroker.log.info(this
+                            .getDatabaseConnection().getUrl()
+                            + "::Name "
+                            + name
+                            + ", logical "
+                            + logical
+                            + ", physical "
+                            + physical + ", member " + member);
+                    bufferpools = this.getDatabase().getBufferpools();
+                    if (bufferpools == null) {
+                        bufferpools = new Bufferpools(this.getDatabase());
+                        this.getDatabase().setBufferpools(bufferpools);
+                    }
+                    read = bufferpools.getBufferpoolReads().get(name);
                     if (read == null) {
-                        log.debug(this.dbConn.getUrl() + "::New bufferpool");
+                        DB2BufferpoolHitRatioBroker.log.debug(this
+                                .getDatabaseConnection().getUrl()
+                                + "::New bufferpool");
                         read = new BufferpoolRead(name, logical, logical
                                 + physical, member);
-                        db.addBufferpoolRead(read);
+                        bufferpools.addBufferpoolRead(read);
                     } else {
-                        log.debug(this.dbConn.getUrl() + "::Bufferpool updated");
+                        DB2BufferpoolHitRatioBroker.log.debug(this
+                                .getDatabaseConnection().getUrl()
+                                + "::Bufferpool updated");
                         read.setReads(logical, logical + physical);
                     }
                     reads.add(name);
@@ -258,18 +261,22 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
                 // Checks the list of bufferpool read to delete the inexistent
                 // reads.
                 final Map<String, BufferpoolRead> newBps = new HashMap<String, BufferpoolRead>();
-                for (String bpName : db.getBufferpools().keySet()) {
+                for (final String bpName : this.getDatabase().getBufferpools()
+                        .getBufferpoolReads().keySet()) {
                     if (reads.contains(bpName)) {
-                        newBps.put(bpName, db.getBufferpools().get(bpName));
+                        newBps.put(bpName, this.getDatabase().getBufferpools()
+                                .getBufferpoolReads().get(bpName));
                     }
                 }
-                db.setBufferpools(newBps);
-                db.updateLastBufferpoolRead();
+                this.getDatabase().getBufferpools().setBufferpools(newBps);
+                this.getDatabase().getBufferpools().updateLastBufferpoolRead();
                 res.close();
                 stmt.close();
-                ConnectionPoolsManager.getInstance()
-                        .getConnectionPool(this.dbConn)
-                        .closeConnection(this.dbConn, connection);
+                ConnectionPoolsManager
+                        .getInstance()
+                        .getConnectionPool(this.getDatabaseConnection())
+                        .closeConnection(this.getDatabaseConnection(),
+                                connection);
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
@@ -284,26 +291,6 @@ public final class CheckBufferPoolHitRatioDB2 implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            // Controls multiple concurrent executions.
-            // This prevents to create multiple threads trying to access the
-            // database. This is a problem when the database is not available,
-            // or it has a big workload, and multiple connections are
-            // established.
-            if (!CheckBufferPoolHitRatioDB2.LOCKS.containsKey(this.db2db
-                    .getId())) {
-                CheckBufferPoolHitRatioDB2.LOCKS.put(this.db2db.getId(), 1);
-                this.check();
-                CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
-            } else {
-                log.warn(this.dbConn.getUrl() + "::There is a lock for: "
-                        + this.db2db.getId());
-            }
-        } catch (final Exception e) {
-            log.error(this.dbConn.getUrl()
-                    + "::Error while reading bufferpool values", e);
-            CheckBufferPoolHitRatioDB2.LOCKS.remove(this.db2db.getId());
-            e.printStackTrace();
-        }
+        super.setLock();
     }
 }

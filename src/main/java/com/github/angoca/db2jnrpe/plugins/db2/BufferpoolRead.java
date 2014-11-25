@@ -8,6 +8,10 @@ package com.github.angoca.db2jnrpe.plugins.db2;
  */
 public final class BufferpoolRead {
     /**
+     * Frequency to read the bufferpools. 30000 means each 5 minutes.
+     */
+    static final long BUFFERPOOL_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
+    /**
      * Most recent value of logical reads.
      */
     private long logicalReads = 0;
@@ -44,8 +48,8 @@ public final class BufferpoolRead {
      * @param dbMember
      *            Member of the database.
      */
-    BufferpoolRead(final String bpName, final long logical, final long total,
-            final int dbMember) {
+    public BufferpoolRead(final String bpName, final long logical,
+            final long total, final int dbMember) {
         assert logical <= total : "Logical reads should be less "
                 + "that total reads.";
         this.name = bpName;
@@ -84,8 +88,8 @@ public final class BufferpoolRead {
         } else if (this.previousTotalReads == this.totalReads) {
             ret = 100;
         } else {
-            ret = (double) (this.logicalReads - this.previousLogicalReads)
-                    * 100 / (this.totalReads - this.previousTotalReads);
+            ret = ((double) (this.logicalReads - this.previousLogicalReads) * 100)
+                    / (this.totalReads - this.previousTotalReads);
         }
         return ret;
     }
@@ -113,7 +117,7 @@ public final class BufferpoolRead {
      *
      * @return Name of the bufferpool.
      */
-    String getName() {
+    public String getName() {
         return this.name;
     }
 
@@ -132,13 +136,13 @@ public final class BufferpoolRead {
      *
      * @return Ratio of the reads.
      */
-    double getRatio() {
+    public double getRatio() {
         double ret = 0;
         if (this.totalReads == 0) {
             // No reads until now.
             ret = 100;
         } else {
-            ret = (double) this.logicalReads * 100 / this.totalReads;
+            ret = ((double) this.logicalReads * 100) / this.totalReads;
         }
         return ret;
     }
@@ -148,7 +152,7 @@ public final class BufferpoolRead {
      *
      * @return Total reads.
      */
-    long getTotalReads() {
+    public long getTotalReads() {
         return this.totalReads;
     }
 
@@ -180,7 +184,7 @@ public final class BufferpoolRead {
      * @param total
      *            Quantity of total reads.
      */
-    void setReads(final long logical, final long total) {
+    public void setReads(final long logical, final long total) {
         this.setLogicalReads(logical);
         this.setTotalReads(total);
     }
