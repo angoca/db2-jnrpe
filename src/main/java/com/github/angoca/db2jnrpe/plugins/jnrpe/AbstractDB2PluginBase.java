@@ -1,27 +1,27 @@
 package com.github.angoca.db2jnrpe.plugins.jnrpe;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
-import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
-import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
-
 import it.jnrpe.ICommandLine;
 import it.jnrpe.Status;
 import it.jnrpe.plugins.MetricGatheringException;
 import it.jnrpe.plugins.PluginBase;
 
+import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
+import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
+
 /**
  * This class contains the common methods for all DB2 plugins.
- * 
+ *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-21
  */
-public abstract class DB2PluginBase extends PluginBase {
+public abstract class AbstractDB2PluginBase extends PluginBase {
 
     /**
      * Calls the parent constructor.
      */
-    public DB2PluginBase() {
+    public AbstractDB2PluginBase() {
         super();
     }
 
