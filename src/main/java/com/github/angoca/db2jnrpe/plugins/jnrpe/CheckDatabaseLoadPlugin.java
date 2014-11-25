@@ -1,6 +1,7 @@
 package com.github.angoca.db2jnrpe.plugins.jnrpe;
 
 import it.jnrpe.ICommandLine;
+import it.jnrpe.Status;
 import it.jnrpe.plugins.Metric;
 import it.jnrpe.plugins.MetricGatheringException;
 import it.jnrpe.utils.BadThresholdException;
@@ -10,10 +11,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
+import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
 import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
@@ -23,7 +24,20 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-21
  */
-public final class CheckDatabaseLoadPlugin extends DB2PluginBase {
+public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
+
+    /**
+     * Name of the metric for the quantity of commits.
+     */
+    private static final String COMMIT_LOAD = "commitsLoad";
+    /**
+     * Name of the metric for the quantity of selects.
+     */
+    private static final String SELECT_LOAD = "selectsLoad";
+    /**
+     * Name of the metric for the insert update and deletes.
+     */
+    private static final String UID_LOAD = "uidLoad";
 
     /*
      * (non-Javadoc)
@@ -38,13 +52,13 @@ public final class CheckDatabaseLoadPlugin extends DB2PluginBase {
             throws BadThresholdException {
         final String dbId = this.getId(cl);
         this.log.warn("Database: " + dbId);
-        thrb.withLegacyThreshold(DB2Database.UID_LOAD, null,
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.UID_LOAD, null,
                 cl.getOptionValue("warning", "80"),
                 cl.getOptionValue("critical", "100"));
-        thrb.withLegacyThreshold(DB2Database.SELECT_LOAD, null,
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.SELECT_LOAD, null,
                 cl.getOptionValue("warning", "80"),
                 cl.getOptionValue("critical", "100"));
-        thrb.withLegacyThreshold(DB2Database.COMMIT_LOAD, null,
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.COMMIT_LOAD, null,
                 cl.getOptionValue("warning", "80"),
                 cl.getOptionValue("critical", "100"));
 
@@ -73,33 +87,36 @@ public final class CheckDatabaseLoadPlugin extends DB2PluginBase {
             db2Database = new DB2Database(id);
             DB2DatabasesManager.getInstance().add(id, db2Database);
         }
-        Map<String, Long> loadValues;
+        DatabaseSnapshot snapshot;
         try {
-            loadValues = db2Database.getLoadValuesAndRefresh(this
-                    .getConnection(cl));
+            snapshot = db2Database
+                    .getSnapshotAndRefresh(this.getConnection(cl));
 
-            res.add(new Metric(DB2Database.UID_LOAD, "The UID load is "
-                    + loadValues.get(DB2Database.UID_LOAD), new BigDecimal(
-                    loadValues.get(DB2Database.UID_LOAD)), null, null));
-            res.add(new Metric(DB2Database.SELECT_LOAD, "The Select load is "
-                    + loadValues.get(DB2Database.SELECT_LOAD), new BigDecimal(
-                    loadValues.get(DB2Database.SELECT_LOAD)), null, null));
-            res.add(new Metric(DB2Database.COMMIT_LOAD, "The Commit load is "
-                    + loadValues.get(DB2Database.COMMIT_LOAD), new BigDecimal(
-                    loadValues.get(DB2Database.COMMIT_LOAD)), null, null));
+            res.add(new Metric(CheckDatabaseLoadPlugin.UID_LOAD,
+                    "The UID load is " + snapshot.getUIDs() + '.',
+                    new BigDecimal(snapshot.getUIDs()), null, null));
+            res.add(new Metric(CheckDatabaseLoadPlugin.SELECT_LOAD,
+                    "The Select load is " + snapshot.getSelects(),
+                    new BigDecimal(snapshot.getSelects() + '.'), null, null));
+            res.add(new Metric(CheckDatabaseLoadPlugin.COMMIT_LOAD,
+                    "The Commit load is " + snapshot.getCommits(),
+                    new BigDecimal(snapshot.getCommits() + '.'), null, null));
 
-        } catch (UnknownValueException e) {
-            // There are not values in the cache. Do nothing.
+        } catch (final UnknownValueException e) {
+            this.log.warn(id + "::No values");
+            throw new MetricGatheringException("Values have not been gathered",
+                    Status.UNKNOWN, null);
         }
 
         // Metadata
         final boolean metadata = cl.hasOption("metadata");
         if (metadata) {
             res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
-                    .getLastBufferpoolRefresh()), null, null));
+                    .getSnap().getLastSnapshotRefresh()), null, null));
             res.add(new Metric("Cache-old", "", new BigDecimal(System
                     .currentTimeMillis()
-                    - db2Database.getLastBufferpoolRefresh()), null, null));
+                    - db2Database.getSnap().getLastSnapshotRefresh()), null,
+                    null));
         }
         return res;
 
