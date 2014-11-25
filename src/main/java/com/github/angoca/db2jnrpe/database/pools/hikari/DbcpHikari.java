@@ -54,14 +54,15 @@ public class DbcpHikari extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2SimpleDataSource";
             }
         };
-        Connection conn1 = new DbcpHikari().initialize(dc1).getConnection(dc1);
+        final Connection conn1 = new DbcpHikari().initialize(dc1)
+                .getConnection(dc1);
         System.out.println("Client Information: " + conn1.getClientInfo());
         final DatabaseConnection dc2 = new DatabaseConnection(
-                DbcpHikari.class.getName(), new Properties(), "db2inst2",
-                "db2inst2") {
+                DbcpHikari.class.getName(), new Properties(), "db2inst1",
+                "db2inst1") {
 
             {
-                this.setUrl("jdbc:db2://127.0.0.1:50000/sample");
+                this.setUrl("jdbc:db2://localhost:50000/sample");
             }
 
             /*
@@ -75,7 +76,8 @@ public class DbcpHikari extends ConnectionPool {
                 return "com.ibm.db2.jcc.DB2Driver";
             }
         };
-        Connection conn2 = new DbcpHikari().initialize(dc2).getConnection(dc2);
+        final Connection conn2 = new DbcpHikari().initialize(dc2)
+                .getConnection(dc2);
         System.out.println("Client Information: " + conn2.getClientInfo());
     }
 
@@ -111,7 +113,7 @@ public class DbcpHikari extends ConnectionPool {
             throws DatabaseConnectionException {
         HikariDataSource ds = DbcpHikari.pools.get(dbConn.getUrl());
         if (ds == null) {
-            HikariConfig config = new HikariConfig();
+            final HikariConfig config = new HikariConfig();
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
