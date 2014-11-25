@@ -253,6 +253,7 @@ public abstract class DB2Helper {
      *             Any exception.
      */
     public static final void main(final String[] args) throws Exception {
+      //CHECKSTYLE:OFF
         System.out.println("Test: Pool");
         String hostname;
         int portNumber;
@@ -283,10 +284,10 @@ public abstract class DB2Helper {
                 + DB2Helper.getDB2MinorVersion(dbConn));
 
         hostname = "127.0.0.1";
-        portNumber = 50002;
-        databaseName = "sample";
-        username = "db2inst2";
-        password = "db2inst2";
+        portNumber = 50000;
+        databaseName = "sample2";
+        username = "db2inst1";
+        password = "db2inst1";
 
         databaseConnection = DB2Connection.class.getName();
         // connectionPool =
@@ -300,6 +301,7 @@ public abstract class DB2Helper {
         System.out.println("DB2 version: "
                 + DB2Helper.getDB2MajorVersion(dbConn) + " :: "
                 + DB2Helper.getDB2MinorVersion(dbConn));
+      //CHECKSTYLE:ON
     }
 
     /**
