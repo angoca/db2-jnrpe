@@ -37,7 +37,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
     /**
      * Critical value by default: X < 90%.
      */
-    private static final String CRITICAL_VALUE = "90:100";
+    private static final String CRITICAL_VALUE = "90";
     /**
      * A thousand.
      */
@@ -49,7 +49,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
     /**
      * Warning value by default: X < 95%.
      */
-    private static final String WARNING_VALUE = "95:100";
+    private static final String WARNING_VALUE = "95";
 
     /**
      * Tests the complete chain.
@@ -67,7 +67,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 .getDatabaseConnection(
                         com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                         .getName(), DB2Connection.class.getName(),
-                        "localhost", 50000, "sample", "db2admin", "AngocA81");
+                        "localhost", 50000, "sample", "db2inst1", "db2inst1");
         final String id = "localhost:50000/sample";
 
         new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
