@@ -9,7 +9,7 @@ package com.github.angoca.db2jnrpe.plugins.db2;
 public final class DatabaseSnapshot {
 
     /**
-     * Snapshot frequency to read the corresponding values.
+     * Snapshot frequency to read the corresponding values : 10 minutes.
      */
     static final long SNAPSHOT_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
     /**
@@ -76,7 +76,7 @@ public final class DatabaseSnapshot {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#clone()
      */
     @Override
@@ -101,19 +101,31 @@ public final class DatabaseSnapshot {
 
     /**
      * Returns the delta of the last commits.
-     * 
+     *
      * @return Quantity of commits between the last two calls.
+     * @throws UnknownValueException
+     *             There is not a comparison value, the plugin should have two
+     *             values in order to compare.
      */
-    public long getLastCommits() {
+    public long getLastCommits() throws UnknownValueException {
+        if (this.lastSnapshot == 0) {
+            throw new UnknownValueException("Second snapshot has not been read");
+        }
         return this.commitSQLstmts - this.previousCommitSQLstmts;
     }
 
     /**
      * Returns the delta of the last selects.
-     * 
+     *
      * @return Quantity of selects between the last two calls.
+     * @throws UnknownValueException
+     *             There is not a comparison value, the plugin should have two
+     *             values in order to compare.
      */
-    public long getLastSelects() {
+    public long getLastSelects() throws UnknownValueException {
+        if (this.lastSnapshot == 0) {
+            throw new UnknownValueException("Second snapshot has not been read");
+        }
         return this.selectSQLstmts - this.previousSelectSQLstmts;
     }
 
@@ -128,10 +140,16 @@ public final class DatabaseSnapshot {
 
     /**
      * Retrieves the delta of the last modifications.
-     * 
+     *
      * @return Quantity of UIDs between the last two calls.
+     * @throws UnknownValueException
+     *             There is not a comparison value, the plugin should have two
+     *             values in order to compare.
      */
-    public long getLastUIDs() {
+    public long getLastUIDs() throws UnknownValueException {
+        if (this.lastSnapshot == 0) {
+            throw new UnknownValueException("Second snapshot has not been read");
+        }
         return this.uidSQLstmts - this.previousUidSQLstmts;
     }
 
@@ -248,7 +266,7 @@ public final class DatabaseSnapshot {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
