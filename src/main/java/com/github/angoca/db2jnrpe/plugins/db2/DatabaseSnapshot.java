@@ -37,6 +37,12 @@ public final class DatabaseSnapshot {
      */
     private long previousSelectSQLstmts;
     /**
+     * Time when the previous snapshot was taken. This is only used the first
+     * time the script is executed in order to not return the values since the
+     * database was activated.
+     */
+    private long previousSnapshot;
+    /**
      * Previous read of the quantity of modifications in the database (update,
      * insert, delete).
      */
@@ -76,7 +82,7 @@ public final class DatabaseSnapshot {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#clone()
      */
     @Override
@@ -88,6 +94,7 @@ public final class DatabaseSnapshot {
         copy.previousSelectSQLstmts = this.previousSelectSQLstmts;
         copy.previousUidSQLstmts = this.previousUidSQLstmts;
         copy.lastSnapshot = this.lastSnapshot;
+        copy.previousSnapshot = this.previousSnapshot;
         return copy;
     }
 
@@ -109,7 +116,7 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public long getLastCommits() throws UnknownValueException {
-        if (this.lastSnapshot == 0) {
+        if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
         return this.commitSQLstmts - this.previousCommitSQLstmts;
@@ -124,7 +131,7 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public long getLastSelects() throws UnknownValueException {
-        if (this.lastSnapshot == 0) {
+        if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
         return this.selectSQLstmts - this.previousSelectSQLstmts;
@@ -148,7 +155,7 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public long getLastUIDs() throws UnknownValueException {
-        if (this.lastSnapshot == 0) {
+        if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
         return this.uidSQLstmts - this.previousUidSQLstmts;
@@ -267,7 +274,7 @@ public final class DatabaseSnapshot {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -279,9 +286,11 @@ public final class DatabaseSnapshot {
     }
 
     /**
-     * Updates the value of the snap of the database.
+     * Updates the value of the snap of the database. Sets the previous snapshot
+     * in order to have a compare point the first time the snapshot is taken.
      */
     public void updateLastSnapshot() {
+        this.previousSnapshot = this.lastSnapshot;
         this.lastSnapshot = System.currentTimeMillis();
     }
 }
