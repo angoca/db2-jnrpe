@@ -87,6 +87,7 @@ public final class DatabaseSnapshot {
         copy.previousCommitSQLstmts = this.previousCommitSQLstmts;
         copy.previousSelectSQLstmts = this.previousSelectSQLstmts;
         copy.previousUidSQLstmts = this.previousUidSQLstmts;
+        copy.lastSnapshot = this.lastSnapshot;
         return copy;
     }
 
