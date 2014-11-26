@@ -68,7 +68,7 @@ public final class DatabaseConnectionsManager {
     @SuppressWarnings("unchecked")
     private Constructor<DatabaseConnection> getConstructor(
             final String databaseConnectionName)
-                    throws DatabaseConnectionException {
+            throws DatabaseConnectionException {
         Constructor<DatabaseConnection> constructor = this.constructors
                 .get(databaseConnectionName);
         if (constructor == null) {

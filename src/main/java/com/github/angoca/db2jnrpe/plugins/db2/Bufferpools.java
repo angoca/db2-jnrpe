@@ -48,7 +48,7 @@ public final class Bufferpools {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#clone()
      */
     @Override
@@ -134,7 +134,7 @@ public final class Bufferpools {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

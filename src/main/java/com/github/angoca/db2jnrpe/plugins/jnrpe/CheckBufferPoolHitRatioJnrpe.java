@@ -35,6 +35,23 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
 
     /**
+     * Critical value by default: X < 90%.
+     */
+    private static final String CRITICAL_VALUE = "90:100";
+    /**
+     * A thousand.
+     */
+    private static final int KILO = 1000;
+    /**
+     * A hundred.
+     */
+    private static final int MEGA = 1000000;
+    /**
+     * Warning value by default: X < 95%.
+     */
+    private static final String WARNING_VALUE = "95:100";
+
+    /**
      * Tests the complete chain.
      *
      * @param args
@@ -97,16 +114,22 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 for (final String string : bufferpoolNames) {
                     final String bpName = string;
                     logMessage += bpName + " ";
-                    thrb.withLegacyThreshold(bpName, null,
-                            cl.getOptionValue("warning", "95"),
-                            cl.getOptionValue("critical", "90"));
+                    thrb.withLegacyThreshold(
+                            bpName,
+                            null,
+                            cl.getOptionValue("warning",
+                                    CheckBufferPoolHitRatioJnrpe.WARNING_VALUE),
+                            cl.getOptionValue("critical",
+                                    CheckBufferPoolHitRatioJnrpe.CRITICAL_VALUE));
                 }
                 this.log.debug(logMessage);
             } else if (bufferpoolNames.contains(bufferpoolName)) {
                 this.log.debug("Threshold for bufferpool: " + bufferpoolName);
-                thrb.withLegacyThreshold(bufferpoolName, null,
-                        cl.getOptionValue("warning", "95"),
-                        cl.getOptionValue("critical", "90"));
+                thrb.withLegacyThreshold(bufferpoolName, null, cl
+                        .getOptionValue("warning",
+                                CheckBufferPoolHitRatioJnrpe.WARNING_VALUE), cl
+                        .getOptionValue("critical",
+                                CheckBufferPoolHitRatioJnrpe.CRITICAL_VALUE));
             } else {
                 this.log.error("The bufferpool " + bufferpoolName
                         + " does not exist");
@@ -242,10 +265,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
      */
     private String getSimplifiedValue(final long value) {
         String logStr;
-        if (value > 1000000) {
-            logStr = (value / 1000000) + "M";
-        } else if (value > 1000) {
-            logStr = (value / 1000) + "K";
+        if (value > CheckBufferPoolHitRatioJnrpe.MEGA) {
+            logStr = (value / CheckBufferPoolHitRatioJnrpe.MEGA) + "M";
+        } else if (value > CheckBufferPoolHitRatioJnrpe.KILO) {
+            logStr = (value / CheckBufferPoolHitRatioJnrpe.KILO) + "K";
         } else {
             logStr = value + "";
         }

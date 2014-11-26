@@ -14,6 +14,15 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 public abstract class ConnectionPool {
 
     /**
+     * Maximum size of the pool.
+     */
+    protected static final int MAX_POOL_SIZE = 5;
+    /**
+     * Minimum size of the pool.
+     */
+    protected static final int MIN_POOL_SIZE = 1;
+
+    /**
      * Closes a established connection.
      *
      * @param dbConn

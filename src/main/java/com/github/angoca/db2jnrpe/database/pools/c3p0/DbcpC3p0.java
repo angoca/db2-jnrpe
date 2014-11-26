@@ -127,9 +127,9 @@ public final class DbcpC3p0 extends ConnectionPool {
                     throw new DatabaseConnectionException(e);
                 }
                 pool.setJdbcUrl(dbConn.getUrl());
-                pool.setMinPoolSize(3);
+                pool.setMinPoolSize(ConnectionPool.MIN_POOL_SIZE);
                 pool.setAcquireIncrement(5);
-                pool.setMaxPoolSize(20);
+                pool.setMaxPoolSize(ConnectionPool.MAX_POOL_SIZE);
                 pool.setProperties(dbConn.getConnectionProperties());
                 try {
                     pool.setDriverClass(dbConn.getDriverClass());

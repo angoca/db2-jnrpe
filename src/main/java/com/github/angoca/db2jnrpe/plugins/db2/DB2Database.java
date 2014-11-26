@@ -21,9 +21,9 @@ public final class DB2Database {
      */
     private static Logger log = LoggerFactory.getLogger(DB2Database.class);
     /**
-     * Normal frequency for all elements.
+     * Normal frequency for all elements: 10 minutes.
      */
-    static final long STANDARD_FREQUENCY = 300000;
+    static final long STANDARD_FREQUENCY = 600000;
     /**
      * Bufferpool reads.
      */
@@ -115,7 +115,7 @@ public final class DB2Database {
             final DatabaseConnection dbConn) throws UnknownValueException {
         if (this.snap == null) {
             new Thread(new DB2DatabaseSnapshotBroker(dbConn, this)).start();
-            throw new UnknownValueException("Snapshot has not been read");
+            throw new UnknownValueException("First snapshot has not been read");
         } else if (!this.snap.isSnapshotUpdated()) {
             // Updates for the next time. The current execution returns the
             // previous values.
@@ -148,7 +148,7 @@ public final class DB2Database {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

@@ -8,9 +8,13 @@ package com.github.angoca.db2jnrpe.plugins.db2;
  */
 public final class BufferpoolRead {
     /**
-     * Frequency to read the bufferpools. 30000 means each 5 minutes.
+     * Frequency to read the bufferpools. 60000 means each 10 minutes.
      */
     static final long BUFFERPOOL_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
+    /**
+     * Hundred percent.
+     */
+    private static final int HUNDRED_PERCENT = 100;
     /**
      * Most recent value of logical reads.
      */
@@ -82,13 +86,13 @@ public final class BufferpoolRead {
     public double getLastRatio() {
         double ret = 0;
         if (this.totalReads == 0) {
-            ret = 100;
+            ret = BufferpoolRead.HUNDRED_PERCENT;
         } else if (this.previousTotalReads == 0) {
             ret = this.getRatio();
         } else if (this.previousTotalReads == this.totalReads) {
-            ret = 100;
+            ret = BufferpoolRead.HUNDRED_PERCENT;
         } else {
-            ret = ((double) (this.logicalReads - this.previousLogicalReads) * 100)
+            ret = ((double) (this.logicalReads - this.previousLogicalReads) * BufferpoolRead.HUNDRED_PERCENT)
                     / (this.totalReads - this.previousTotalReads);
         }
         return ret;
@@ -140,9 +144,10 @@ public final class BufferpoolRead {
         double ret = 0;
         if (this.totalReads == 0) {
             // No reads until now.
-            ret = 100;
+            ret = BufferpoolRead.HUNDRED_PERCENT;
         } else {
-            ret = ((double) this.logicalReads * 100) / this.totalReads;
+            ret = ((double) this.logicalReads * BufferpoolRead.HUNDRED_PERCENT)
+                    / this.totalReads;
         }
         return ret;
     }

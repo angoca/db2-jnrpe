@@ -118,7 +118,7 @@ public abstract class DatabaseConnection {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

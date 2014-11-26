@@ -45,7 +45,7 @@ public class DbcpHikari extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             *
+             * 
              * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
@@ -67,7 +67,7 @@ public class DbcpHikari extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             *
+             * 
              * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
@@ -83,7 +83,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
@@ -103,7 +103,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
@@ -123,8 +123,8 @@ public class DbcpHikari extends ConnectionPool {
             config.setJdbcUrl(dbConn.getUrl());
             config.setUsername(dbConn.getUsername());
             config.setPassword(dbConn.getPassword());
-            config.setMinimumIdle(1);
-            config.setMaximumPoolSize(5);
+            config.setMinimumIdle(ConnectionPool.MIN_POOL_SIZE);
+            config.setMaximumPoolSize(ConnectionPool.MAX_POOL_SIZE);
             config.setDataSourceProperties(dbConn.getConnectionProperties());
             ds = new HikariDataSource(config);
             DbcpHikari.pools.put(dbConn.getUrl(), ds);
@@ -139,7 +139,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(com
      * .github.angoca.db2jnrpe.database.DatabaseConnection)

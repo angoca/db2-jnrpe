@@ -31,6 +31,10 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      */
     private static final String COMMIT_LOAD = "commitsLoad";
     /**
+     * Critical value by default: 10K operations.
+     */
+    private static final String CRITICAL_VALUE = "10000";
+    /**
      * Name of the metric for the quantity of selects.
      */
     private static final String SELECT_LOAD = "selectsLoad";
@@ -38,10 +42,14 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      * Name of the metric for the insert update and deletes.
      */
     private static final String UID_LOAD = "uidLoad";
+    /**
+     * Warning value by default: 7K operations.
+     */
+    private static final String WARNING_VALUE = "7000";
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * it.jnrpe.plugins.PluginBase#configureThresholdEvaluatorBuilder(it.jnrpe
      * .utils.thresholds.ThresholdsEvaluatorBuilder, it.jnrpe.ICommandLine)
@@ -49,18 +57,24 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
     @Override
     public void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
-            throws BadThresholdException {
+                    throws BadThresholdException {
         final String dbId = this.getId(cl);
         this.log.warn("Database: " + dbId);
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.UID_LOAD, null,
-                cl.getOptionValue("warning", "80"),
-                cl.getOptionValue("critical", "100"));
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.SELECT_LOAD, null,
-                cl.getOptionValue("warning", "80"),
-                cl.getOptionValue("critical", "100"));
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.COMMIT_LOAD, null,
-                cl.getOptionValue("warning", "80"),
-                cl.getOptionValue("critical", "100"));
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.UID_LOAD, null, cl
+                .getOptionValue("warning",
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
+                .getOptionValue("critical",
+                        CheckDatabaseLoadPlugin.CRITICAL_VALUE));
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.SELECT_LOAD, null, cl
+                .getOptionValue("warning",
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
+                .getOptionValue("critical",
+                        CheckDatabaseLoadPlugin.CRITICAL_VALUE));
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.COMMIT_LOAD, null, cl
+                .getOptionValue("warning",
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
+                .getOptionValue("critical",
+                        CheckDatabaseLoadPlugin.CRITICAL_VALUE));
 
         // Metadata
         final boolean metadata = cl.hasOption("metadata");
@@ -72,7 +86,7 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
      */
     @Override
@@ -104,7 +118,8 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
 
         } catch (final UnknownValueException e) {
             this.log.warn(id + "::No values");
-            throw new MetricGatheringException("Values have not been gathered",
+            throw new MetricGatheringException(
+                    "Not enough values have been gathered: " + e.getMessage(),
                     Status.UNKNOWN, null);
         }
 
@@ -124,7 +139,7 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see it.jnrpe.plugins.PluginBase#getPluginName()
      */
     @Override

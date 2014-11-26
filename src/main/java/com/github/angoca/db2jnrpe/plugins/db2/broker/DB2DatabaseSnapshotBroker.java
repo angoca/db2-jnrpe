@@ -25,7 +25,7 @@ import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
  * @version 2014-11-24
  */
 public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
-        implements Runnable {
+implements Runnable {
 
     /**
      * Position of column commit quantity.
@@ -145,7 +145,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2jnrpe.plugins.db2.broker.AbstractDB2Broker#check()
      */
@@ -209,8 +209,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance()
-                    .getConnectionPool(this.getDatabaseConnection())
-                    .closeConnection(this.getDatabaseConnection(), connection);
+            .getConnectionPool(this.getDatabaseConnection())
+            .closeConnection(this.getDatabaseConnection(), connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -220,7 +220,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Runnable#run()
      */
     @Override

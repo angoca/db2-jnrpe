@@ -81,7 +81,7 @@ public final class DB2Connection extends DatabaseConnection {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.github.angoca.db2jnrpe.database.DatabaseConnection#getDriverClass()
      */
