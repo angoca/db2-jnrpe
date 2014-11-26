@@ -79,7 +79,7 @@ public final class DB2Database {
             // previous values.
             new Thread(new DB2BufferpoolHitRatioBroker(dbConn, this)).start();
         }
-        log.info("Bufferpool values returned taken at "
+        DB2Database.log.info("Bufferpool values returned taken at "
                 + new Timestamp(this.bufferpools.getLastBufferpoolRefresh()));
         return (Bufferpools) this.bufferpools.clone();
     }
@@ -121,7 +121,7 @@ public final class DB2Database {
             // previous values.
             new Thread(new DB2DatabaseSnapshotBroker(dbConn, this)).start();
         }
-        log.info("Snapshot returned taken at "
+        DB2Database.log.info("Snapshot returned taken at "
                 + new Timestamp(this.snap.getLastSnapshotRefresh()));
         return this.snap.clone();
     }
@@ -148,7 +148,7 @@ public final class DB2Database {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override

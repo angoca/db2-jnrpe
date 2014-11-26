@@ -45,7 +45,7 @@ public class DbcpHikari extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             * 
+             *
              * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
@@ -67,7 +67,7 @@ public class DbcpHikari extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             * 
+             *
              * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
              * #getDriverClass()
              */
@@ -83,7 +83,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
@@ -103,7 +103,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
      * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
@@ -139,7 +139,7 @@ public class DbcpHikari extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(com
      * .github.angoca.db2jnrpe.database.DatabaseConnection)

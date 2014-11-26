@@ -60,7 +60,7 @@ public final class BufferpoolRead {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#clone()
      */
     @Override
@@ -210,13 +210,13 @@ public final class BufferpoolRead {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        final String ret = this.name + ";reads:" + this.logicalReads + '/'
-                + this.totalReads;
+        final String ret = "Bufferpool[" + this.member + ';' + this.name
+                + ";reads:" + this.logicalReads + '/' + this.totalReads + ']';
         return ret;
     }
 }

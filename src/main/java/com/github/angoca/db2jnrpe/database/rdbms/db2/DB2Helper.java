@@ -88,7 +88,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(dbConn, connection);
+            .closeConnection(dbConn, connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -217,7 +217,7 @@ public abstract class DB2Helper {
             res.close();
             stmt.close();
             ConnectionPoolsManager.getInstance().getConnectionPool(dbConn)
-                    .closeConnection(dbConn, connection);
+            .closeConnection(dbConn, connection);
         } catch (final SQLException sqle) {
             DB2Helper.processException(sqle);
             throw new DatabaseConnectionException(sqle);
@@ -253,7 +253,7 @@ public abstract class DB2Helper {
      *             Any exception.
      */
     public static final void main(final String[] args) throws Exception {
-      //CHECKSTYLE:OFF
+        // CHECKSTYLE:OFF
         System.out.println("Test: Pool");
         String hostname;
         int portNumber;
@@ -301,7 +301,7 @@ public abstract class DB2Helper {
         System.out.println("DB2 version: "
                 + DB2Helper.getDB2MajorVersion(dbConn) + " :: "
                 + DB2Helper.getDB2MinorVersion(dbConn));
-      //CHECKSTYLE:ON
+        // CHECKSTYLE:ON
     }
 
     /**

@@ -48,12 +48,12 @@ public final class Bufferpools {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#clone()
      */
     @Override
     protected Object clone() {
-        Bufferpools ret = new Bufferpools(database);
+        final Bufferpools ret = new Bufferpools(this.database);
         ret.lastBufferpoolRead = this.lastBufferpoolRead;
         ret.bufferpoolReads = this.cloneBufferpools();
         return ret;
@@ -134,7 +134,7 @@ public final class Bufferpools {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override

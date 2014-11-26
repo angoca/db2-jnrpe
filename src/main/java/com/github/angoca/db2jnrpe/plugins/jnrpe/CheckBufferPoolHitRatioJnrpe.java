@@ -49,7 +49,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 .getInstance()
                 .getDatabaseConnection(
                         com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
-                                .getName(), DB2Connection.class.getName(),
+                        .getName(), DB2Connection.class.getName(),
                         "localhost", 50000, "sample", "db2admin", "AngocA81");
         final String id = "localhost:50000/sample";
 
@@ -70,7 +70,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * it.jnrpe.plugins.PluginBase#configureThresholdEvaluatorBuilder(it.jnrpe
      * .utils.thresholds.ThresholdsEvaluatorBuilder, it.jnrpe.ICommandLine)
@@ -78,7 +78,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
     @Override
     public void configureThresholdEvaluatorBuilder(
             final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
-            throws BadThresholdException {
+                    throws BadThresholdException {
         Set<String> bufferpoolNames;
         final String dbId = this.getId(cl);
         this.log.warn("Database: " + dbId);
@@ -126,7 +126,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
      */
     @Override
@@ -155,8 +155,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
                 ratio = new BigDecimal(bpDesc.getLastRatio());
                 logMessage += String.format("BP %s: %.1f%% ", name, ratio);
-                String logStr = getSimplifiedValue(bpDesc.getLogicalReads());
-                String phyStr = getSimplifiedValue(bpDesc.getPhysicalReads());
+                final String logStr = this.getSimplifiedValue(bpDesc
+                        .getLogicalReads());
+                final String phyStr = this.getSimplifiedValue(bpDesc
+                        .getPhysicalReads());
                 final String message = String.format(
                         "%s at %d has %s LR and %d PR, ratio of " + "%.1f%%.",
                         name, bpDesc.getMember(), logStr, phyStr, ratio);
@@ -176,7 +178,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 res.add(new Metric("Cache-old", "", new BigDecimal(System
                         .currentTimeMillis()
                         - db2Database.getBufferpools()
-                                .getLastBufferpoolRefresh()), null, null));
+                        .getLastBufferpoolRefresh()), null, null));
             }
             this.bufferpoolReads = null;
         } else {
@@ -186,25 +188,6 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
         }
 
         return res;
-    }
-
-    /**
-     * Returns a simplified value for long values.
-     * 
-     * @param value
-     *            Value with a log of digits.
-     * @return Metrical notation to simplify big values.
-     */
-    private String getSimplifiedValue(final long value) {
-        String logStr;
-        if (value > 1000000) {
-            logStr = (value / 1000000) + "M";
-        } else if (value > 1000) {
-            logStr = (value / 1000) + "K";
-        } else {
-            logStr = value + "";
-        }
-        return logStr;
     }
 
     /**
@@ -228,7 +211,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
         }
         Set<String> bufferpoolNames = null;
         try {
-            Bufferpools bufferpools = db2Database
+            final Bufferpools bufferpools = db2Database
                     .getBufferpoolsAndRefresh(conn);
             if (bufferpools != null) {
                 this.bufferpoolReads = bufferpools.getBufferpoolReads();
@@ -242,12 +225,31 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see it.jnrpe.plugins.PluginBase#getPluginName()
      */
     @Override
     protected String getPluginName() {
         return "CHECK_BUFFERPOOL_HIT_RATIO";
+    }
+
+    /**
+     * Returns a simplified value for long values.
+     *
+     * @param value
+     *            Value with a log of digits.
+     * @return Metrical notation to simplify big values.
+     */
+    private String getSimplifiedValue(final long value) {
+        String logStr;
+        if (value > 1000000) {
+            logStr = (value / 1000000) + "M";
+        } else if (value > 1000) {
+            logStr = (value / 1000) + "K";
+        } else {
+            logStr = value + "";
+        }
+        return logStr;
     }
 
 }

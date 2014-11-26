@@ -33,7 +33,7 @@ import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
  * @version 2014-11-03
  */
 public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
-        implements Runnable {
+implements Runnable {
 
     /**
      * Position of column bpname.
@@ -128,8 +128,8 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                     "Bufferpool %s at member %s has %s "
                             + "logical reads and %s total reads, with a hit "
                             + "ratio of %s%%.", bpDesc.getName(),
-                    bpDesc.getMember(), bpDesc.getLogicalReads(),
-                    bpDesc.getTotalReads(), bpDesc.getLastRatio());
+                            bpDesc.getMember(), bpDesc.getLogicalReads(),
+                            bpDesc.getTotalReads(), bpDesc.getLastRatio());
 
             System.out.println(message);
         }
@@ -163,8 +163,8 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                     "Bufferpool %s at member %s has %s "
                             + "logical reads and %s total reads, with a hit "
                             + "ratio of %s%%.", bpDesc.getName(),
-                    bpDesc.getMember(), bpDesc.getLogicalReads(),
-                    bpDesc.getTotalReads(), bpDesc.getRatio());
+                            bpDesc.getMember(), bpDesc.getLogicalReads(),
+                            bpDesc.getTotalReads(), bpDesc.getRatio());
 
             System.out.println(message);
         }
@@ -187,7 +187,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.github.angoca.db2jnrpe.plugins.db2.broker.AbstractDB2Broker#check()
      */
@@ -273,10 +273,10 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                 res.close();
                 stmt.close();
                 ConnectionPoolsManager
-                        .getInstance()
-                        .getConnectionPool(this.getDatabaseConnection())
-                        .closeConnection(this.getDatabaseConnection(),
-                                connection);
+                .getInstance()
+                .getConnectionPool(this.getDatabaseConnection())
+                .closeConnection(this.getDatabaseConnection(),
+                        connection);
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
@@ -286,7 +286,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Runnable#run()
      */
     @Override
