@@ -1,6 +1,5 @@
 package com.github.angoca.db2jnrpe.plugins.db2;
 
-
 /**
  * Contains the values of a snapshot. This is used for the database load.
  *
@@ -30,12 +29,25 @@ public final class DatabaseSnapshot {
      */
     private long lastSnapshot = 0;
     /**
+     * Previous read of the quantity of commits in the database.
+     */
+    private long previousCommitSQLstmts;
+    /**
+     * Previous read of the quantity of selects in the database.
+     */
+    private long previousSelectSQLstmts;
+    /**
+     * Previous read of the quantity of modifications in the database (update,
+     * insert, delete).
+     */
+    private long previousUidSQLstmts;
+
+    /**
      * Quantity of selects in the database.
      */
     private long selectSQLstmts;
-
     /**
-     * Quantity of modifciations in the database.
+     * Quantity of modifications in the database.
      */
     private long uidSQLstmts;
 
@@ -43,7 +55,7 @@ public final class DatabaseSnapshot {
      * Creates a snapshot with the retrieved values from the table.
      *
      * @param db
-     *            Object that hols all data.
+     *            Object that holds all data.
      * @param partitionnum
      *            Database partition number.
      * @param commitSQL
@@ -69,19 +81,40 @@ public final class DatabaseSnapshot {
      */
     @Override
     public DatabaseSnapshot clone() {
-        final DatabaseSnapshot obj = new DatabaseSnapshot(this.database,
+        final DatabaseSnapshot copy = new DatabaseSnapshot(this.database,
                 this.dbpartitionnum, this.commitSQLstmts, this.selectSQLstmts,
                 this.uidSQLstmts);
-        return obj;
+        copy.previousCommitSQLstmts = this.previousCommitSQLstmts;
+        copy.previousSelectSQLstmts = this.previousSelectSQLstmts;
+        copy.previousUidSQLstmts = this.previousUidSQLstmts;
+        return copy;
     }
 
     /**
      * Retrieves the quantity of commits.
      *
-     * @return Quqnaitty of comits in the database.
+     * @return Quantity of commits in the database.
      */
     public long getCommits() {
         return this.commitSQLstmts;
+    }
+
+    /**
+     * Returns the delta of the last commits.
+     * 
+     * @return Quantity of commits between the last two calls.
+     */
+    public long getLastCommits() {
+        return this.commitSQLstmts - this.previousCommitSQLstmts;
+    }
+
+    /**
+     * Returns the delta of the last selects.
+     * 
+     * @return Quantity of selects between the last two calls.
+     */
+    public long getLastSelects() {
+        return this.selectSQLstmts - this.previousSelectSQLstmts;
     }
 
     /**
@@ -94,6 +127,15 @@ public final class DatabaseSnapshot {
     }
 
     /**
+     * Retrieves the delta of the last modifications.
+     * 
+     * @return Quantity of UIDs between the last two calls.
+     */
+    public long getLastUIDs() {
+        return this.uidSQLstmts - this.previousUidSQLstmts;
+    }
+
+    /**
      * Retrieves the quantity of selects in the database.
      *
      * @return Quantity of selects in the database.
@@ -101,7 +143,6 @@ public final class DatabaseSnapshot {
     public long getSelects() {
         return this.selectSQLstmts;
     }
-
 
     /**
      * Retrieves the quantity of modifications: Updates, inserts and deletes.
@@ -115,7 +156,7 @@ public final class DatabaseSnapshot {
     /**
      * Checks if the snap should be updated.
      *
-     * @return True if the snapshot is outdated or it is still valid.
+     * @return True if the snapshot is obsolete or it is still valid.
      */
     boolean isSnapshotUpdated() {
         boolean ret = true;
@@ -135,7 +176,13 @@ public final class DatabaseSnapshot {
      * @param commitSQL
      *            Quantity of commits.
      */
-    public void setCommtiSQLstmts(final long commitSQL) {
+    private void setCommitSQLstmts(final long commitSQL) {
+        if (commitSQL < this.commitSQLstmts) {
+            // The database was recycled between two checks.
+            this.previousCommitSQLstmts = 0;
+        } else {
+            this.previousCommitSQLstmts = this.commitSQLstmts;
+        }
         this.commitSQLstmts = commitSQL;
     }
 
@@ -155,7 +202,13 @@ public final class DatabaseSnapshot {
      * @param selectSQL
      *            Quantity of selects.
      */
-    public void setSelectSQLstmts(final long selectSQL) {
+    private void setSelectSQLstmts(final long selectSQL) {
+        if (selectSQL < this.selectSQLstmts) {
+            // The database was recycled between two checks.
+            this.previousSelectSQLstmts = 0;
+        } else {
+            this.previousSelectSQLstmts = this.selectSQLstmts;
+        }
         this.selectSQLstmts = selectSQL;
     }
 
@@ -166,8 +219,31 @@ public final class DatabaseSnapshot {
      * @param uidSQL
      *            Quantity of UID.
      */
-    public void setUidSQLstmts(final long uidSQL) {
+    private void setUidSQLstmts(final long uidSQL) {
+        if (uidSQL < this.uidSQLstmts) {
+            // The database was recycled between two checks.
+            this.previousUidSQLstmts = 0;
+        } else {
+            this.previousUidSQLstmts = this.uidSQLstmts;
+        }
         this.uidSQLstmts = uidSQL;
+    }
+
+    /**
+     * Establishes all values.
+     *
+     * @param commitSQL
+     *            Quantity of commits.
+     * @param selectSQL
+     *            Quantity of selects.
+     * @param uidSQL
+     *            Quantity of UID.
+     */
+    public void setValues(final long commitSQL, final long selectSQL,
+            final long uidSQL) {
+        this.setCommitSQLstmts(selectSQL);
+        this.setSelectSQLstmts(commitSQL);
+        this.setUidSQLstmts(uidSQL);
     }
 
     /*
@@ -177,8 +253,8 @@ public final class DatabaseSnapshot {
      */
     @Override
     public String toString() {
-        final String ret = "Snapshot[" + this.dbpartitionnum + ","
-                + this.commitSQLstmts + ':' + this.selectSQLstmts + ':'
+        final String ret = "Snapshot[" + this.dbpartitionnum + ';'
+                + this.commitSQLstmts + ';' + this.selectSQLstmts + ';'
                 + this.uidSQLstmts + ']';
         return ret;
     }

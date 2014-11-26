@@ -48,6 +48,19 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
     private static final int COL_POS_TOTAL_READS = 4;
 
     /**
+     * Logger.
+     */
+    private static Logger log = LoggerFactory
+            .getLogger(DB2DatabaseSnapshotBroker.class);
+
+    /**
+     * Query to get the values of the database charge.
+     */
+    private static final String QUERY = "SELECT DBPARTITIONNUM, "
+            + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS "
+            + "FROM SYSIBMADM.SNAPDB";
+
+    /**
      * Tester.
      *
      * @param args
@@ -88,8 +101,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                 .getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
                 .getSnap();
-        System.out.println("UIDs:" + snap.getUIDs() + ",Selects:"
-                + snap.getSelects() + ",Commits:" + snap.getCommits());
+        System.out.println("UIDs:" + snap.getLastUIDs() + ",Selects:"
+                + snap.getLastSelects() + ",Commits:" + snap.getLastCommits());
         Thread.sleep(2000);
 
         hostname = "127.0.0.1";
@@ -111,22 +124,10 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                 .getInstance().getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
                 .getSnap();
-        System.out.println("UIDs:" + snap.getUIDs() + ",Selects:"
-                + snap.getSelects() + ",Commits:" + snap.getCommits());
+        System.out.println("UIDs:" + snap.getLastUIDs() + ",Selects:"
+                + snap.getLastSelects() + ",Commits:" + snap.getLastCommits());
         // CHECKSTYLE:ON
     }
-
-    /**
-     * Logger.
-     */
-    private static Logger log = LoggerFactory
-            .getLogger(DB2DatabaseSnapshotBroker.class);
-    /**
-     * Query to get the values of the database charge.
-     */
-    private static final String QUERY = "SELECT DBPARTITIONNUM, "
-            + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS "
-            + "FROM SYSIBMADM.SNAPDB";
 
     /**
      * Creates the object associating a connection properties.
@@ -201,9 +202,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                             .getDatabaseConnection().getUrl()
                             + "::Snap updated");
                     snap.setDbPartitionNum(dbpartitionnum);
-                    snap.setCommtiSQLstmts(commitSQLstmts);
-                    snap.setSelectSQLstmts(selectSQLstmts);
-                    snap.setUidSQLstmts(uidSQLstmts);
+                    snap.setValues(commitSQLstmts, selectSQLstmts, uidSQLstmts);
                 }
             }
             this.getDatabase().getSnap().updateLastSnapshot();

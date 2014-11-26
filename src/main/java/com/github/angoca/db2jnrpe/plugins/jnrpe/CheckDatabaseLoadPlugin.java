@@ -93,14 +93,14 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
                     .getSnapshotAndRefresh(this.getConnection(cl));
 
             res.add(new Metric(CheckDatabaseLoadPlugin.UID_LOAD,
-                    "The UID load is " + snapshot.getUIDs() + '.',
-                    new BigDecimal(snapshot.getUIDs()), null, null));
+                    "The UID load is " + snapshot.getLastUIDs() + '.',
+                    new BigDecimal(snapshot.getLastUIDs()), null, null));
             res.add(new Metric(CheckDatabaseLoadPlugin.SELECT_LOAD,
-                    "The Select load is " + snapshot.getSelects(),
-                    new BigDecimal(snapshot.getSelects() + '.'), null, null));
+                    "The Select load is " + snapshot.getLastSelects(),
+                    new BigDecimal(snapshot.getLastSelects() + '.'), null, null));
             res.add(new Metric(CheckDatabaseLoadPlugin.COMMIT_LOAD,
-                    "The Commit load is " + snapshot.getCommits(),
-                    new BigDecimal(snapshot.getCommits() + '.'), null, null));
+                    "The Commit load is " + snapshot.getLastCommits(),
+                    new BigDecimal(snapshot.getLastCommits() + '.'), null, null));
 
         } catch (final UnknownValueException e) {
             this.log.warn(id + "::No values");
