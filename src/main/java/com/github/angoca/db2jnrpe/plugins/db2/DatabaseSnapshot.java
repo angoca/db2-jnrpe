@@ -133,7 +133,7 @@ public final class DatabaseSnapshot {
      * 
      * @return Quantity of seconds between the most recent calls.
      */
-    private long getLastSeconds() {
+    public long getLastSeconds() {
         long ret = (this.lastSnapshot - this.previousSnapshot) / MILLISECONDS;
         return ret;
     }
@@ -285,8 +285,8 @@ public final class DatabaseSnapshot {
      */
     public void setValues(final long commitSQL, final long selectSQL,
             final long uidSQL) {
-        this.setCommitSQLstmts(selectSQL);
-        this.setSelectSQLstmts(commitSQL);
+        this.setCommitSQLstmts(commitSQL);
+        this.setSelectSQLstmts(selectSQL);
         this.setUidSQLstmts(uidSQL);
     }
 
