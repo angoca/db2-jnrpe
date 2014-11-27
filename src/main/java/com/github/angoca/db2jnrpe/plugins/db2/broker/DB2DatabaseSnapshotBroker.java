@@ -30,12 +30,12 @@ implements Runnable {
     /**
      * Position of column commit quantity.
      */
-    private static final int COL_POS_COMMIT = 2;
+    private static final int COL_POS_COMMITS = 2;
 
     /**
      * Position of column select quantity.
      */
-    private static final int COL_POS_MEMBER = 3;
+    private static final int COL_POS_SELECTS = 3;
 
     /**
      * Position of column database partition.
@@ -45,7 +45,7 @@ implements Runnable {
     /**
      * Position of column modifications quantity.
      */
-    private static final int COL_POS_TOTAL_READS = 4;
+    private static final int COL_POS_UIDS = 4;
 
     /**
      * Logger.
@@ -171,13 +171,13 @@ implements Runnable {
                         .getInt(DB2DatabaseSnapshotBroker.COL_POS_PARTITION);
                 // Quantity of commits;
                 commitSQLstmts = res
-                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_COMMIT);
+                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_COMMITS);
                 // Quantity of sql;
                 selectSQLstmts = res
-                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_MEMBER);
+                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_SELECTS);
                 // Quantity of modifications;
                 uidSQLstmts = res
-                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_TOTAL_READS);
+                        .getLong(DB2DatabaseSnapshotBroker.COL_POS_UIDS);
 
                 DB2DatabaseSnapshotBroker.log.info(this.getDatabaseConnection()
                         .getUrl()
