@@ -101,8 +101,8 @@ implements Runnable {
                 .getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
                 .getSnap();
-        System.out.println("UIDs:" + snap.getLastUIDs() + ",Selects:"
-                + snap.getLastSelects() + ",Commits:" + snap.getLastCommits());
+        System.out.println("UIDs:" + snap.getLastUIDRate() + ",Selects:"
+                + snap.getLastSelectRate() + ",Commits:" + snap.getLastCommitRate());
         Thread.sleep(2000);
 
         hostname = "127.0.0.1";
@@ -124,8 +124,8 @@ implements Runnable {
                 .getInstance().getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
                 .getSnap();
-        System.out.println("UIDs:" + snap.getLastUIDs() + ",Selects:"
-                + snap.getLastSelects() + ",Commits:" + snap.getLastCommits());
+        System.out.println("UIDs:" + snap.getLastUIDRate() + ",Selects:"
+                + snap.getLastSelectRate() + ",Commits:" + snap.getLastCommitRate());
         // CHECKSTYLE:ON
     }
 

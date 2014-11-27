@@ -9,6 +9,10 @@ package com.github.angoca.db2jnrpe.plugins.db2;
 public final class DatabaseSnapshot {
 
     /**
+     * Milliseconds.
+     */
+    private static final int MILLISECONDS = 1000;
+    /**
      * Snapshot frequency to read the corresponding values : 10 minutes.
      */
     static final long SNAPSHOT_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
@@ -37,9 +41,10 @@ public final class DatabaseSnapshot {
      */
     private long previousSelectSQLstmts;
     /**
-     * Time when the previous snapshot was taken. This is only used the first
-     * time the script is executed in order to not return the values since the
-     * database was activated.
+     * Time when the previous snapshot was taken. This is used the first time
+     * the script is executed in order to not return the values since the
+     * database was activated, and also used to get the quantity of seconds
+     * between calls in order to retrieve the mean.
      */
     private long previousSnapshot;
     /**
@@ -115,11 +120,22 @@ public final class DatabaseSnapshot {
      *             There is not a comparison value, the plugin should have two
      *             values in order to compare.
      */
-    public long getLastCommits() throws UnknownValueException {
+    public double getLastCommitRate() throws UnknownValueException {
         if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return this.commitSQLstmts - this.previousCommitSQLstmts;
+        return (this.commitSQLstmts - this.previousCommitSQLstmts)
+                / this.getLastSeconds();
+    }
+
+    /**
+     * Retrieves the quantity of seconds between the last two calls.
+     * 
+     * @return Quantity of seconds between the most recent calls.
+     */
+    private long getLastSeconds() {
+        long ret = (this.lastSnapshot - this.previousSnapshot) / MILLISECONDS;
+        return ret;
     }
 
     /**
@@ -130,11 +146,12 @@ public final class DatabaseSnapshot {
      *             There is not a comparison value, the plugin should have two
      *             values in order to compare.
      */
-    public long getLastSelects() throws UnknownValueException {
+    public double getLastSelectRate() throws UnknownValueException {
         if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return this.selectSQLstmts - this.previousSelectSQLstmts;
+        return (this.selectSQLstmts - this.previousSelectSQLstmts)
+                / this.getLastSeconds();
     }
 
     /**
@@ -154,11 +171,12 @@ public final class DatabaseSnapshot {
      *             There is not a comparison value, the plugin should have two
      *             values in order to compare.
      */
-    public long getLastUIDs() throws UnknownValueException {
+    public double getLastUIDRate() throws UnknownValueException {
         if (this.previousSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return this.uidSQLstmts - this.previousUidSQLstmts;
+        return (this.uidSQLstmts - this.previousUidSQLstmts)
+                / this.getLastSeconds();
     }
 
     /**
@@ -187,7 +205,7 @@ public final class DatabaseSnapshot {
     boolean isSnapshotUpdated() {
         boolean ret = true;
         final long now = System.currentTimeMillis();
-        if (this.lastSnapshot == 0) {
+        if (this.lastSnapshot == 0 || this.previousSnapshot == 0) {
             // Never set.
             ret = false;
         } else if ((now - DatabaseSnapshot.SNAPSHOT_FREQUENCY) > this.lastSnapshot) {
