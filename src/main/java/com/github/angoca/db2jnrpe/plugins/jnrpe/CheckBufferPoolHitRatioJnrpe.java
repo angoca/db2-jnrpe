@@ -183,7 +183,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                 final String phyStr = this.getSimplifiedValue(bpDesc
                         .getPhysicalReads());
                 final String message = String.format(
-                        "%s at %d has %s LR and %d PR, ratio of " + "%.1f%%.",
+                        "%s at %d has %s LR and %s PR, ratio of " + "%.1f%%.",
                         name, bpDesc.getMember(), logStr, phyStr, ratio);
 
                 res.add(new Metric(name, message, ratio, null, null));
