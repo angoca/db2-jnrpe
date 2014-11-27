@@ -31,9 +31,9 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      */
     private static final String COMMIT_LOAD = "commitsLoad";
     /**
-     * Critical value by default: 10K operations.
+     * Critical value by default: 100 operations per second.
      */
-    private static final String CRITICAL_VALUE = "10000";
+    private static final String CRITICAL_VALUE = "100:";
     /**
      * Name of the metric for the quantity of selects.
      */
@@ -43,9 +43,9 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      */
     private static final String UID_LOAD = "uidLoad";
     /**
-     * Warning value by default: 7K operations.
+     * Warning value by default: 70 operations per second.
      */
-    private static final String WARNING_VALUE = "7000";
+    private static final String WARNING_VALUE = "70:";
 
     /**
      * Tests the complete chain.
@@ -199,16 +199,20 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
             snapshot = db2Database
                     .getSnapshotAndRefresh(this.getConnection(cl));
 
-            res.add(new Metric(CheckDatabaseLoadPlugin.UID_LOAD,
-                    "The UID load is " + snapshot.getLastUIDRate() + '.',
+            String message;
+            message = "The UID load is " + snapshot.getLastUIDRate() + '('
+                    + snapshot.getUIDs() + "UID)" + '.';
+            res.add(new Metric(CheckDatabaseLoadPlugin.UID_LOAD, message,
                     new BigDecimal(snapshot.getLastUIDRate()), null, null));
-            res.add(new Metric(CheckDatabaseLoadPlugin.SELECT_LOAD,
-                    "The Select load is " + snapshot.getLastSelectRate(),
-                    new BigDecimal(snapshot.getLastSelectRate() + '.'), null, null));
-            res.add(new Metric(CheckDatabaseLoadPlugin.COMMIT_LOAD,
-                    "The Commit load is " + snapshot.getLastCommitRate(),
-                    new BigDecimal(snapshot.getLastCommitRate() + '.'), null, null));
-
+            message = "The Select load is " + snapshot.getLastSelectRate()
+                    + '(' + snapshot.getSelects() + "S)" + '.';
+            res.add(new Metric(CheckDatabaseLoadPlugin.SELECT_LOAD, message,
+                    new BigDecimal(snapshot.getLastSelectRate()), null, null));
+            message = "The Commit load is " + snapshot.getLastCommitRate()
+                    + '(' + snapshot.getCommits() + "C)" + '.'
+                    + " Last refresh " + snapshot.getLastSeconds() + 's';
+            res.add(new Metric(CheckDatabaseLoadPlugin.COMMIT_LOAD, message,
+                    new BigDecimal(snapshot.getLastCommitRate()), null, null));
         } catch (final UnknownValueException e) {
             this.log.warn(id + "::No values");
             throw new MetricGatheringException(
