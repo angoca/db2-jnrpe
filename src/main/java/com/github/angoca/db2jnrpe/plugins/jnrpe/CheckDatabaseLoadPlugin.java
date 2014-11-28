@@ -18,8 +18,15 @@ import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
 import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
- * This is the implementation of the plugin that allows to monitor the load of
- * the database.
+ * This plugin allows to monitor the load of the database by the quantity of
+ * commits, selects and modifications per second.<br/>
+ * In order to execute this plugin, it is necessary to have DB2 in at least one
+ * of the following version:
+ * <ul>
+ * <li>v9.7 FP1</li>
+ * <li>v9.8 FP2</li>
+ * <li>v10.1 or newer</li>
+ * </ul>
  *
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-21
@@ -27,25 +34,25 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
 
     /**
-     * Name of the metric for the quantity of commits.
+     * Label for the metric for the quantity of commits.
      */
     private static final String COMMIT_LOAD = "commitsLoad";
     /**
-     * Critical value by default: 100 operations per second.
+     * Critical value by default: 500 operations per second.
      */
-    private static final String CRITICAL_VALUE = "100:";
+    private static final String CRITICAL_VALUE = "500:";
     /**
-     * Name of the metric for the quantity of selects.
+     * Label for the metric for the quantity of selects.
      */
     private static final String SELECT_LOAD = "selectsLoad";
     /**
-     * Name of the metric for the insert update and deletes.
+     * Label for the metric for the insert update and deletes.
      */
     private static final String UID_LOAD = "uidLoad";
     /**
-     * Warning value by default: 70 operations per second.
+     * Warning value by default: 300 operations per second.
      */
-    private static final String WARNING_VALUE = "70:";
+    private static final String WARNING_VALUE = "300:";
 
     /**
      * Tests the complete chain.
