@@ -61,6 +61,39 @@ public final class DatabaseSnapshot {
      * Quantity of modifications in the database.
      */
     private long uidSQLstmts;
+    /**
+     * Bufferpool data physical reads.
+     */
+    private long bpData;
+    /**
+     * Bufferpool index physical reads.
+     */
+    private long bpIndex;
+    /**
+     * Bufferpool temporal data physical reads.
+     * 
+     */
+    private long bpTempData;
+    /**
+     * Bufferpool temporal index physical reads.
+     */
+    private long bpTempIndex;
+    /**
+     * Previous bufferpool data physical reads.
+     */
+    private long previousBpData;
+    /**
+     * Previous bufferpool index physical reads.
+     */
+    private long previousBpIndex;
+    /**
+     * Previous bufferpool temporal index physical reads.
+     */
+    private long previousBpTempData;
+    /**
+     * Previous bufferpool temporal index physical reads.
+     */
+    private long previousBpTempIndex;
 
     /**
      * Creates a snapshot with the retrieved values from the table.
@@ -75,14 +108,28 @@ public final class DatabaseSnapshot {
      *            Quantity of selects.
      * @param uidSQL
      *            Quantity of modifications (update, insert, delete).
+     * @param bpdata
+     *            Quantity of bufferpool data physical reads.
+     * @param bpindex
+     *            Quantity of bufferpool index physical reads.
+     * @param bptempdata
+     *            Quantity of bufferpool temporal data physical reads.
+     * @param bptempindex
+     *            Quantity of bufferpool temporal index physical reads.
      */
     public DatabaseSnapshot(final DB2Database db, final int partitionnum,
-            final long commitSQL, final long selectSQL, final long uidSQL) {
+            final long commitSQL, final long selectSQL, final long uidSQL,
+            final long bpdata, final long bpindex, final long bptempdata,
+            final long bptempindex) {
         this.database = db;
         this.dbpartitionnum = partitionnum;
         this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;
         this.uidSQLstmts = uidSQL;
+        this.bpData = bpdata;
+        this.bpIndex = bpindex;
+        this.bpTempData = bptempdata;
+        this.bpTempIndex = bptempindex;
     }
 
     /*
@@ -94,7 +141,8 @@ public final class DatabaseSnapshot {
     public DatabaseSnapshot clone() {
         final DatabaseSnapshot copy = new DatabaseSnapshot(this.database,
                 this.dbpartitionnum, this.commitSQLstmts, this.selectSQLstmts,
-                this.uidSQLstmts);
+                this.uidSQLstmts, this.bpData, this.bpIndex, this.bpTempData,
+                this.bpTempIndex);
         copy.previousCommitSQLstmts = this.previousCommitSQLstmts;
         copy.previousSelectSQLstmts = this.previousSelectSQLstmts;
         copy.previousUidSQLstmts = this.previousUidSQLstmts;
@@ -126,6 +174,23 @@ public final class DatabaseSnapshot {
         }
         return (this.commitSQLstmts - this.previousCommitSQLstmts)
                 / this.getLastSeconds();
+    }
+
+    /**
+     * Returns the average physical I/O activity per committed transaction.
+     * 
+     * @return Quantity or read and writes per transaction.
+     */
+    public double getLastQuantityReadsWritesPerTransaction() {
+        double ret = 0;
+        if (this.commitSQLstmts > 0) {
+            long addition = this.bpData - this.previousBpData + this.bpIndex
+                    - this.previousBpIndex + this.bpTempData
+                    - this.previousBpTempData + this.bpTempIndex
+                    - this.previousBpTempIndex;
+            ret = addition / this.commitSQLstmts;
+        }
+        return ret;
     }
 
     /**
@@ -215,79 +280,103 @@ public final class DatabaseSnapshot {
     }
 
     /**
-     * Sets the quantity of commits in the database.
-     *
-     * @param commitSQL
-     *            Quantity of commits.
-     */
-    private void setCommitSQLstmts(final long commitSQL) {
-        if (commitSQL < this.commitSQLstmts) {
-            // The database was recycled between two checks.
-            this.previousCommitSQLstmts = 0;
-        } else {
-            this.previousCommitSQLstmts = this.commitSQLstmts;
-        }
-        this.commitSQLstmts = commitSQL;
-    }
-
-    /**
      * Changes the partition number.
      *
      * @param partitionnum
      *            Number of the partition.
      */
-    public void setDbPartitionNum(final int partitionnum) {
+    private void setDbPartitionNum(final int partitionnum) {
         this.dbpartitionnum = partitionnum;
     }
 
     /**
-     * Sets the quantity of selects in the database.
-     *
+     * Sets the values for the of the database load.
+     * 
+     * @param commitSQL
+     *            Quantity of commits.
      * @param selectSQL
      *            Quantity of selects.
-     */
-    private void setSelectSQLstmts(final long selectSQL) {
-        if (selectSQL < this.selectSQLstmts) {
-            // The database was recycled between two checks.
-            this.previousSelectSQLstmts = 0;
-        } else {
-            this.previousSelectSQLstmts = this.selectSQLstmts;
-        }
-        this.selectSQLstmts = selectSQL;
-    }
-
-    /**
-     * Sets the quantity of modifications in the database. A modification can be
-     * an update, insert or delete.
-     *
      * @param uidSQL
-     *            Quantity of UID.
+     *            Quantity of modifications. A modification can be an update,
+     *            insert or delete.
      */
-    private void setUidSQLstmts(final long uidSQL) {
+    private void setStmts(final long commitSQL, final long selectSQL,
+            final long uidSQL) {
         if (uidSQL < this.uidSQLstmts) {
             // The database was recycled between two checks.
+            this.previousCommitSQLstmts = 0;
+            this.previousSelectSQLstmts = 0;
             this.previousUidSQLstmts = 0;
         } else {
+            this.previousCommitSQLstmts = this.commitSQLstmts;
+            this.previousSelectSQLstmts = this.selectSQLstmts;
             this.previousUidSQLstmts = this.uidSQLstmts;
         }
+        this.commitSQLstmts = commitSQL;
+        this.selectSQLstmts = selectSQL;
         this.uidSQLstmts = uidSQL;
+
     }
 
     /**
      * Establishes all values.
-     *
+     * 
+     * @param partition
+     *            Partition number of the database.
      * @param commitSQL
      *            Quantity of commits.
      * @param selectSQL
      *            Quantity of selects.
      * @param uidSQL
      *            Quantity of UID.
+     * @param bpdata
+     *            Quantity of bufferpool data physical reads.
+     * @param bpindex
+     *            Quantity of bufferpool index physical reads.
+     * @param bptempdata
+     *            Quantity of bufferpool temporal data physical reads.
+     * @param bptempindex
+     *            Quantity of bufferpool temporal index physical reads.
      */
-    public void setValues(final long commitSQL, final long selectSQL,
-            final long uidSQL) {
-        this.setCommitSQLstmts(commitSQL);
-        this.setSelectSQLstmts(selectSQL);
-        this.setUidSQLstmts(uidSQL);
+    public void setValues(final int partition, final long commitSQL,
+            final long selectSQL, final long uidSQL, final long bpdata,
+            final long bpindex, final long bptempdata, final long bptempindex) {
+        this.setDbPartitionNum(partition);
+        this.setStmts(commitSQL, selectSQL, uidSQL);
+        this.setBpValues(bpdata, bpindex, bptempdata, bptempindex);
+    }
+
+    /**
+     * Assign the bufferpool values to the snapshot, keeping olv values to have
+     * a comparison point.
+     * 
+     * @param bpdata
+     *            Quantity of bufferpool data physical reads.
+     * @param bpindex
+     *            Quantity of bufferpool index physical reads.
+     * @param bptempdata
+     *            Quantity of bufferpool temporal data physical reads.
+     * @param bptempindex
+     *            Quantity of bufferpool temporal index physical reads.
+     */
+    private void setBpValues(final long bpdata, final long bpindex,
+            final long bptempdata, final long bptempindex) {
+        if (bpdata < this.bpData) {
+            // The database was recycled between two checks.
+            this.previousBpData = 0;
+            this.previousBpIndex = 0;
+            this.previousBpTempData = 0;
+            this.previousBpTempIndex = 0;
+        } else {
+            this.previousBpData = this.bpData;
+            this.previousBpIndex = this.bpIndex;
+            this.previousBpTempData = this.bpTempData;
+            this.previousBpTempIndex = this.bpTempIndex;
+        }
+        this.bpData = bpdata;
+        this.bpIndex = bpindex;
+        this.bpTempData = bptempdata;
+        this.bpTempIndex = bptempindex;
     }
 
     /*
@@ -299,7 +388,8 @@ public final class DatabaseSnapshot {
     public String toString() {
         final String ret = "Snapshot[" + this.dbpartitionnum + ';'
                 + this.commitSQLstmts + ';' + this.selectSQLstmts + ';'
-                + this.uidSQLstmts + ']';
+                + this.uidSQLstmts + ';' + this.bpData + ';' + this.bpIndex
+                + ';' + this.bpTempData + ';' + this.bpTempIndex + ']';
         return ret;
     }
 
