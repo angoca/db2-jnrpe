@@ -19,7 +19,7 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Helper;
-import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersions;
+import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MajorVersion;
 import com.github.angoca.db2jnrpe.plugins.db2.BufferpoolRead;
 import com.github.angoca.db2jnrpe.plugins.db2.Bufferpools;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
@@ -194,10 +194,10 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
     @Override
     protected void check() throws DatabaseConnectionException {
         assert this.getDatabaseConnection() != null;
-        final DB2MajorVersions version = DB2Helper.getDB2MajorVersion(this
+        final DB2MajorVersion version = DB2Helper.getDB2MajorVersion(this
                 .getDatabaseConnection());
         // This query cannot be executed in a database with db2 v9.5 or before.
-        if (version.isEqualOrMoreRecentThan(DB2MajorVersions.V9_7)) {
+        if (version.isEqualOrMoreRecentThan(DB2MajorVersion.V9_7)) {
 
             Connection connection = null;
             try {
