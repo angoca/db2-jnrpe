@@ -253,7 +253,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
      */
     @Override
     protected String getPluginName() {
-        return "CHECK_BUFFERPOOL_HIT_RATIO";
+        return "Check_Bufferpool_Hit_Ratio";
     }
 
     /**
