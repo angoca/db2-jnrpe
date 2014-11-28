@@ -183,12 +183,14 @@ public final class DatabaseSnapshot {
      */
     public double getLastQuantityReadsWritesPerTransaction() {
         double ret = 0;
-        if (this.commitSQLstmts > 0) {
-            long addition = this.bpData - this.previousBpData + this.bpIndex
+        if (this.commitSQLstmts > 0
+                && this.previousCommitSQLstmts != this.commitSQLstmts) {
+            long dividend = this.bpData - this.previousBpData + this.bpIndex
                     - this.previousBpIndex + this.bpTempData
                     - this.previousBpTempData + this.bpTempIndex
                     - this.previousBpTempIndex;
-            ret = addition / this.commitSQLstmts;
+            long divisor = this.commitSQLstmts - this.previousCommitSQLstmts;
+            ret = dividend / divisor;
         }
         return ret;
     }
