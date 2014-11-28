@@ -33,9 +33,9 @@ public abstract class DB2Helper {
      * @throws DatabaseConnectionException
      *             If any error occurs while accessing the database.
      */
-    public static final DB2MajorVersions getDB2MajorVersion(
+    public static final DB2MajorVersion getDB2MajorVersion(
             final DatabaseConnection dbConn) throws DatabaseConnectionException {
-        DB2MajorVersions version = DB2MajorVersions.UNKNOWN;
+        DB2MajorVersion version = DB2MajorVersion.UNKNOWN;
         final String queryBeforeV97 = "SELECT PROD_RELEASE "
                 + "FROM SYSIBMADM.ENV_PROD_INFO";
         final String queryAfterV97 = "SELECT PROD_RELEASE "
@@ -61,28 +61,28 @@ public abstract class DB2Helper {
             String versionText;
             while (res.next()) {
                 versionText = res.getString(1);
-                if (versionText.compareTo(DB2MajorVersions.V8_1.getName()) == 0) {
-                    version = DB2MajorVersions.V8_1;
-                } else if (versionText.compareTo(DB2MajorVersions.V9_1
+                if (versionText.compareTo(DB2MajorVersion.V8_1.getName()) == 0) {
+                    version = DB2MajorVersion.V8_1;
+                } else if (versionText.compareTo(DB2MajorVersion.V9_1
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V9_1;
-                } else if (versionText.compareTo(DB2MajorVersions.V9_5
+                    version = DB2MajorVersion.V9_1;
+                } else if (versionText.compareTo(DB2MajorVersion.V9_5
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V9_5;
-                } else if (versionText.compareTo(DB2MajorVersions.V9_7
+                    version = DB2MajorVersion.V9_5;
+                } else if (versionText.compareTo(DB2MajorVersion.V9_7
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V9_7;
-                } else if (versionText.compareTo(DB2MajorVersions.V9_8
+                    version = DB2MajorVersion.V9_7;
+                } else if (versionText.compareTo(DB2MajorVersion.V9_8
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V9_8;
-                } else if (versionText.compareTo(DB2MajorVersions.V10_1
+                    version = DB2MajorVersion.V9_8;
+                } else if (versionText.compareTo(DB2MajorVersion.V10_1
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V10_1;
-                } else if (versionText.compareTo(DB2MajorVersions.V10_5
+                    version = DB2MajorVersion.V10_1;
+                } else if (versionText.compareTo(DB2MajorVersion.V10_5
                         .getName()) == 0) {
-                    version = DB2MajorVersions.V10_5;
+                    version = DB2MajorVersion.V10_5;
                 } else {
-                    version = DB2MajorVersions.OTHER;
+                    version = DB2MajorVersion.OTHER;
                 }
             }
             res.close();

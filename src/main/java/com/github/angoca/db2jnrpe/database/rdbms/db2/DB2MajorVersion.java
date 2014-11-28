@@ -6,7 +6,7 @@ package com.github.angoca.db2jnrpe.database.rdbms.db2;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public enum DB2MajorVersions {
+public enum DB2MajorVersion {
     /**
      * Other version which is unknown for the system.
      */
@@ -62,7 +62,7 @@ public enum DB2MajorVersions {
      * @param val
      *            Value that identifies the version.
      */
-    private DB2MajorVersions(final String versionName, final int val) {
+    private DB2MajorVersion(final String versionName, final int val) {
         this.name = versionName;
         this.value = val;
     }
@@ -92,9 +92,24 @@ public enum DB2MajorVersions {
      *            Version to compare.
      * @return true if the given version is older.
      */
-    public final boolean isEqualOrMoreRecentThan(final DB2MajorVersions version) {
+    public final boolean isEqualOrMoreRecentThan(final DB2MajorVersion version) {
         boolean ret = false;
         if (this.getValue() >= version.getValue()) {
+            ret = true;
+        }
+        return ret;
+    }
+
+    /**
+     * Compares the DB2 version with a specific one.
+     * 
+     * @param version
+     *            Version to compare to.
+     * @return true if the given version is equal. False otherwise.
+     */
+    public final boolean isEqualThan(final DB2MajorVersion version) {
+        boolean ret = false;
+        if (this.getValue() == version.getValue()) {
             ret = true;
         }
         return ret;
