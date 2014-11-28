@@ -76,7 +76,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      */
     private static final String QUERY = "SELECT DBPARTITIONNUM, "
             + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS, "
-            + "POOL_DATA_P_READS, POOL_INDEX_P_READS, POOL_TEMP_DATA_P_READS "
+            + "POOL_DATA_P_READS, POOL_INDEX_P_READS, POOL_TEMP_DATA_P_READS, "
             + "POOL_TEMP_INDEX_P_READS " + "FROM SYSIBMADM.SNAPDB";
 
     /**
