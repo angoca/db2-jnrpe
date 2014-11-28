@@ -41,11 +41,11 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     /**
      * Value to consider the physical IO as warning.
      */
-    private static final String CRITICAL_VALUE = "10";
+    private static final String CRITICAL_VALUE = "20:";
     /**
      * Value to consider the physical IO as critical.
      */
-    private static final String WARNING_VALUE = "5";
+    private static final String WARNING_VALUE = "15:";
 
     /*
      * (non-Javadoc)
