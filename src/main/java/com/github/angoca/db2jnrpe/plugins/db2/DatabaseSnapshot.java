@@ -1,5 +1,8 @@
 package com.github.angoca.db2jnrpe.plugins.db2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Contains the values of a snapshot. This is used for the database load.
  *
@@ -8,6 +11,10 @@ package com.github.angoca.db2jnrpe.plugins.db2;
  */
 public final class DatabaseSnapshot {
 
+    /**
+     * Logger.
+     */
+    private static Logger log = LoggerFactory.getLogger(DatabaseSnapshot.class);
     /**
      * Milliseconds.
      */
@@ -148,6 +155,10 @@ public final class DatabaseSnapshot {
         copy.previousUidSQLstmts = this.previousUidSQLstmts;
         copy.lastSnapshot = this.lastSnapshot;
         copy.previousSnapshot = this.previousSnapshot;
+        copy.previousBpData = this.bpData;
+        copy.previousBpIndex = this.bpIndex;
+        copy.previousBpTempData = this.bpTempData;
+        copy.previousBpTempIndex = this.bpTempIndex;
         return copy;
     }
 
@@ -191,6 +202,8 @@ public final class DatabaseSnapshot {
                     - this.previousBpTempIndex;
             long divisor = this.commitSQLstmts - this.previousCommitSQLstmts;
             ret = dividend / divisor;
+            DatabaseSnapshot.log.debug("Ratio " + dividend + '/' + divisor
+                    + '=' + ret);
         }
         return ret;
     }
@@ -304,7 +317,8 @@ public final class DatabaseSnapshot {
      */
     private void setStmts(final long commitSQL, final long selectSQL,
             final long uidSQL) {
-        if (uidSQL < this.uidSQLstmts) {
+        if (commitSQL < this.commitSQLstmts || selectSQL < this.selectSQLstmts
+                || uidSQL < this.uidSQLstmts) {
             // The database was recycled between two checks.
             this.previousCommitSQLstmts = 0;
             this.previousSelectSQLstmts = 0;
@@ -349,7 +363,7 @@ public final class DatabaseSnapshot {
     }
 
     /**
-     * Assign the bufferpool values to the snapshot, keeping olv values to have
+     * Assign the bufferpool values to the snapshot, keeping old values to have
      * a comparison point.
      * 
      * @param bpdata
@@ -363,7 +377,9 @@ public final class DatabaseSnapshot {
      */
     private void setBpValues(final long bpdata, final long bpindex,
             final long bptempdata, final long bptempindex) {
-        if (bpdata < this.bpData) {
+        if (bpdata < this.bpData || bpindex < this.bpIndex
+                || bptempdata < this.bpTempData
+                || bptempindex < this.bpTempIndex) {
             // The database was recycled between two checks.
             this.previousBpData = 0;
             this.previousBpIndex = 0;
