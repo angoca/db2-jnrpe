@@ -59,8 +59,8 @@ public final class DB2Database {
     }
 
     /**
-     * Retrieves the map of bufferpoolReads and update the information async for
-     * the next call.
+     * Retrieves the map of bufferpoolReads and update the information for
+     * the next call in an asynchronous way.
      *
      * @param dbConn
      *            Connection properties.

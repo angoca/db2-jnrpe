@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Object that hols the bufferpool reads and the time when the values were
+ * Object that holds the bufferpool reads and the time when the values were
  * gathered.
  *
  * @author Andres Gomez Casanova (@AngocA)

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Controls the DB2Databases. A database is a respresentation of the objects
+ * Controls the DB2Databases. A database is a representation of the objects
  * associates to a DB2 database. Objects can be tablespaces, bufferpool, etc.
  *
  * @author Andres Gomez Casanova (@AngocA)
