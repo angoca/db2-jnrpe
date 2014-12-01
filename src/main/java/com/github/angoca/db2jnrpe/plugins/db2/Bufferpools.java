@@ -30,11 +30,11 @@ public final class Bufferpools implements Cloneable {
     /**
      * Creates a bufferpool with the associated database.
      *
-     * @param database
+     * @param dataBase
      *            Associated database.
      */
-    public Bufferpools(final DB2Database database) {
-        this.database = database;
+    public Bufferpools(final DB2Database dataBase) {
+        this.database = dataBase;
         this.bufferpoolReads = new HashMap<String, BufferpoolRead>();
     }
 

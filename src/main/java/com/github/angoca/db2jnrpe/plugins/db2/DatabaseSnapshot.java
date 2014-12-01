@@ -107,7 +107,7 @@ public final class DatabaseSnapshot implements Cloneable {
     /**
      * Creates a snapshot with the retrieved values from the table.
      *
-     * @param database
+     * @param dataBase
      *            Object that holds all data.
      * @param partitionnum
      *            Database partition number.
@@ -126,11 +126,11 @@ public final class DatabaseSnapshot implements Cloneable {
      * @param bptempindex
      *            Quantity of bufferpool temporal index physical reads.
      */
-    public DatabaseSnapshot(final DB2Database database, final int partitionnum,
+    public DatabaseSnapshot(final DB2Database dataBase, final int partitionnum,
             final long commitSQL, final long selectSQL, final long uidSQL,
             final long bpdata, final long bpindex, final long bptempdata,
             final long bptempindex) {
-        this.database = database;
+        this.database = dataBase;
         this.dbPartNum = partitionnum;
         this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;

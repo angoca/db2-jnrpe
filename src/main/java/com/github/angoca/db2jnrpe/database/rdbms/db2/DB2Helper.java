@@ -356,7 +356,7 @@ public final class DB2Helper {
     }
 
     /**
-     * Process the vqlues of the result set:
+     * Process the values of the result set.
      *
      * @param res
      *            Result set:
@@ -431,6 +431,14 @@ public final class DB2Helper {
         return version;
     }
 
+    /**
+     * Process a single warning.
+     * 
+     * @param sqlWarn
+     *            Array that contains all warnings.
+     * @param index
+     *            Position of the warning to analyze.
+     */
     @SuppressWarnings("PMD.GuardLogStatement")
     private static void processWarning(final char[] sqlWarn, final int index) {
         if (sqlWarn[index] != DB2Helper.BLANKSPACE) {

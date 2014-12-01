@@ -34,7 +34,7 @@ public final class DbcpHikari extends AbstractConnectionPool {
      *             If any error occurs.
      */
     @SuppressWarnings({ "PMD", "resource" })
-    public static final void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         System.out.println("Test: AbstractDatabaseConnection Hikari");
         final AbstractDatabaseConnection dc1 = new AbstractDatabaseConnection(
                 DbcpHikari.class.getName(), new Properties(), "db2inst1",

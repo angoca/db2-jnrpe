@@ -92,7 +92,7 @@ public abstract class AbstractDB2PluginBase extends PluginBase {
      *            Command line.
      * @return Unique URL to the database.
      */
-    protected final static String getId(final ICommandLine line) {
+    protected static final String getId(final ICommandLine line) {
         String ret;
         final String[] values = AbstractDB2PluginBase.getUrlValues(line);
         ret = values[0] + ':' + values[1] + '/' + values[2];
