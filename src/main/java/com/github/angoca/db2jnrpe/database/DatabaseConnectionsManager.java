@@ -14,6 +14,7 @@ import java.util.Properties;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
+@SuppressWarnings("PMD.CommentSize")
 public final class DatabaseConnectionsManager {
     /**
      * Singleton instance.
@@ -35,52 +36,54 @@ public final class DatabaseConnectionsManager {
     /**
      * Set of connections to the database.
      */
-    private final Map<String, DatabaseConnection> connectionProps;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private final transient Map<String, AbstractDatabaseConnection> connectionProps;
 
     /**
      * Constructors to access the database.
      */
-    private final Map<String, Constructor<DatabaseConnection>> constructors;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private final transient Map<String, Constructor<AbstractDatabaseConnection>> constructors;
 
     /**
      * Properties to connect to the databases.
      */
-    private final Properties defaultProperties;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private final transient Properties defaultProperties;
 
     /**
      * Creates the singleton instance.
      */
     public DatabaseConnectionsManager() {
-        this.connectionProps = new HashMap<String, DatabaseConnection>();
-        this.constructors = new HashMap<String, Constructor<DatabaseConnection>>();
+        this.connectionProps = new HashMap<String, AbstractDatabaseConnection>();
+        this.constructors = new HashMap<String, Constructor<AbstractDatabaseConnection>>();
         this.defaultProperties = new Properties();
     }
 
     /**
      * Returns a constructor for a given classname.
      *
-     * @param databaseConnectionName
+     * @param dbConnName
      *            Name of the class to instantiate.
      * @return Constructor of the class.
      * @throws DatabaseConnectionException
      *             If any error occurs while retrieving the constructor.
      */
     @SuppressWarnings("unchecked")
-    private Constructor<DatabaseConnection> getConstructor(
-            final String databaseConnectionName)
-            throws DatabaseConnectionException {
-        Constructor<DatabaseConnection> constructor = this.constructors
-                .get(databaseConnectionName);
+    private Constructor<AbstractDatabaseConnection> getConstructor(
+            final String dbConnName) throws DatabaseConnectionException {
+        Constructor<AbstractDatabaseConnection> constructor = this.constructors
+                .get(dbConnName);
         if (constructor == null) {
             Class<?> clazz;
             try {
-                clazz = Class.forName(databaseConnectionName);
-                constructor = (Constructor<DatabaseConnection>) clazz
+                clazz = Class.forName(dbConnName);
+                constructor = (Constructor<AbstractDatabaseConnection>) clazz
                         .getConstructor(String.class, Properties.class,
                                 String.class, Integer.TYPE, String.class,
                                 String.class, String.class);
-                this.constructors.put(databaseConnectionName, constructor);
-                constructor = this.constructors.get(databaseConnectionName);
+                this.constructors.put(dbConnName, constructor);
+                constructor = this.constructors.get(dbConnName);
             } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
             } catch (final NoSuchMethodException e) {
@@ -98,7 +101,7 @@ public final class DatabaseConnectionsManager {
      *
      * @param connectionsPool
      *            Associated connection pool.
-     * @param databaseConnection
+     * @param dbConnn
      *            Name of the class that contains the properties for the
      *            database.
      * @param hostname
@@ -115,17 +118,17 @@ public final class DatabaseConnectionsManager {
      * @throws DatabaseConnectionException
      *             If any error occurs that instantiating the constructor.
      */
-    public DatabaseConnection getDatabaseConnection(
-            final String connectionsPool, final String databaseConnection,
+    public AbstractDatabaseConnection getDatabaseConnection(
+            final String connectionsPool, final String dbConnn,
             final String hostname, final int portNumber,
             final String databaseName, final String username,
             final String password) throws DatabaseConnectionException {
         final String connKey = username + '@' + hostname + ':' + portNumber
                 + '/' + databaseName;
-        DatabaseConnection dbConn = this.connectionProps.get(connKey);
-        if ((dbConn == null) || (dbConn.getPassword().compareTo(password) != 0)) {
-            final Constructor<DatabaseConnection> constructor = this
-                    .getConstructor(databaseConnection);
+        AbstractDatabaseConnection dbConn = this.connectionProps.get(connKey);
+        if (dbConn == null || dbConn.getPassword().compareTo(password) != 0) {
+            final Constructor<AbstractDatabaseConnection> constructor = this
+                    .getConstructor(dbConnn);
             try {
                 dbConn = constructor.newInstance(connectionsPool,
                         this.defaultProperties, hostname, portNumber,

@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
+import com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -18,12 +18,12 @@ import com.zaxxer.hikari.HikariDataSource;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public class DbcpHikari extends ConnectionPool {
+public final class DbcpHikari extends AbstractConnectionPool {
 
     /**
      * Map of URL and its associated pool.
      */
-    private static Map<String, HikariDataSource> pools = null;
+    private static Map<String, HikariDataSource> pools;
 
     /**
      * Tester.
@@ -33,9 +33,10 @@ public class DbcpHikari extends ConnectionPool {
      * @throws Exception
      *             If any error occurs.
      */
+    @SuppressWarnings({ "PMD", "resource" })
     public static final void main(final String[] args) throws Exception {
-        System.out.println("Test: DatabaseConnection Hikari");
-        final DatabaseConnection dc1 = new DatabaseConnection(
+        System.out.println("Test: AbstractDatabaseConnection Hikari");
+        final AbstractDatabaseConnection dc1 = new AbstractDatabaseConnection(
                 DbcpHikari.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
@@ -46,7 +47,8 @@ public class DbcpHikari extends ConnectionPool {
             /*
              * (non-Javadoc)
              * 
-             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
+             * @see
+             * com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -57,7 +59,7 @@ public class DbcpHikari extends ConnectionPool {
         final Connection conn1 = new DbcpHikari().initialize(dc1)
                 .getConnection(dc1);
         System.out.println("Client Information: " + conn1.getClientInfo());
-        final DatabaseConnection dc2 = new DatabaseConnection(
+        final AbstractDatabaseConnection dc2 = new AbstractDatabaseConnection(
                 DbcpHikari.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
@@ -68,7 +70,8 @@ public class DbcpHikari extends ConnectionPool {
             /*
              * (non-Javadoc)
              * 
-             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
+             * @see
+             * com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -81,16 +84,24 @@ public class DbcpHikari extends ConnectionPool {
         System.out.println("Client Information: " + conn2.getClientInfo());
     }
 
+    /**
+     * Empty constructor.
+     */
+    private DbcpHikari() {
+        super();
+    }
+
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * closeConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection,
      * java.sql.Connection)
      */
     @Override
-    public final void closeConnection(final DatabaseConnection dbConn,
+    @SuppressWarnings("PMD.CommentRequired")
+    public void closeConnection(final AbstractDatabaseConnection dbConn,
             final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
@@ -104,15 +115,16 @@ public class DbcpHikari extends ConnectionPool {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * getConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    public final Connection getConnection(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public Connection getConnection(final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
-        HikariDataSource ds = DbcpHikari.pools.get(dbConn.getUrl());
-        if (ds == null) {
+        HikariDataSource datasource = DbcpHikari.pools.get(dbConn.getUrl());
+        if (datasource == null) {
             final HikariConfig config = new HikariConfig();
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -123,17 +135,19 @@ public class DbcpHikari extends ConnectionPool {
             config.setJdbcUrl(dbConn.getUrl());
             config.setUsername(dbConn.getUsername());
             config.setPassword(dbConn.getPassword());
-            config.setMinimumIdle(ConnectionPool.MIN_POOL_SIZE);
-            config.setMaximumPoolSize(ConnectionPool.MAX_POOL_SIZE);
+            config.setMinimumIdle(AbstractConnectionPool.MIN_POOL_SIZE);
+            config.setMaximumPoolSize(AbstractConnectionPool.MAX_POOL_SIZE);
             config.setDataSourceProperties(dbConn.getConnectionProperties());
-            ds = new HikariDataSource(config);
-            DbcpHikari.pools.put(dbConn.getUrl(), ds);
+            datasource = new HikariDataSource(config);
+            DbcpHikari.pools.put(dbConn.getUrl(), datasource);
         }
 
         try {
-            return ds.getConnection();
+            return datasource.getConnection();
         } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
+        } finally {
+            datasource.close();
         }
     }
 
@@ -141,11 +155,13 @@ public class DbcpHikari extends ConnectionPool {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(com
-     * .github.angoca.db2jnrpe.database.DatabaseConnection)
+     * com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#initialize
+     * (com .github.angoca.db2jnrpe.database.DatabaseConnection)
      */
     @Override
-    public final ConnectionPool initialize(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public AbstractConnectionPool initialize(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         if (DbcpHikari.pools == null) {
             DbcpHikari.pools = new HashMap<String, HikariDataSource>();

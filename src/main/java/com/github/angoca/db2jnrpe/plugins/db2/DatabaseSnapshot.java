@@ -9,12 +9,14 @@ import org.slf4j.LoggerFactory;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-24
  */
-public final class DatabaseSnapshot {
+@SuppressWarnings({ "PMD.CommentSize", "PMD.TooManyFields" })
+public final class DatabaseSnapshot implements Cloneable {
 
     /**
      * Logger.
      */
-    private static Logger log = LoggerFactory.getLogger(DatabaseSnapshot.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(DatabaseSnapshot.class);
     /**
      * Milliseconds.
      */
@@ -22,90 +24,90 @@ public final class DatabaseSnapshot {
     /**
      * Snapshot frequency to read the corresponding values : 10 minutes.
      */
-    static final long SNAPSHOT_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
+    public static final long SNAPSHOT_FREQ = DB2Database.STANDARD_FREQ;
+    /**
+     * Bufferpool data physical reads.
+     */
+    private transient long bpData;
+    /**
+     * Bufferpool index physical reads.
+     */
+    private transient long bpIndex;
+    /**
+     * Bufferpool temporal data physical reads.
+     *
+     */
+    private transient long bpTempData;
+    /**
+     * Bufferpool temporal index physical reads.
+     */
+    private transient long bpTempIndex;
     /**
      * Quantity of commits in the database.
      */
-    private long commitSQLstmts;
+    private transient long commitSQLstmts;
     /**
      * Database that keeps all data.
      */
-    private final DB2Database database;
+    private final transient DB2Database database;
     /**
      * Partition number.
      */
-    private int dbpartitionnum;
+    private transient int dbPartNum;
     /**
      * Time of the last snapshot.
      */
-    private long lastSnapshot = 0;
+    private transient long lastSnapshot;
+
+    /**
+     * Previous bufferpool data physical reads.
+     */
+    private transient long prevBpData;
+    /**
+     * Previous bufferpool index physical reads.
+     */
+    private transient long prevBpIndex;
+    /**
+     * Previous bufferpool temporal index physical reads.
+     */
+    private transient long prevBpTempData;
+    /**
+     * Previous bufferpool temporal index physical reads.
+     */
+    private transient long prevBpTempIndex;
     /**
      * Previous read of the quantity of commits in the database.
      */
-    private long previousCommitSQLstmts;
+    private transient long prevComSQLstmts;
     /**
      * Previous read of the quantity of selects in the database.
      */
-    private long previousSelectSQLstmts;
+    private transient long prevSelSQLstmts;
     /**
      * Time when the previous snapshot was taken. This is used the first time
      * the script is executed in order to not return the values since the
      * database was activated, and also used to get the quantity of seconds
      * between calls in order to retrieve the mean.
      */
-    private long previousSnapshot;
+    private transient long prevSnapshot;
     /**
      * Previous read of the quantity of modifications in the database (update,
      * insert, delete).
      */
-    private long previousUidSQLstmts;
-
+    private transient long prevUidSQLstmts;
     /**
      * Quantity of selects in the database.
      */
-    private long selectSQLstmts;
+    private transient long selectSQLstmts;
     /**
      * Quantity of modifications in the database.
      */
-    private long uidSQLstmts;
-    /**
-     * Bufferpool data physical reads.
-     */
-    private long bpData;
-    /**
-     * Bufferpool index physical reads.
-     */
-    private long bpIndex;
-    /**
-     * Bufferpool temporal data physical reads.
-     * 
-     */
-    private long bpTempData;
-    /**
-     * Bufferpool temporal index physical reads.
-     */
-    private long bpTempIndex;
-    /**
-     * Previous bufferpool data physical reads.
-     */
-    private long previousBpData;
-    /**
-     * Previous bufferpool index physical reads.
-     */
-    private long previousBpIndex;
-    /**
-     * Previous bufferpool temporal index physical reads.
-     */
-    private long previousBpTempData;
-    /**
-     * Previous bufferpool temporal index physical reads.
-     */
-    private long previousBpTempIndex;
+    private transient long uidSQLstmts;
 
     /**
      * Creates a snapshot with the retrieved values from the table.
      *
-     * @param db
+     * @param database
      *            Object that holds all data.
      * @param partitionnum
      *            Database partition number.
@@ -124,12 +126,12 @@ public final class DatabaseSnapshot {
      * @param bptempindex
      *            Quantity of bufferpool temporal index physical reads.
      */
-    public DatabaseSnapshot(final DB2Database db, final int partitionnum,
+    public DatabaseSnapshot(final DB2Database database, final int partitionnum,
             final long commitSQL, final long selectSQL, final long uidSQL,
             final long bpdata, final long bpindex, final long bptempdata,
             final long bptempindex) {
-        this.database = db;
-        this.dbpartitionnum = partitionnum;
+        this.database = database;
+        this.dbPartNum = partitionnum;
         this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;
         this.uidSQLstmts = uidSQL;
@@ -145,20 +147,21 @@ public final class DatabaseSnapshot {
      * @see java.lang.Object#clone()
      */
     @Override
+    @SuppressWarnings({ "PMD.CommentRequired", "PMD.ProperCloneImplementation" })
     public DatabaseSnapshot clone() {
         final DatabaseSnapshot copy = new DatabaseSnapshot(this.database,
-                this.dbpartitionnum, this.commitSQLstmts, this.selectSQLstmts,
+                this.dbPartNum, this.commitSQLstmts, this.selectSQLstmts,
                 this.uidSQLstmts, this.bpData, this.bpIndex, this.bpTempData,
                 this.bpTempIndex);
-        copy.previousCommitSQLstmts = this.previousCommitSQLstmts;
-        copy.previousSelectSQLstmts = this.previousSelectSQLstmts;
-        copy.previousUidSQLstmts = this.previousUidSQLstmts;
+        copy.prevComSQLstmts = this.prevComSQLstmts;
+        copy.prevSelSQLstmts = this.prevSelSQLstmts;
+        copy.prevUidSQLstmts = this.prevUidSQLstmts;
         copy.lastSnapshot = this.lastSnapshot;
-        copy.previousSnapshot = this.previousSnapshot;
-        copy.previousBpData = this.bpData;
-        copy.previousBpIndex = this.bpIndex;
-        copy.previousBpTempData = this.bpTempData;
-        copy.previousBpTempIndex = this.bpTempIndex;
+        copy.prevSnapshot = this.prevSnapshot;
+        copy.prevBpData = this.bpData;
+        copy.prevBpIndex = this.bpIndex;
+        copy.prevBpTempData = this.bpTempData;
+        copy.prevBpTempIndex = this.bpTempIndex;
         return copy;
     }
 
@@ -180,42 +183,45 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public double getLastCommitRate() throws UnknownValueException {
-        if (this.previousSnapshot == 0) {
+        if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.commitSQLstmts - this.previousCommitSQLstmts)
+        return (this.commitSQLstmts - this.prevComSQLstmts)
                 / this.getLastSeconds();
     }
 
     /**
      * Returns the average physical I/O activity per committed transaction.
-     * 
+     *
      * @return Quantity or read and writes per transaction.
      */
     public double getLastQuantityReadsWritesPerTransaction() {
         double ret = 0;
         if (this.commitSQLstmts > 0
-                && this.previousCommitSQLstmts != this.commitSQLstmts) {
-            long dividend = this.bpData - this.previousBpData + this.bpIndex
-                    - this.previousBpIndex + this.bpTempData
-                    - this.previousBpTempData + this.bpTempIndex
-                    - this.previousBpTempIndex;
-            long divisor = this.commitSQLstmts - this.previousCommitSQLstmts;
+                && this.prevComSQLstmts != this.commitSQLstmts) {
+            final long dividend = this.bpData - this.prevBpData + this.bpIndex
+                    - this.prevBpIndex + this.bpTempData - this.prevBpTempData
+                    + this.bpTempIndex - this.prevBpTempIndex;
+            final long divisor = this.commitSQLstmts - this.prevComSQLstmts;
             ret = dividend / divisor;
-            DatabaseSnapshot.log.debug("Ratio " + dividend + '/' + divisor
-                    + '=' + ret);
+            if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
+                DatabaseSnapshot.LOGGER.debug(
+                        "Ratio {}/{}={} at {}",
+                        new Object[] { dividend, divisor, ret,
+                                this.database.getId() });
+            }
         }
         return ret;
     }
 
     /**
      * Retrieves the quantity of seconds between the last two calls.
-     * 
+     *
      * @return Quantity of seconds between the most recent calls.
      */
     public long getLastSeconds() {
-        long ret = (this.lastSnapshot - this.previousSnapshot) / MILLISECONDS;
-        return ret;
+        return (this.lastSnapshot - this.prevSnapshot)
+                / DatabaseSnapshot.MILLISECONDS;
     }
 
     /**
@@ -227,10 +233,10 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public double getLastSelectRate() throws UnknownValueException {
-        if (this.previousSnapshot == 0) {
+        if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.selectSQLstmts - this.previousSelectSQLstmts)
+        return (this.selectSQLstmts - this.prevSelSQLstmts)
                 / this.getLastSeconds();
     }
 
@@ -252,10 +258,10 @@ public final class DatabaseSnapshot {
      *             values in order to compare.
      */
     public double getLastUIDRate() throws UnknownValueException {
-        if (this.previousSnapshot == 0) {
+        if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.uidSQLstmts - this.previousUidSQLstmts)
+        return (this.uidSQLstmts - this.prevUidSQLstmts)
                 / this.getLastSeconds();
     }
 
@@ -282,16 +288,51 @@ public final class DatabaseSnapshot {
      *
      * @return True if the snapshot is obsolete or it is still valid.
      */
-    boolean isSnapshotUpdated() {
+    public boolean isSnapshotUpdated() {
         boolean ret = true;
         final long now = System.currentTimeMillis();
-        if (this.lastSnapshot == 0 || this.previousSnapshot == 0) {
+        if (this.lastSnapshot == 0 || this.prevSnapshot == 0) {
             // Never set.
             ret = false;
-        } else if ((now - DatabaseSnapshot.SNAPSHOT_FREQUENCY) > this.lastSnapshot) {
+        } else if (now - DatabaseSnapshot.SNAPSHOT_FREQ > this.lastSnapshot) {
             ret = false;
         }
         return ret;
+    }
+
+    /**
+     * Assign the bufferpool values to the snapshot, keeping old values to have
+     * a comparison point.
+     *
+     * @param bpdata
+     *            Quantity of bufferpool data physical reads.
+     * @param bpindex
+     *            Quantity of bufferpool index physical reads.
+     * @param bptempdata
+     *            Quantity of bufferpool temporal data physical reads.
+     * @param bptempindex
+     *            Quantity of bufferpool temporal index physical reads.
+     */
+    private void setBpValues(final long bpdata, final long bpindex,
+            final long bptempdata, final long bptempindex) {
+        if (bpdata < this.bpData || bpindex < this.bpIndex
+                || bptempdata < this.bpTempData
+                || bptempindex < this.bpTempIndex) {
+            // The database was recycled between two checks.
+            this.prevBpData = 0;
+            this.prevBpIndex = 0;
+            this.prevBpTempData = 0;
+            this.prevBpTempIndex = 0;
+        } else {
+            this.prevBpData = this.bpData;
+            this.prevBpIndex = this.bpIndex;
+            this.prevBpTempData = this.bpTempData;
+            this.prevBpTempIndex = this.bpTempIndex;
+        }
+        this.bpData = bpdata;
+        this.bpIndex = bpindex;
+        this.bpTempData = bptempdata;
+        this.bpTempIndex = bptempindex;
     }
 
     /**
@@ -301,12 +342,12 @@ public final class DatabaseSnapshot {
      *            Number of the partition.
      */
     private void setDbPartitionNum(final int partitionnum) {
-        this.dbpartitionnum = partitionnum;
+        this.dbPartNum = partitionnum;
     }
 
     /**
      * Sets the values for the of the database load.
-     * 
+     *
      * @param commitSQL
      *            Quantity of commits.
      * @param selectSQL
@@ -320,13 +361,13 @@ public final class DatabaseSnapshot {
         if (commitSQL < this.commitSQLstmts || selectSQL < this.selectSQLstmts
                 || uidSQL < this.uidSQLstmts) {
             // The database was recycled between two checks.
-            this.previousCommitSQLstmts = 0;
-            this.previousSelectSQLstmts = 0;
-            this.previousUidSQLstmts = 0;
+            this.prevComSQLstmts = 0;
+            this.prevSelSQLstmts = 0;
+            this.prevUidSQLstmts = 0;
         } else {
-            this.previousCommitSQLstmts = this.commitSQLstmts;
-            this.previousSelectSQLstmts = this.selectSQLstmts;
-            this.previousUidSQLstmts = this.uidSQLstmts;
+            this.prevComSQLstmts = this.commitSQLstmts;
+            this.prevSelSQLstmts = this.selectSQLstmts;
+            this.prevUidSQLstmts = this.uidSQLstmts;
         }
         this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;
@@ -336,7 +377,7 @@ public final class DatabaseSnapshot {
 
     /**
      * Establishes all values.
-     * 
+     *
      * @param partition
      *            Partition number of the database.
      * @param commitSQL
@@ -362,49 +403,15 @@ public final class DatabaseSnapshot {
         this.setBpValues(bpdata, bpindex, bptempdata, bptempindex);
     }
 
-    /**
-     * Assign the bufferpool values to the snapshot, keeping old values to have
-     * a comparison point.
-     * 
-     * @param bpdata
-     *            Quantity of bufferpool data physical reads.
-     * @param bpindex
-     *            Quantity of bufferpool index physical reads.
-     * @param bptempdata
-     *            Quantity of bufferpool temporal data physical reads.
-     * @param bptempindex
-     *            Quantity of bufferpool temporal index physical reads.
-     */
-    private void setBpValues(final long bpdata, final long bpindex,
-            final long bptempdata, final long bptempindex) {
-        if (bpdata < this.bpData || bpindex < this.bpIndex
-                || bptempdata < this.bpTempData
-                || bptempindex < this.bpTempIndex) {
-            // The database was recycled between two checks.
-            this.previousBpData = 0;
-            this.previousBpIndex = 0;
-            this.previousBpTempData = 0;
-            this.previousBpTempIndex = 0;
-        } else {
-            this.previousBpData = this.bpData;
-            this.previousBpIndex = this.bpIndex;
-            this.previousBpTempData = this.bpTempData;
-            this.previousBpTempIndex = this.bpTempIndex;
-        }
-        this.bpData = bpdata;
-        this.bpIndex = bpindex;
-        this.bpTempData = bptempdata;
-        this.bpTempIndex = bptempindex;
-    }
-
     /*
      * (non-Javadoc)
      * 
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String toString() {
-        final String ret = "Snapshot[" + this.dbpartitionnum + ';'
+        final String ret = "Snapshot[" + this.dbPartNum + ';'
                 + this.commitSQLstmts + ';' + this.selectSQLstmts + ';'
                 + this.uidSQLstmts + ';' + this.bpData + ';' + this.bpIndex
                 + ';' + this.bpTempData + ';' + this.bpTempIndex + ']';
@@ -416,7 +423,7 @@ public final class DatabaseSnapshot {
      * in order to have a compare point the first time the snapshot is taken.
      */
     public void updateLastSnapshot() {
-        this.previousSnapshot = this.lastSnapshot;
+        this.prevSnapshot = this.lastSnapshot;
         this.lastSnapshot = System.currentTimeMillis();
     }
 }

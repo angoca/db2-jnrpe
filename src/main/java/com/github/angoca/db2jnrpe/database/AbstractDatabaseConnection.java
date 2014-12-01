@@ -8,16 +8,17 @@ import java.util.Properties;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public abstract class DatabaseConnection {
-    /**
-     * Connection properties.
-     */
-    private final Properties connectionProperties;
-
+@SuppressWarnings("PMD.CommentSize")
+public abstract class AbstractDatabaseConnection {
     /**
      * Associated connection pool.
      */
-    private final String connectionsPool;
+    private final transient String connectionsPool;
+
+    /**
+     * Connection properties.
+     */
+    private final transient Properties connProperties;
     /**
      * Password.
      */
@@ -44,12 +45,12 @@ public abstract class DatabaseConnection {
      * @param passwd
      *            Password of the username.
      */
-    protected DatabaseConnection(final String connsPool,
+    protected AbstractDatabaseConnection(final String connsPool,
             final Properties defaultProperties, final String user,
             final String passwd) {
         this.connectionsPool = connsPool;
 
-        this.connectionProperties = defaultProperties;
+        this.connProperties = defaultProperties;
         this.username = user;
         this.password = passwd;
     }
@@ -60,7 +61,7 @@ public abstract class DatabaseConnection {
      * @return Connection properties.
      */
     public final Properties getConnectionProperties() {
-        return this.connectionProperties;
+        return this.connProperties;
     }
 
     /**
@@ -122,9 +123,10 @@ public abstract class DatabaseConnection {
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public final String toString() {
         final String ret = '{' + this.username + '@' + this.url
-                + this.connectionProperties.toString() + '}';
+                + this.connProperties.toString() + '}';
         return ret;
     }
 }

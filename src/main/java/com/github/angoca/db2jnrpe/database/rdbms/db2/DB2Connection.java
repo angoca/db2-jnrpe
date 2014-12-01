@@ -2,7 +2,7 @@ package com.github.angoca.db2jnrpe.database.rdbms.db2;
 
 import java.util.Properties;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 
 /**
  * Description of the parameter for a DB2 connection.
@@ -10,19 +10,21 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnection;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class DB2Connection extends DatabaseConnection {
+@SuppressWarnings("PMD.CommentSize")
+public final class DB2Connection extends AbstractDatabaseConnection {
+    /**
+     * Description of the DB2 driver.
+     */
+    private static final String DRIVER_CLASS = "com.ibm.db2.jcc.DB2SimpleDataSource";
     /**
      * Connections counter.
      */
-    private static int qty = 0;
+    @SuppressWarnings("PMD.AssignmentToNonFinalStatic")
+    private static int qty;
     /**
      * Name of the database.
      */
     private final String databaseName;
-    /**
-     * Description of the DB2 driver.
-     */
-    private final String driverClass = "com.ibm.db2.jcc.DB2SimpleDataSource";
     /**
      * Name of the server.
      */
@@ -83,11 +85,13 @@ public final class DB2Connection extends DatabaseConnection {
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2jnrpe.database.DatabaseConnection#getDriverClass()
+     * com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection#getDriverClass
+     * ()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String getDriverClass() {
-        return this.driverClass;
+        return DB2Connection.DRIVER_CLASS;
     }
 
     /**

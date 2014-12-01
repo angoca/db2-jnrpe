@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
@@ -30,46 +30,53 @@ import com.github.angoca.db2jnrpe.plugins.db2.IncopatibleDB2VersionException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-24
  */
+@SuppressWarnings("PMD.CommentSize")
 public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
         implements Runnable {
 
     /**
      * Position of column commit quantity.
      */
-    private static final int COL_POS_COMMIT_SQL_STMTS = 2;
-    /**
-     * Position of column select quantity.
-     */
-    private static final int COL_POS_SELECT_SQL_STMTS = 3;
+    @SuppressWarnings({ "PMD.LongVariable", "PMD.AvoidDuplicateLiterals" })
+    private static final int C_COMMIT_SQL_STMTS = 2;
     /**
      * Position of column database partition.
      */
-    private static final int COL_POS_DBPARTITIONNUM = 1;
-    /**
-     * Position of column modifications quantity.
-     */
-    private static final int COL_POS_UID_SQL_STMTS = 4;
+    private static final int C_DBPARTITIONNUM = 1;
     /**
      * Position of column bufferpool data physical reads.
      */
-    private static final int COL_POS_POOL_DATA_P_READS = 5;
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_POOL_DATA_P_READS = 5;
     /**
      * Position of column bufferpool index physical reads.
      */
-    private static final int POOL_INDEX_P_READS = 6;
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_POOL_INDEX_P_READS = 6;
     /**
      * Position of column bufferpool temp physical reads.
      */
-    private static final int POOL_TEMP_DATA_P_READS = 7;
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_POOL_TEMP_DATA_P_READS = 7;
     /**
      * Position of column bufferpool temp index physical reads.
      */
-    private static final int POOL_TEMP_INDEX_P_READS = 8;
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_POOL_TEMP_INDEX_P_READS = 8;
+    /**
+     * Position of column select quantity.
+     */
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_SELECT_SQL_STMTS = 3;
+    /**
+     * Position of column modifications quantity.
+     */
+    private static final int C_UID_SQL_STMTS = 4;
 
     /**
      * Logger.
      */
-    private static Logger log = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(DB2DatabaseSnapshotBroker.class);
 
     /**
@@ -77,8 +84,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      */
     private static final String QUERY = "SELECT DBPARTITIONNUM, "
             + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS, "
-            + "POOL_DATA_P_READS, POOL_INDEX_P_READS, POOL_TEMP_DATA_P_READS, "
-            + "POOL_TEMP_INDEX_P_READS " + "FROM SYSIBMADM.SNAPDB";
+            + "POOL_DATA_P_READS, C_POOL_INDEX_P_READS, C_POOL_TEMP_DATA_P_READS, "
+            + "C_POOL_TEMP_INDEX_P_READS " + "FROM SYSIBMADM.SNAPDB";
 
     /**
      * Tester.
@@ -88,6 +95,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * @throws Exception
      *             Any exception.
      */
+    @SuppressWarnings("PMD")
     public static void main(final String[] args) throws Exception {
         // CHECKSTYLE:OFF
         System.out.println("Test: Connection with pool");
@@ -100,7 +108,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
         DatabaseSnapshot snap;
         String databaseConnection;
         String connectionPool;
-        DatabaseConnection dbConn;
+        AbstractDatabaseConnection dbConn;
 
         hostname = "localhost";
         portNumber = 50000;
@@ -159,10 +167,83 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * @param db2database
      *            DB2 database that contains the info.
      */
-    public DB2DatabaseSnapshotBroker(final DatabaseConnection connProps,
+    public DB2DatabaseSnapshotBroker(
+            final AbstractDatabaseConnection connProps,
             final DB2Database db2database) {
+        super();
         this.setDBConnection(connProps);
         this.setDB2database(db2database);
+    }
+
+    /**
+     * Assign the read values to an existent object, or it creates a new one.
+     *
+     * @param res
+     *            Result set.
+     * @throws SQLException
+     *             If any problem ocurrs while reading the info.
+     */
+    private void assignValues(final ResultSet res) throws SQLException {
+        int dbpartitionnum;
+        long commitSQLstmts;
+        long selectSQLstmts;
+        long uidSQLstmts;
+        long bpdata;
+        long bpindex;
+        long bptempdata;
+        long bptempindex;
+        DatabaseSnapshot snap;
+        while (res.next()) {
+            // Partition.
+            dbpartitionnum = res
+                    .getInt(DB2DatabaseSnapshotBroker.C_DBPARTITIONNUM);
+            // Quantity of commits.
+            commitSQLstmts = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_COMMIT_SQL_STMTS);
+            // Quantity of sql.
+            selectSQLstmts = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_SELECT_SQL_STMTS);
+            // Quantity of modifications.
+            uidSQLstmts = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_UID_SQL_STMTS);
+            // Quantity of bufferpool physical reads for data.
+            bpdata = res.getLong(DB2DatabaseSnapshotBroker.C_POOL_DATA_P_READS);
+            // Quantity of bufferpool physical reads for index.
+            bpindex = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_POOL_INDEX_P_READS);
+            // Quantity of bufferpool physical reads for temporal data.
+            bptempdata = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_POOL_TEMP_DATA_P_READS);
+            // Quantity of bufferpool physical reads for temporal index.
+            bptempindex = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_POOL_TEMP_INDEX_P_READS);
+
+            DB2DatabaseSnapshotBroker.LOGGER.info(
+                    "{}::Part{},commit{},select{},uid{}", new Object[] {
+                            this.getDatabaseConnection().getUrl(),
+                            dbpartitionnum, commitSQLstmts, +selectSQLstmts,
+                            uidSQLstmts });
+            snap = this.getDatabase().getSnap();
+            if (snap == null) {
+                if (DB2DatabaseSnapshotBroker.LOGGER.isDebugEnabled()) {
+                    DB2DatabaseSnapshotBroker.LOGGER.debug(this
+                            .getDatabaseConnection().getUrl()
+                            + "::Creating snap");
+                }
+                snap = new DatabaseSnapshot(this.getDatabase(), dbpartitionnum,
+                        commitSQLstmts, selectSQLstmts, uidSQLstmts, bpdata,
+                        bpindex, bptempdata, bptempindex);
+                this.getDatabase().setSnap(snap);
+            } else {
+                if (DB2DatabaseSnapshotBroker.LOGGER.isDebugEnabled()) {
+                    DB2DatabaseSnapshotBroker.LOGGER.debug(this
+                            .getDatabaseConnection().getUrl()
+                            + "::Snap updated");
+                }
+                snap.setValues(dbpartitionnum, commitSQLstmts, selectSQLstmts,
+                        uidSQLstmts, bpdata, bpindex, bptempdata, bptempindex);
+            }
+        }
     }
 
     /*
@@ -172,6 +253,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * com.github.angoca.db2jnrpe.plugins.db2.broker.AbstractDB2Broker#check()
      */
     @Override
+    @SuppressWarnings({ "PMD.CommentRequired",
+            "PMD.DoNotThrowExceptionInFinally" })
     protected void check() throws DatabaseConnectionException {
         assert this.getDatabaseConnection() != null;
         final DB2MajorVersion majorVersion = DB2Helper.getDB2MajorVersion(this
@@ -180,84 +263,22 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                 .getDatabaseConnection());
         // This query cannot be executed in a database with db2 v9.5 or before.
         if (majorVersion.isEqualOrMoreRecentThan(DB2MajorVersion.V10_1)
-                || (majorVersion.isEqualThan(DB2MajorVersion.V9_7) && minorVersion
-                        .isEqualOrMoreRecentThan(DB2MinorVersion.V9_7_1))
-                || (majorVersion.isEqualThan(DB2MajorVersion.V9_8) && minorVersion
-                        .isEqualOrMoreRecentThan(DB2MinorVersion.V9_8_2))) {
+                || majorVersion.isEqualThan(DB2MajorVersion.V9_7)
+                && minorVersion.isEqualOrMoreRecentThan(DB2MinorVersion.V9_7_1)
+                || majorVersion.isEqualThan(DB2MajorVersion.V9_8)
+                && minorVersion.isEqualOrMoreRecentThan(DB2MinorVersion.V9_8_2)) {
 
             Connection connection = null;
+            ResultSet res = null;
             try {
                 connection = ConnectionPoolsManager.getInstance()
                         .getConnectionPool(this.getDatabaseConnection())
                         .getConnection(this.getDatabaseConnection());
                 final PreparedStatement stmt = connection
                         .prepareStatement(DB2DatabaseSnapshotBroker.QUERY);
-                final ResultSet res = stmt.executeQuery();
+                res = stmt.executeQuery();
 
-                int dbpartitionnum;
-                long commitSQLstmts;
-                long selectSQLstmts;
-                long uidSQLstmts;
-                long bpdata;
-                long bpindex;
-                long bptempdata;
-                long bptempindex;
-                DatabaseSnapshot snap;
-                while (res.next()) {
-                    // Partition.
-                    dbpartitionnum = res
-                            .getInt(DB2DatabaseSnapshotBroker.COL_POS_DBPARTITIONNUM);
-                    // Quantity of commits.
-                    commitSQLstmts = res
-                            .getLong(DB2DatabaseSnapshotBroker.COL_POS_COMMIT_SQL_STMTS);
-                    // Quantity of sql.
-                    selectSQLstmts = res
-                            .getLong(DB2DatabaseSnapshotBroker.COL_POS_SELECT_SQL_STMTS);
-                    // Quantity of modifications.
-                    uidSQLstmts = res
-                            .getLong(DB2DatabaseSnapshotBroker.COL_POS_UID_SQL_STMTS);
-                    // Quantity of bufferpool physical reads for data.
-                    bpdata = res
-                            .getLong(DB2DatabaseSnapshotBroker.COL_POS_POOL_DATA_P_READS);
-                    // Quantity of bufferpool physical reads for index.
-                    bpindex = res
-                            .getLong(DB2DatabaseSnapshotBroker.POOL_INDEX_P_READS);
-                    // Quantity of bufferpool physical reads for temporal data.
-                    bptempdata = res
-                            .getLong(DB2DatabaseSnapshotBroker.POOL_TEMP_DATA_P_READS);
-                    // Quantity of bufferpool physical reads for temporal index.
-                    bptempindex = res
-                            .getLong(DB2DatabaseSnapshotBroker.POOL_TEMP_INDEX_P_READS);
-
-                    DB2DatabaseSnapshotBroker.log.info(this
-                            .getDatabaseConnection().getUrl()
-                            + "::Part "
-                            + dbpartitionnum
-                            + ", commit "
-                            + commitSQLstmts
-                            + ", select "
-                            + selectSQLstmts
-                            + ", uid "
-                            + uidSQLstmts);
-                    snap = this.getDatabase().getSnap();
-                    if (snap == null) {
-                        DB2DatabaseSnapshotBroker.log.debug(this
-                                .getDatabaseConnection().getUrl()
-                                + "::Creating snap");
-                        snap = new DatabaseSnapshot(this.getDatabase(),
-                                dbpartitionnum, commitSQLstmts, selectSQLstmts,
-                                uidSQLstmts, bpdata, bpindex, bptempdata,
-                                bptempindex);
-                        this.getDatabase().setSnap(snap);
-                    } else {
-                        DB2DatabaseSnapshotBroker.log.debug(this
-                                .getDatabaseConnection().getUrl()
-                                + "::Snap updated");
-                        snap.setValues(dbpartitionnum, commitSQLstmts, selectSQLstmts,
-                                uidSQLstmts, bpdata, bpindex, bptempdata,
-                                bptempindex);
-                    }
-                }
+                this.assignValues(res);
                 this.getDatabase().getSnap().updateLastSnapshot();
                 res.close();
                 stmt.close();
@@ -269,6 +290,21 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
+            } finally {
+                try {
+                    if (res != null) {
+                        res.close();
+                    }
+                } catch (final SQLException e) {
+                    throw new DatabaseConnectionException(e);
+                }
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    throw new DatabaseConnectionException(e);
+                }
             }
         } else {
             if (majorVersion.isEqualThan(DB2MajorVersion.V9_7)) {
@@ -294,6 +330,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * @see java.lang.Runnable#run()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public void run() {
         super.setLock();
     }

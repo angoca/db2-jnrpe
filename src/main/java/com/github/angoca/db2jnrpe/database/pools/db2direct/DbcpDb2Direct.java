@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
+import com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
 
 /**
@@ -16,23 +16,31 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-04
  */
-public class DbcpDb2Direct extends ConnectionPool {
+public class DbcpDb2Direct extends AbstractConnectionPool {
 
     /**
      * Connection properties.
      */
-    private DB2Connection db2Conn;
+    private transient DB2Connection db2Conn;
+
+    /**
+     * Empty constructor.
+     */
+    protected DbcpDb2Direct() {
+        super();
+    }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * closeConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection,
      * java.sql.Connection)
      */
     @Override
-    public final void closeConnection(final DatabaseConnection dbConn,
+    @SuppressWarnings("PMD.CommentRequired")
+    public final void closeConnection(final AbstractDatabaseConnection dbConn,
             final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
@@ -46,12 +54,14 @@ public class DbcpDb2Direct extends ConnectionPool {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * getConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    public final Connection getConnection(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public final Connection getConnection(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         Connection connection = null;
         final Properties props = this.db2Conn.getConnectionProperties();
@@ -69,19 +79,23 @@ public class DbcpDb2Direct extends ConnectionPool {
     /*
      * (non-Javadoc)
      * 
-     * @see com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
-     * com.github.angoca.db2jnrpe.database.DatabaseConnection)
+     * @see
+     * com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#initialize
+     * ( com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    public final ConnectionPool initialize(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public final AbstractConnectionPool initialize(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         try {
             Class.forName(dbConn.getDriverClass());
             if (dbConn instanceof DB2Connection) {
                 this.db2Conn = (DB2Connection) dbConn;
             } else {
-                throw new DatabaseConnectionException(new Exception(
-                        "Invalid connection properties (DatabaseConnection)"));
+                throw new DatabaseConnectionException(
+                        new Exception(
+                                "Invalid connection properties (AbstractDatabaseConnection)"));
             }
         } catch (final ClassNotFoundException e) {
             throw new DatabaseConnectionException(e);

@@ -1,12 +1,12 @@
 package com.github.angoca.db2jnrpe.plugins.db2.broker;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
 
@@ -21,20 +21,65 @@ public abstract class AbstractDB2Broker {
     /**
      * Prevent multiple concurrent executions.
      */
-    private static final Map<String, Integer> LOCKS = new HashMap<String, Integer>();
+    private static final ConcurrentMap<String, Integer> LOCKS = new ConcurrentHashMap<String, Integer>();
     /**
      * Logger.
      */
-    private static Logger log = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractDB2Broker.class);
+
+    /**
+     * Checks if there is a lock for the given key (there is already an
+     * execution in process for the same database).
+     *
+     * @param key
+     *            Key that identifies the database.
+     * @return True if there is an execution for the database. False otherwise.
+     */
+    private static boolean hasLock(final String key) {
+        return AbstractDB2Broker.LOCKS.containsKey(key);
+    }
+
+    /**
+     * Puts a lock for the given key. This means an execution for the database
+     * has started.
+     *
+     * @param key
+     *            Key that identifies the database.
+     */
+    private static void putLock(final String key) {
+        AbstractDB2Broker.LOCKS.put(key, 1);
+    }
+
+    /**
+     * Removes the lock for the given key that represents a database. This means
+     * the execution is finished.
+     *
+     * @param key
+     *            Key that identifies the database.
+     */
+    private static void removeLock(final String key) {
+        AbstractDB2Broker.LOCKS.remove(key);
+    }
+
     /**
      * DB2 database.
      */
-    private DB2Database db2db;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private transient DB2Database db2db;
+
     /**
      * Connection properties.
      */
-    private DatabaseConnection dbConn;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private transient AbstractDatabaseConnection dbConn;
+
+    /**
+     * Empty constructor.
+     */
+    protected AbstractDB2Broker() {
+        // Empty.
+    }
 
     /**
      * Performs the query.
@@ -58,18 +103,18 @@ public abstract class AbstractDB2Broker {
      *
      * @return Connection properties.
      */
-    protected final DatabaseConnection getDatabaseConnection() {
+    protected final AbstractDatabaseConnection getDatabaseConnection() {
         return this.dbConn;
     }
 
     /**
      * Sets the database that contains the values.
      *
-     * @param db
+     * @param database
      *            Database.
      */
-    protected final void setDB2database(final DB2Database db) {
-        this.db2db = db;
+    protected final void setDB2database(final DB2Database database) {
+        this.db2db = database;
     }
 
     /**
@@ -78,7 +123,7 @@ public abstract class AbstractDB2Broker {
      * @param conn
      *            Connection properties.
      */
-    protected final void setDBConnection(final DatabaseConnection conn) {
+    protected final void setDBConnection(final AbstractDatabaseConnection conn) {
         this.dbConn = conn;
     }
 
@@ -86,26 +131,28 @@ public abstract class AbstractDB2Broker {
      * Sets the a lock of this execution to allow just one execution at the
      * time.
      */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     protected final void setLock() {
+        final String key = this.db2db.getId();
+        final String url = this.dbConn.getUrl();
         try {
             // Controls multiple concurrent executions.
             // This prevents to create multiple threads trying to access the
             // database. This is a problem when the database is not available,
             // or it has a big workload, and multiple connections are
             // established.
-            if (!AbstractDB2Broker.LOCKS.containsKey(this.db2db.getId())) {
-                AbstractDB2Broker.LOCKS.put(this.db2db.getId(), 1);
-                this.check();
-                AbstractDB2Broker.LOCKS.remove(this.db2db.getId());
+            if (AbstractDB2Broker.hasLock(key)) {
+                AbstractDB2Broker.LOGGER.warn("{}::There is a lock for: ", url,
+                        key);
             } else {
-                AbstractDB2Broker.log.warn(this.dbConn.getUrl()
-                        + "::There is a lock for: " + this.db2db.getId());
+                AbstractDB2Broker.putLock(key);
+                this.check();
+                AbstractDB2Broker.removeLock(key);
             }
         } catch (final Exception e) {
-            AbstractDB2Broker.log.error(this.dbConn.getUrl()
-                    + "::Error while reading bufferpool values", e);
-            AbstractDB2Broker.LOCKS.remove(this.db2db.getId());
-            e.printStackTrace();
+            AbstractDB2Broker.LOGGER.error(
+                    "{}::Error while reading bufferpool values", url, e);
+            AbstractDB2Broker.removeLock(key);
         }
     }
 }

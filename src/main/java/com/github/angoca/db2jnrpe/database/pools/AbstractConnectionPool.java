@@ -2,7 +2,7 @@ package com.github.angoca.db2jnrpe.database.pools;
 
 import java.sql.Connection;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
@@ -11,7 +11,8 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public abstract class ConnectionPool {
+@SuppressWarnings("PMD.CommentSize")
+public abstract class AbstractConnectionPool {
 
     /**
      * Maximum size of the pool.
@@ -23,6 +24,13 @@ public abstract class ConnectionPool {
     protected static final int MIN_POOL_SIZE = 1;
 
     /**
+     * Empty constructor.
+     */
+    protected AbstractConnectionPool() {
+        // Nothing.
+    }
+
+    /**
      * Closes a established connection.
      *
      * @param dbConn
@@ -32,8 +40,9 @@ public abstract class ConnectionPool {
      * @throws DatabaseConnectionException
      *             If any error occurs.
      */
-    public abstract void closeConnection(final DatabaseConnection dbConn,
-            final Connection connection) throws DatabaseConnectionException;
+    public abstract void closeConnection(
+            final AbstractDatabaseConnection dbConn, final Connection connection)
+            throws DatabaseConnectionException;
 
     /**
      * Retrieves a connection.
@@ -44,7 +53,8 @@ public abstract class ConnectionPool {
      * @throws DatabaseConnectionException
      *             If any error occurs.
      */
-    public abstract Connection getConnection(final DatabaseConnection dbConn)
+    public abstract Connection getConnection(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException;
 
     /**
@@ -56,6 +66,7 @@ public abstract class ConnectionPool {
      *             If any error occurs.
      * @return Return the associated connection pool.
      */
-    public abstract ConnectionPool initialize(final DatabaseConnection dbConn)
+    public abstract AbstractConnectionPool initialize(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException;
 }

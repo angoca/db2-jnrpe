@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
-import com.github.angoca.db2jnrpe.database.pools.ConnectionPool;
+import com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
@@ -18,12 +18,12 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class DbcpC3p0 extends ConnectionPool {
+public final class DbcpC3p0 extends AbstractConnectionPool {
 
     /**
      * Map of URL and its associated pool.
      */
-    private static Map<String, ComboPooledDataSource> pools = null;
+    private static Map<String, ComboPooledDataSource> pools;
 
     /**
      * Tester.
@@ -33,9 +33,10 @@ public final class DbcpC3p0 extends ConnectionPool {
      * @throws Exception
      *             If any error occurs.
      */
+    @SuppressWarnings({ "PMD", "resource" })
     public static void main(final String[] args) throws Exception {
-        System.out.println("Test: DatabaseConnection c3p0");
-        final DatabaseConnection dc1 = new DatabaseConnection(
+        System.out.println("Test: AbstractDatabaseConnection c3p0");
+        final AbstractDatabaseConnection dc1 = new AbstractDatabaseConnection(
                 DbcpC3p0.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
 
@@ -45,8 +46,9 @@ public final class DbcpC3p0 extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             *
-             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
+             * 
+             * @see
+             * com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -56,7 +58,7 @@ public final class DbcpC3p0 extends ConnectionPool {
         };
         Connection conn = new DbcpC3p0().initialize(dc1).getConnection(dc1);
         System.out.println("Client Information: " + conn.getClientInfo());
-        final DatabaseConnection dc2 = new DatabaseConnection(
+        final AbstractDatabaseConnection dc2 = new AbstractDatabaseConnection(
                 DbcpC3p0.class.getName(), new Properties(), "db2inst2",
                 "db2inst2") {
 
@@ -66,8 +68,9 @@ public final class DbcpC3p0 extends ConnectionPool {
 
             /*
              * (non-Javadoc)
-             *
-             * @see com.github.angoca.db2jnrpe.database.DatabaseConnection
+             * 
+             * @see
+             * com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection
              * #getDriverClass()
              */
             @Override
@@ -79,16 +82,24 @@ public final class DbcpC3p0 extends ConnectionPool {
         System.out.println("Client Information: " + conn.getClientInfo());
     }
 
+    /**
+     * Empty constructor.
+     */
+    private DbcpC3p0() {
+        super();
+    }
+
     /*
      * (non-Javadoc)
-     *
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#closeConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection,
+     * 
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * closeConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection,
      * java.sql.Connection)
      */
     @Override
-    public void closeConnection(final DatabaseConnection dbConn,
+    @SuppressWarnings({ "PMD.CommentRequired", "PMD.AvoidDuplicateLiterals" })
+    public void closeConnection(final AbstractDatabaseConnection dbConn,
             final Connection connection) throws DatabaseConnectionException {
         if (connection != null) {
             try {
@@ -101,13 +112,14 @@ public final class DbcpC3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
-     * @see
-     * com.github.angoca.db2jnrpe.database.pools.ConnectionPool#getConnection
-     * (com.github.angoca.db2jnrpe.database.DatabaseConnection)
+     * 
+     * @see com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#
+     * getConnection
+     * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    public Connection getConnection(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public Connection getConnection(final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         if (DbcpC3p0.pools == null) {
             throw new DatabaseConnectionException(new Exception(
@@ -127,9 +139,9 @@ public final class DbcpC3p0 extends ConnectionPool {
                     throw new DatabaseConnectionException(e);
                 }
                 pool.setJdbcUrl(dbConn.getUrl());
-                pool.setMinPoolSize(ConnectionPool.MIN_POOL_SIZE);
+                pool.setMinPoolSize(AbstractConnectionPool.MIN_POOL_SIZE);
                 pool.setAcquireIncrement(5);
-                pool.setMaxPoolSize(ConnectionPool.MAX_POOL_SIZE);
+                pool.setMaxPoolSize(AbstractConnectionPool.MAX_POOL_SIZE);
                 pool.setProperties(dbConn.getConnectionProperties());
                 try {
                     pool.setDriverClass(dbConn.getDriverClass());
@@ -148,12 +160,15 @@ public final class DbcpC3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
-     * @see com.github.angoca.db2jnrpe.database.pools.ConnectionPool#initialize(
-     * com.github.angoca.db2jnrpe.database.DatabaseConnection)
+     * 
+     * @see
+     * com.github.angoca.db2jnrpe.database.pools.AbstractConnectionPool#initialize
+     * ( com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    public ConnectionPool initialize(final DatabaseConnection dbConn)
+    @SuppressWarnings("PMD.CommentRequired")
+    public AbstractConnectionPool initialize(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         if (DbcpC3p0.pools == null) {
             DbcpC3p0.pools = new HashMap<String, ComboPooledDataSource>();
@@ -163,12 +178,12 @@ public final class DbcpC3p0 extends ConnectionPool {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String toString() {
-        final String ret = "[c3p0-" + DbcpC3p0.pools.size() + ']';
-        return ret;
+        return "[c3p0-" + DbcpC3p0.pools.size() + ']';
     }
 }

@@ -9,11 +9,17 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MinorVersion;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-28
  */
+@SuppressWarnings("PMD.CommentSize")
 public class IncopatibleDB2VersionException extends Exception {
     /**
-     * Creates an exception indicating the current version and the minimun
+     * Generate ID.
+     */
+    private static final long serialVersionUID = -2632738379083321219L;
+
+    /**
+     * Creates an exception indicating the current version and the minimum
      * required version.
-     * 
+     *
      * @param currentVersion
      *            Current version of the DB2 installation.
      * @param requiredVersion
@@ -25,10 +31,5 @@ public class IncopatibleDB2VersionException extends Exception {
                 + " and the plugin requires at least "
                 + requiredVersion.toString());
     }
-
-    /**
-     * Generate ID.
-     */
-    private static final long serialVersionUID = -2632738379083321219L;
 
 }

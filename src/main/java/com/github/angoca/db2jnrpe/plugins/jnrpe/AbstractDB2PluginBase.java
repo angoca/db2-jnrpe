@@ -5,7 +5,7 @@ import it.jnrpe.Status;
 import it.jnrpe.plugins.MetricGatheringException;
 import it.jnrpe.plugins.PluginBase;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
@@ -16,12 +16,13 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2Connection;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-21
  */
+@SuppressWarnings("PMD.CommentSize")
 public abstract class AbstractDB2PluginBase extends PluginBase {
 
     /**
-     * Calls the parent constructor.
+     * Empty constructor.
      */
-    public AbstractDB2PluginBase() {
+    protected AbstractDB2PluginBase() {
         super();
     }
 
@@ -29,18 +30,17 @@ public abstract class AbstractDB2PluginBase extends PluginBase {
      * Given the connection parameters, it returns an object that wraps the
      * pooled connection.
      *
-     * @param cl
+     * @param line
      *            Handler that contains the parameters.
      * @return Connection wrapper.
      * @throws MetricGatheringException
      *             If there is any error gathering the metrics.
      */
-    protected final DatabaseConnection getConnection(final ICommandLine cl)
-            throws MetricGatheringException {
-        assert cl != null;
+    protected final AbstractDatabaseConnection getConnection(
+            final ICommandLine line) throws MetricGatheringException {
+        assert line != null;
 
-        final String[] values = this.getUrlValues(cl);
-        final String hostname = values[0];
+        final String[] values = AbstractDB2PluginBase.getUrlValues(line);
         int portNumber;
         final String portNumberString = values[1];
         try {
@@ -50,27 +50,29 @@ public abstract class AbstractDB2PluginBase extends PluginBase {
             throw new MetricGatheringException(
                     "Invalid format for port number", Status.UNKNOWN, ne);
         }
+        final String hostname = values[0];
         final String databaseName = values[2];
-        final String username = cl.getOptionValue("username");
-        final String password = cl.getOptionValue("password");
+        final String username = line.getOptionValue("username");
+        final String password = line.getOptionValue("password");
         this.log.debug("Hostname:" + hostname + ";Port:" + portNumber + ";DB:"
                 + databaseName + ";User:" + username);
 
-        final String databaseConnection = DB2Connection.class.getName();
-        String connectionPool;
+        @SuppressWarnings("PMD.LawOfDemeter")
+        final String dbConnection = DB2Connection.class.getName();
+        @SuppressWarnings("PMD.LawOfDemeter")
+        final String connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
+                .getName();
         // connectionPool =
         // com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
         // .getName();
         // connectionPool =
         // com.github.angoca.db2jnrpe.database.pools.db2direct.DbcpDb2Direct.class
         // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
-                .getName();
         this.log.debug("Connection pool: " + connectionPool);
-        DatabaseConnection dbConn = null;
+        AbstractDatabaseConnection dbConn = null;
         try {
             dbConn = DatabaseConnectionsManager.getInstance()
-                    .getDatabaseConnection(connectionPool, databaseConnection,
+                    .getDatabaseConnection(connectionPool, dbConnection,
                             hostname, portNumber, databaseName, username,
                             password);
         } catch (final DatabaseConnectionException dbe) {
@@ -86,13 +88,13 @@ public abstract class AbstractDB2PluginBase extends PluginBase {
     /**
      * Retrieves an ID to identify a database.
      *
-     * @param cl
+     * @param line
      *            Command line.
      * @return Unique URL to the database.
      */
-    protected final String getId(final ICommandLine cl) {
+    protected final static String getId(final ICommandLine line) {
         String ret;
-        final String[] values = this.getUrlValues(cl);
+        final String[] values = AbstractDB2PluginBase.getUrlValues(line);
         ret = values[0] + ':' + values[1] + '/' + values[2];
         return ret;
     }
@@ -100,15 +102,15 @@ public abstract class AbstractDB2PluginBase extends PluginBase {
     /**
      * Return the connection values.
      *
-     * @param cl
+     * @param line
      *            Command line.
      * @return Array with parameters.
      */
-    private String[] getUrlValues(final ICommandLine cl) {
+    private static String[] getUrlValues(final ICommandLine line) {
         final String[] ret = new String[3];
-        final String hostname = cl.getOptionValue("hostname");
-        final String portNumberString = cl.getOptionValue("port");
-        final String databaseName = cl.getOptionValue("database");
+        final String hostname = line.getOptionValue("hostname");
+        final String portNumberString = line.getOptionValue("port");
+        final String databaseName = line.getOptionValue("database");
         ret[0] = hostname;
         ret[1] = portNumberString;
         ret[2] = databaseName;

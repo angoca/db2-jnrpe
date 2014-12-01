@@ -31,6 +31,7 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-21
  */
+@SuppressWarnings("PMD.CommentSize")
 public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
 
     /**
@@ -62,9 +63,21 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      * @throws Exception
      *             If any error occur.
      */
+    @SuppressWarnings("PMD")
     public static void main(final String[] args) throws Exception {
         // CHECKSTYLE:OFF
-        ICommandLine cl = new ICommandLine() {
+        final ICommandLine cl = new ICommandLine() {
+
+            @Override
+            public String getOptionValue(final char shortOptionName) {
+                return null;
+            }
+
+            @Override
+            public String getOptionValue(final char shortOptionName,
+                    final String defaultValue) {
+                return null;
+            }
 
             @Override
             public String getOptionValue(final String optionName) {
@@ -84,19 +97,9 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
             }
 
             @Override
-            public List<String> getOptionValues(final String optionName) {
-                return null;
-            }
-
-            @Override
             public String getOptionValue(final String optionName,
                     final String defaultValue) {
                 return defaultValue;
-            }
-
-            @Override
-            public String getOptionValue(final char shortOptionName) {
-                return null;
             }
 
             @Override
@@ -105,14 +108,8 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
             }
 
             @Override
-            public String getOptionValue(final char shortOptionName,
-                    final String defaultValue) {
+            public List<String> getOptionValues(final String optionName) {
                 return null;
-            }
-
-            @Override
-            public boolean hasOption(final String optionName) {
-                return false;
             }
 
             @Override
@@ -120,8 +117,13 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
                 return false;
             }
 
+            @Override
+            public boolean hasOption(final String optionName) {
+                return false;
+            }
+
         };
-        ThresholdsEvaluatorBuilder thrb = new ThresholdsEvaluatorBuilder();
+        final ThresholdsEvaluatorBuilder thrb = new ThresholdsEvaluatorBuilder();
         Collection<Metric> c;
         AbstractDB2PluginBase p;
         p = new CheckDatabaseLoadPlugin();
@@ -147,6 +149,13 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
         // CHECKSTYLE:ON
     }
 
+    /**
+     * Empty.
+     */
+    private CheckDatabaseLoadPlugin() {
+        super();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -155,29 +164,30 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      * .utils.thresholds.ThresholdsEvaluatorBuilder, it.jnrpe.ICommandLine)
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public void configureThresholdEvaluatorBuilder(
-            final ThresholdsEvaluatorBuilder thrb, final ICommandLine cl)
+            final ThresholdsEvaluatorBuilder thrb, final ICommandLine line)
             throws BadThresholdException {
-        final String dbId = this.getId(cl);
+        final String dbId = AbstractDB2PluginBase.getId(line);
         this.log.warn("Database: " + dbId);
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.UID_LOAD, null, cl
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.UID_LOAD, null, line
                 .getOptionValue("warning",
-                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), line
                 .getOptionValue("critical",
                         CheckDatabaseLoadPlugin.CRITICAL_VALUE));
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.SELECT_LOAD, null, cl
-                .getOptionValue("warning",
-                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
-                .getOptionValue("critical",
-                        CheckDatabaseLoadPlugin.CRITICAL_VALUE));
-        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.COMMIT_LOAD, null, cl
-                .getOptionValue("warning",
-                        CheckDatabaseLoadPlugin.WARNING_VALUE), cl
-                .getOptionValue("critical",
-                        CheckDatabaseLoadPlugin.CRITICAL_VALUE));
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.SELECT_LOAD, null,
+                line.getOptionValue("warning",
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), line
+                        .getOptionValue("critical",
+                                CheckDatabaseLoadPlugin.CRITICAL_VALUE));
+        thrb.withLegacyThreshold(CheckDatabaseLoadPlugin.COMMIT_LOAD, null,
+                line.getOptionValue("warning",
+                        CheckDatabaseLoadPlugin.WARNING_VALUE), line
+                        .getOptionValue("critical",
+                                CheckDatabaseLoadPlugin.CRITICAL_VALUE));
 
         // Metadata
-        final boolean metadata = cl.hasOption("metadata");
+        final boolean metadata = line.hasOption("metadata");
         if (metadata) {
             thrb.withLegacyThreshold("Cache-data", null, null, null);
             thrb.withLegacyThreshold("Cache-old", null, null, null);
@@ -190,21 +200,22 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
      */
     @Override
-    public Collection<Metric> gatherMetrics(final ICommandLine cl)
+    @SuppressWarnings("PMD.CommentRequired")
+    public Collection<Metric> gatherMetrics(final ICommandLine line)
             throws MetricGatheringException {
         final List<Metric> res = new ArrayList<Metric>();
 
-        final String id = this.getId(cl);
+        final String identification = AbstractDB2PluginBase.getId(line);
         DB2Database db2Database = DB2DatabasesManager.getInstance()
-                .getDatabase(id);
+                .getDatabase(identification);
         if (db2Database == null) {
-            db2Database = new DB2Database(id);
-            DB2DatabasesManager.getInstance().add(id, db2Database);
+            db2Database = new DB2Database(identification);
+            DB2DatabasesManager.getInstance().add(identification, db2Database);
         }
         DatabaseSnapshot snapshot;
         try {
-            snapshot = db2Database
-                    .getSnapshotAndRefresh(this.getConnection(cl));
+            snapshot = db2Database.getSnapshotAndRefresh(this
+                    .getConnection(line));
 
             String message;
             message = "The UID load is " + snapshot.getLastUIDRate() + '('
@@ -221,14 +232,14 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
             res.add(new Metric(CheckDatabaseLoadPlugin.COMMIT_LOAD, message,
                     new BigDecimal(snapshot.getLastCommitRate()), null, null));
         } catch (final UnknownValueException e) {
-            this.log.warn(id + "::No values");
+            this.log.warn(identification + "::No values");
             throw new MetricGatheringException(
                     "Not enough values have been gathered: " + e.getMessage(),
-                    Status.UNKNOWN, null);
+                    Status.UNKNOWN, e);
         }
 
         // Metadata
-        final boolean metadata = cl.hasOption("metadata");
+        final boolean metadata = line.hasOption("metadata");
         if (metadata) {
             res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
                     .getSnap().getLastSnapshotRefresh()), null, null));
@@ -247,6 +258,7 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
      * @see it.jnrpe.plugins.PluginBase#getPluginName()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     protected String getPluginName() {
         return "Check_Database_Load";
     }

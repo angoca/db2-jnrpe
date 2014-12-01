@@ -31,7 +31,8 @@ public final class DB2DatabasesManager {
     /**
      * List of db2Databases.
      */
-    private final Map<String, DB2Database> db2Databases;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private final transient Map<String, DB2Database> db2Databases;
 
     /**
      * Creates the singleton.
@@ -43,25 +44,24 @@ public final class DB2DatabasesManager {
     /**
      * Adds a database in the set.
      *
-     * @param id
+     * @param identification
      *            ID to identify the database.
      * @param db2Database
      *            DB2Database.
      */
-    public void add(final String id, final DB2Database db2Database) {
-        this.db2Databases.put(id, db2Database);
+    public void add(final String identification, final DB2Database db2Database) {
+        this.db2Databases.put(identification, db2Database);
     }
 
     /**
      * Retrieves a database given its ID.
      *
-     * @param id
+     * @param identification
      *            Id of the database.
      * @return The database that corresponds to the given ID.
      */
-    public DB2Database getDatabase(final String id) {
-        final DB2Database db = this.db2Databases.get(id);
-        return db;
+    public DB2Database getDatabase(final String identification) {
+        return this.db2Databases.get(identification);
     }
 
     /**
@@ -69,7 +69,7 @@ public final class DB2DatabasesManager {
      *
      * @return Map of db2Databases.
      */
-    Map<String, DB2Database> getDatabases() {
+    public Map<String, DB2Database> getDatabases() {
         return this.db2Databases;
     }
 }

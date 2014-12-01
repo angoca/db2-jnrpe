@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 
 /**
@@ -15,6 +15,7 @@ import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
+@SuppressWarnings("PMD.CommentSize")
 public final class ConnectionPoolsManager {
     /**
      * Singleton instance.
@@ -36,13 +37,14 @@ public final class ConnectionPoolsManager {
     /**
      * List of connection pools, matching the name with itself.
      */
-    private final Map<String, ConnectionPool> connectionPools;
+    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
+    private final transient Map<String, AbstractConnectionPool> connPools;
 
     /**
      * Creates the singleton.
      */
     private ConnectionPoolsManager() {
-        this.connectionPools = new HashMap<String, ConnectionPool>();
+        this.connPools = new HashMap<String, AbstractConnectionPool>();
     }
 
     /**
@@ -54,20 +56,18 @@ public final class ConnectionPoolsManager {
      * @throws DatabaseConnectionException
      *             Any exception is wrapped in this exception.
      */
-    public ConnectionPool getConnectionPool(final DatabaseConnection dbConn)
+    public AbstractConnectionPool getConnectionPool(
+            final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         final String poolName = dbConn.getConnectionsPoolName();
-        ConnectionPool connectionPool = this.connectionPools.get(poolName);
-        if (connectionPool == null) {
-            final Class<?> clazz;
+        AbstractConnectionPool coonPool = this.connPools.get(poolName);
+        if (coonPool == null) {
             try {
-                clazz = Class.forName(poolName);
+                final Class<?> clazz = Class.forName(poolName);
+                coonPool = (AbstractConnectionPool) clazz.getConstructor()
+                        .newInstance();
             } catch (final ClassNotFoundException e) {
                 throw new DatabaseConnectionException(e);
-            }
-            try {
-                connectionPool = (ConnectionPool) clazz.getConstructor()
-                        .newInstance();
             } catch (final NoSuchMethodException e) {
                 throw new DatabaseConnectionException(e);
             } catch (final SecurityException e) {
@@ -81,9 +81,9 @@ public final class ConnectionPoolsManager {
             } catch (final InstantiationException e) {
                 throw new DatabaseConnectionException(e);
             }
-            connectionPool.initialize(dbConn);
-            this.connectionPools.put(poolName, connectionPool);
+            coonPool.initialize(dbConn);
+            this.connPools.put(poolName, coonPool);
         }
-        return connectionPool;
+        return coonPool;
     }
 }

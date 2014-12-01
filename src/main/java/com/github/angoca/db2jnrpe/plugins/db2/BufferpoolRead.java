@@ -6,11 +6,12 @@ package com.github.angoca.db2jnrpe.plugins.db2;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class BufferpoolRead {
+@SuppressWarnings("PMD.CommentSize")
+public final class BufferpoolRead implements Cloneable {
     /**
      * Frequency to read the bufferpools. 60000 means each 10 minutes.
      */
-    static final long BUFFERPOOL_FREQUENCY = DB2Database.STANDARD_FREQUENCY;
+    public static final long BUFFERPOOL_FREQ = DB2Database.STANDARD_FREQ;
     /**
      * Hundred percent.
      */
@@ -18,7 +19,7 @@ public final class BufferpoolRead {
     /**
      * Most recent value of logical reads.
      */
-    private long logicalReads = 0;
+    private long logicalReads;
     /**
      * Member of the database.
      */
@@ -30,15 +31,15 @@ public final class BufferpoolRead {
     /**
      * Previous read of logical reads.
      */
-    private long previousLogicalReads = 0;
+    private transient long prevLogicalReads;
     /**
      * Previous read of total reads.
      */
-    private long previousTotalReads = 0;
+    private transient long prevTotalReads;
     /**
      * Most recent value of total reads.
      */
-    private long totalReads = 0;
+    private long totalReads;
 
     /**
      * Creates a set of most recent reads for a bufferpool.
@@ -64,15 +65,16 @@ public final class BufferpoolRead {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#clone()
      */
     @Override
-    protected BufferpoolRead clone() {
+    @SuppressWarnings({ "PMD.CommentRequired", "PMD.ProperCloneImplementation" })
+    public BufferpoolRead clone() {
         final BufferpoolRead copy = new BufferpoolRead(this.name,
                 this.logicalReads, this.totalReads, this.member);
-        copy.previousLogicalReads = this.previousLogicalReads;
-        copy.previousTotalReads = this.previousTotalReads;
+        copy.prevLogicalReads = this.prevLogicalReads;
+        copy.prevTotalReads = this.prevTotalReads;
         return copy;
     }
 
@@ -87,13 +89,14 @@ public final class BufferpoolRead {
         double ret = 0;
         if (this.totalReads == 0) {
             ret = BufferpoolRead.HUNDRED_PERCENT;
-        } else if (this.previousTotalReads == 0) {
+        } else if (this.prevTotalReads == 0) {
             ret = this.getRatio();
-        } else if (this.previousTotalReads == this.totalReads) {
+        } else if (this.prevTotalReads == this.totalReads) {
             ret = BufferpoolRead.HUNDRED_PERCENT;
         } else {
-            ret = ((double) (this.logicalReads - this.previousLogicalReads) * BufferpoolRead.HUNDRED_PERCENT)
-                    / (this.totalReads - this.previousTotalReads);
+            ret = (double) (this.logicalReads - this.prevLogicalReads)
+                    * BufferpoolRead.HUNDRED_PERCENT
+                    / (this.totalReads - this.prevTotalReads);
         }
         return ret;
     }
@@ -146,7 +149,7 @@ public final class BufferpoolRead {
             // No reads until now.
             ret = BufferpoolRead.HUNDRED_PERCENT;
         } else {
-            ret = ((double) this.logicalReads * BufferpoolRead.HUNDRED_PERCENT)
+            ret = (double) this.logicalReads * BufferpoolRead.HUNDRED_PERCENT
                     / this.totalReads;
         }
         return ret;
@@ -173,9 +176,9 @@ public final class BufferpoolRead {
 
         if (logical < this.logicalReads) {
             // The database was recycled between two checks.
-            this.previousLogicalReads = 0;
+            this.prevLogicalReads = 0;
         } else {
-            this.previousLogicalReads = this.logicalReads;
+            this.prevLogicalReads = this.logicalReads;
         }
         this.logicalReads = logical;
     }
@@ -206,19 +209,20 @@ public final class BufferpoolRead {
 
         if (total < this.totalReads) {
             // The database was recycled between two checks.
-            this.previousTotalReads = 0;
+            this.prevTotalReads = 0;
         } else {
-            this.previousTotalReads = this.totalReads;
+            this.prevTotalReads = this.totalReads;
         }
         this.totalReads = total;
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String toString() {
         final String ret = "Bufferpool[" + this.member + ';' + this.name
                 + ";reads:" + this.logicalReads + '/' + this.totalReads + ']';

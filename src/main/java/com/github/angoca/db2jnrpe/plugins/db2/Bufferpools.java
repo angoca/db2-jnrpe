@@ -2,6 +2,8 @@ package com.github.angoca.db2jnrpe.plugins.db2;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Object that holds the bufferpool reads and the time when the values were
@@ -10,29 +12,29 @@ import java.util.Map;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
-public final class Bufferpools {
+public final class Bufferpools implements Cloneable {
     /**
      * Hash of bufferpoolReads reads.
      */
-    private Map<String, BufferpoolRead> bufferpoolReads;
+    private transient Map<String, BufferpoolRead> bufferpoolReads;
     /**
      * Database that keeps all data.
      */
-    private final DB2Database database;
+    private final transient DB2Database database;
 
     /**
      * Time of the last bufferpoolReads read.
      */
-    private long lastBufferpoolRead = 0;
+    private transient long lastBpRead;
 
     /**
      * Creates a bufferpool with the associated database.
      *
-     * @param db
+     * @param database
      *            Associated database.
      */
-    public Bufferpools(final DB2Database db) {
-        this.database = db;
+    public Bufferpools(final DB2Database database) {
+        this.database = database;
         this.bufferpoolReads = new HashMap<String, BufferpoolRead>();
     }
 
@@ -52,9 +54,10 @@ public final class Bufferpools {
      * @see java.lang.Object#clone()
      */
     @Override
-    protected Object clone() {
+    @SuppressWarnings({ "PMD.CommentRequired", "PMD.ProperCloneImplementation" })
+    public Object clone() {
         final Bufferpools ret = new Bufferpools(this.database);
-        ret.lastBufferpoolRead = this.lastBufferpoolRead;
+        ret.lastBpRead = this.lastBpRead;
         ret.bufferpoolReads = this.cloneBufferpools();
         return ret;
     }
@@ -65,7 +68,7 @@ public final class Bufferpools {
      * @return Copy of the set of bufferpoolReads.
      */
     private Map<String, BufferpoolRead> cloneBufferpools() {
-        final Map<String, BufferpoolRead> copy = new HashMap<String, BufferpoolRead>();
+        final ConcurrentMap<String, BufferpoolRead> copy = new ConcurrentHashMap<String, BufferpoolRead>();
         for (final String key : this.bufferpoolReads.keySet()) {
             final BufferpoolRead clone = this.bufferpoolReads.get(key).clone();
             copy.put(key, clone);
@@ -88,7 +91,7 @@ public final class Bufferpools {
      * @return Time of last read.
      */
     public long getLastBufferpoolRefresh() {
-        return this.lastBufferpoolRead;
+        return this.lastBpRead;
     }
 
     /**
@@ -96,13 +99,13 @@ public final class Bufferpools {
      *
      * @return True if the list is too old or never set. False otherwise.
      */
-    boolean isBufferpoolListUpdated() {
+    public boolean isBufferpoolListUpdated() {
         boolean ret = true;
         final long now = System.currentTimeMillis();
-        if (this.lastBufferpoolRead == 0) {
+        if (this.lastBpRead == 0) {
             // Never set.
             ret = false;
-        } else if ((now - BufferpoolRead.BUFFERPOOL_FREQUENCY) > this.lastBufferpoolRead) {
+        } else if (now - BufferpoolRead.BUFFERPOOL_FREQ > this.lastBpRead) {
             ret = false;
         }
         return ret;
@@ -116,7 +119,7 @@ public final class Bufferpools {
     public boolean isRecentBufferpoolRead() {
         boolean ret = true;
         final long now = System.currentTimeMillis();
-        if ((now - (2 * BufferpoolRead.BUFFERPOOL_FREQUENCY)) < this.lastBufferpoolRead) {
+        if (now - 2 * BufferpoolRead.BUFFERPOOL_FREQ < this.lastBpRead) {
             ret = false;
         }
         return ret;
@@ -138,9 +141,10 @@ public final class Bufferpools {
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String toString() {
         final String ret = this.bufferpoolReads.size()
-                + " bufferpoolReads. Last at " + this.lastBufferpoolRead;
+                + " bufferpoolReads. Last at " + this.lastBpRead;
         return ret;
     }
 
@@ -149,7 +153,7 @@ public final class Bufferpools {
      * bufferpoolReads because they are updated at the same time.
      */
     public void updateLastBufferpoolRead() {
-        this.lastBufferpoolRead = System.currentTimeMillis();
+        this.lastBpRead = System.currentTimeMillis();
     }
 
 }

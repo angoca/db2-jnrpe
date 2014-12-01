@@ -61,6 +61,10 @@ public enum DB2MinorVersion {
      */
     V9_7_1("DB2 v9.7.0.1", 9701),
     /**
+     * 9.7 version Fixpack 10.
+     */
+    V9_7_10("DB2 v9.7.0.10", 9710),
+    /**
      * 9.7 version Fixpack 2.
      */
     V9_7_2("DB2 v9.7.0.2", 9702),
@@ -92,10 +96,6 @@ public enum DB2MinorVersion {
      * 9.7 version Fixpack 9.
      */
     V9_7_9("DB2 v9.7.0.9", 9709),
-    /**
-     * 9.7 version Fixpack 10.
-     */
-    V9_7_10("DB2 v9.7.0.10", 9710),
     /**
      * 9.7 version GA.
      */

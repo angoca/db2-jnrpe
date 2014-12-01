@@ -102,7 +102,7 @@ public enum DB2MajorVersion {
 
     /**
      * Compares the DB2 version with a specific one.
-     * 
+     *
      * @param version
      *            Version to compare to.
      * @return true if the given version is equal. False otherwise.

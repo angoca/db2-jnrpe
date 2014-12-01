@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.plugins.db2.broker.DB2BufferpoolHitRatioBroker;
 import com.github.angoca.db2jnrpe.plugins.db2.broker.DB2DatabaseSnapshotBroker;
 
@@ -15,15 +15,17 @@ import com.github.angoca.db2jnrpe.plugins.db2.broker.DB2DatabaseSnapshotBroker;
  * @author Andres Gomez Casanova (@AngocA)
  * @version 2014-11-03
  */
+@SuppressWarnings("PMD.CommentSize")
 public final class DB2Database {
     /**
      * Logger.
      */
-    private static Logger log = LoggerFactory.getLogger(DB2Database.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(DB2Database.class);
     /**
      * Normal frequency for all elements: 10 minutes.
      */
-    static final long STANDARD_FREQUENCY = 600000;
+    public static final long STANDARD_FREQ = 600000;
     /**
      * Bufferpool reads.
      */
@@ -31,7 +33,7 @@ public final class DB2Database {
     /**
      * Identification of the database.
      */
-    private final String id;
+    private final transient String identification;
     /**
      * Snapshot of the database.
      */
@@ -41,12 +43,14 @@ public final class DB2Database {
      * Creates a database with an ID.
      *
      * @param dbId
-     *            Unique id to identify this database.
+     *            Unique identification to identify this database.
      */
     public DB2Database(final String dbId) {
-        this.id = dbId;
+        this.identification = dbId;
 
-        DB2Database.log.debug("New database " + dbId);
+        if (DB2Database.LOGGER.isDebugEnabled()) {
+            DB2Database.LOGGER.debug("New database " + dbId);
+        }
     }
 
     /**
@@ -59,8 +63,8 @@ public final class DB2Database {
     }
 
     /**
-     * Retrieves the map of bufferpoolReads and update the information for
-     * the next call in an asynchronous way.
+     * Retrieves the map of bufferpoolReads and update the information for the
+     * next call in an asynchronous way.
      *
      * @param dbConn
      *            Connection properties.
@@ -68,7 +72,8 @@ public final class DB2Database {
      * @throws UnknownValueException
      *             If the bufferpool values have not been read.
      */
-    public Bufferpools getBufferpoolsAndRefresh(final DatabaseConnection dbConn)
+    public Bufferpools getBufferpoolsAndRefresh(
+            final AbstractDatabaseConnection dbConn)
             throws UnknownValueException {
         if (this.bufferpools == null) {
             new Thread(new DB2BufferpoolHitRatioBroker(dbConn, this)).start();
@@ -79,8 +84,8 @@ public final class DB2Database {
             // previous values.
             new Thread(new DB2BufferpoolHitRatioBroker(dbConn, this)).start();
         }
-        DB2Database.log.info("Bufferpool values returned taken at "
-                + new Timestamp(this.bufferpools.getLastBufferpoolRefresh()));
+        DB2Database.LOGGER.info("Bufferpool values returned taken at {}",
+                new Timestamp(this.bufferpools.getLastBufferpoolRefresh()));
         return (Bufferpools) this.bufferpools.clone();
     }
 
@@ -90,7 +95,7 @@ public final class DB2Database {
      * @return ID of the database.
      */
     public String getId() {
-        return this.id;
+        return this.identification;
     }
 
     /**
@@ -112,7 +117,8 @@ public final class DB2Database {
      *             If the values have not been read.
      */
     public DatabaseSnapshot getSnapshotAndRefresh(
-            final DatabaseConnection dbConn) throws UnknownValueException {
+            final AbstractDatabaseConnection dbConn)
+            throws UnknownValueException {
         if (this.snap == null) {
             new Thread(new DB2DatabaseSnapshotBroker(dbConn, this)).start();
             throw new UnknownValueException("First snapshot has not been read");
@@ -121,8 +127,8 @@ public final class DB2Database {
             // previous values.
             new Thread(new DB2DatabaseSnapshotBroker(dbConn, this)).start();
         }
-        DB2Database.log.info("Snapshot returned taken at "
-                + new Timestamp(this.snap.getLastSnapshotRefresh()));
+        DB2Database.LOGGER.info("Snapshot returned taken at {}", new Timestamp(
+                this.snap.getLastSnapshotRefresh()));
         return this.snap.clone();
     }
 
@@ -152,9 +158,9 @@ public final class DB2Database {
      * @see java.lang.Object#toString()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public String toString() {
-        final String ret = this.id;
-        return ret;
+        return this.identification;
     }
 
 }

@@ -5,15 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.angoca.db2jnrpe.database.DatabaseConnection;
+import com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionException;
 import com.github.angoca.db2jnrpe.database.DatabaseConnectionsManager;
 import com.github.angoca.db2jnrpe.database.pools.ConnectionPoolsManager;
@@ -43,6 +44,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
     /**
      * Position of column logical reads.
      */
+    @SuppressWarnings("PMD.LongVariable")
     private static final int COL_POS_LOGICAL_READS = 2;
 
     /**
@@ -53,12 +55,13 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
     /**
      * Position of column for total reads.
      */
+    @SuppressWarnings("PMD.LongVariable")
     private static final int COL_POS_TOTAL_READS = 3;
 
     /**
      * Logger.
      */
-    private static Logger log = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(DB2BufferpoolHitRatioBroker.class);
 
     /**
@@ -85,6 +88,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
      * @throws Exception
      *             Any exception.
      */
+    @SuppressWarnings("PMD")
     public static void main(final String[] args) throws Exception {
         // CHECKSTYLE:OFF
         System.out.println("Test: Connection with pool");
@@ -98,7 +102,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
         Iterator<String> iter;
         String databaseConnection;
         String connectionPool;
-        DatabaseConnection dbConn;
+        AbstractDatabaseConnection dbConn;
 
         hostname = "localhost";
         portNumber = 50000;
@@ -179,8 +183,10 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
      * @param db2database
      *            DB2 database that contains the info.
      */
-    public DB2BufferpoolHitRatioBroker(final DatabaseConnection connProps,
+    public DB2BufferpoolHitRatioBroker(
+            final AbstractDatabaseConnection connProps,
             final DB2Database db2database) {
+        super();
         this.setDBConnection(connProps);
         this.setDB2database(db2database);
     }
@@ -192,12 +198,15 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
      * com.github.angoca.db2jnrpe.plugins.db2.broker.AbstractDB2Broker#check()
      */
     @Override
+    @SuppressWarnings({ "PMD.CommentRequired",
+            "PMD.DoNotThrowExceptionInFinally" })
     protected void check() throws DatabaseConnectionException {
         assert this.getDatabaseConnection() != null;
         final DB2MajorVersion version = DB2Helper.getDB2MajorVersion(this
                 .getDatabaseConnection());
         // This query cannot be executed in a database with db2 v9.5 or before.
         if (version.isEqualOrMoreRecentThan(DB2MajorVersion.V9_7)) {
+            ResultSet res = null;
 
             Connection connection = null;
             try {
@@ -206,7 +215,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                         .getConnection(this.getDatabaseConnection());
                 final PreparedStatement stmt = connection
                         .prepareStatement(DB2BufferpoolHitRatioBroker.QUERY_AFTER_V97);
-                final ResultSet res = stmt.executeQuery();
+                res = stmt.executeQuery();
 
                 BufferpoolRead read;
                 String name;
@@ -229,14 +238,11 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                     member = res
                             .getInt(DB2BufferpoolHitRatioBroker.COL_POS_MEMBER);
 
-                    DB2BufferpoolHitRatioBroker.log.info(this
-                            .getDatabaseConnection().getUrl()
-                            + "::Name "
-                            + name
-                            + ", logical "
-                            + logical
-                            + ", physical "
-                            + physical + ", member " + member);
+                    DB2BufferpoolHitRatioBroker.LOGGER.info(
+                            "{}::Name{},logical{},physical{},member{}",
+                            new Object[] {
+                                    this.getDatabaseConnection().getUrl(),
+                                    name, logical, physical, member });
                     bufferpools = this.getDatabase().getBufferpools();
                     if (bufferpools == null) {
                         bufferpools = new Bufferpools(this.getDatabase());
@@ -244,23 +250,27 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                     }
                     read = bufferpools.getBufferpoolReads().get(name);
                     if (read == null) {
-                        DB2BufferpoolHitRatioBroker.log.debug(this
-                                .getDatabaseConnection().getUrl()
-                                + "::New bufferpool");
+                        if (DB2BufferpoolHitRatioBroker.LOGGER.isDebugEnabled()) {
+                            DB2BufferpoolHitRatioBroker.LOGGER.debug(this
+                                    .getDatabaseConnection().getUrl()
+                                    + "::New bufferpool");
+                        }
                         read = new BufferpoolRead(name, logical, logical
                                 + physical, member);
                         bufferpools.addBufferpoolRead(read);
                     } else {
-                        DB2BufferpoolHitRatioBroker.log.debug(this
-                                .getDatabaseConnection().getUrl()
-                                + "::Bufferpool updated");
+                        if (DB2BufferpoolHitRatioBroker.LOGGER.isDebugEnabled()) {
+                            DB2BufferpoolHitRatioBroker.LOGGER.debug(this
+                                    .getDatabaseConnection().getUrl()
+                                    + "::Bufferpool updated");
+                        }
                         read.setReads(logical, logical + physical);
                     }
                     reads.add(name);
                 }
                 // Checks the list of bufferpool read to delete the inexistent
                 // reads.
-                final Map<String, BufferpoolRead> newBps = new HashMap<String, BufferpoolRead>();
+                final ConcurrentMap<String, BufferpoolRead> newBps = new ConcurrentHashMap<String, BufferpoolRead>();
                 for (final String bpName : this.getDatabase().getBufferpools()
                         .getBufferpoolReads().keySet()) {
                     if (reads.contains(bpName)) {
@@ -280,6 +290,21 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
             } catch (final SQLException sqle) {
                 DB2Helper.processException(sqle);
                 throw new DatabaseConnectionException(sqle);
+            } finally {
+                try {
+                    if (res != null) {
+                        res.close();
+                    }
+                } catch (final SQLException e) {
+                    throw new DatabaseConnectionException(e);
+                }
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    throw new DatabaseConnectionException(e);
+                }
             }
         }
     }
@@ -290,6 +315,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
      * @see java.lang.Runnable#run()
      */
     @Override
+    @SuppressWarnings("PMD.CommentRequired")
     public void run() {
         super.setLock();
     }
