@@ -1,4 +1,4 @@
-package com.github.angoca.db2jnrpe.plugins.db2.broker;
+package com.github.angoca.db2jnrpe.plugins.db2;
 
 import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MinorVersion;
 

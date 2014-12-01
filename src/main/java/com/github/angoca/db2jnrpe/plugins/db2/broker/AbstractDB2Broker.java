@@ -45,7 +45,7 @@ public abstract class AbstractDB2Broker {
     protected abstract void check() throws DatabaseConnectionException;
 
     /**
-     * Retrieves the database that contains the values of the ojects.
+     * Retrieves the database that contains the values of the objects.
      *
      * @return DB.
      */
