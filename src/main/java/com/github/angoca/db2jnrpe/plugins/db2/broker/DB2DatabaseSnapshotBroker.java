@@ -19,6 +19,7 @@ import com.github.angoca.db2jnrpe.database.rdbms.db2.DB2MinorVersion;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
 import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
 import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
+import com.github.angoca.db2jnrpe.plugins.db2.IncopatibleDB2VersionException;
 
 /**
  * Queries the database to retrieve the snapshot. The check verifies the
