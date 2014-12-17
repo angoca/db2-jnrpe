@@ -35,7 +35,7 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
  * @version 2014-11-03
  */
 @SuppressWarnings("PMD.CommentSize")
-public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
+public final class CheckBufferPoolHitRatioPlugin extends AbstractDB2PluginBase {
 
     /**
      * Critical value by default: X < 90%.
@@ -49,7 +49,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
      * Logger.
      */
     private static final org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(CheckBufferPoolHitRatioJnrpe.class);
+            .getLogger(CheckBufferPoolHitRatioPlugin.class);
     /**
      * A hundred.
      */
@@ -79,13 +79,13 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                         "localhost", 50000, "sample", "db2inst1", "db2inst1");
         final String id = "localhost:50000/sample";
 
-        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
+        new CheckBufferPoolHitRatioPlugin().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
+        new CheckBufferPoolHitRatioPlugin().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
+        new CheckBufferPoolHitRatioPlugin().getBufferpoolNames(id, dbConn);
         Thread.sleep(5000);
-        new CheckBufferPoolHitRatioJnrpe().getBufferpoolNames(id, dbConn);
+        new CheckBufferPoolHitRatioPlugin().getBufferpoolNames(id, dbConn);
         // CHECKSTYLE:ON
     }
 
@@ -129,18 +129,18 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
                             bpName,
                             null,
                             line.getOptionValue("warning",
-                                    CheckBufferPoolHitRatioJnrpe.WARNING_VALUE),
+                                    CheckBufferPoolHitRatioPlugin.WARNING_VALUE),
                             line.getOptionValue("critical",
-                                    CheckBufferPoolHitRatioJnrpe.CRITICAL_VALUE));
+                                    CheckBufferPoolHitRatioPlugin.CRITICAL_VALUE));
                 }
                 this.log.debug(logMessage.toString());
             } else if (bufferpoolNames.contains(bufferpoolName)) {
                 this.log.debug("Threshold for bufferpool: " + bufferpoolName);
                 thrb.withLegacyThreshold(bufferpoolName, null, line
                         .getOptionValue("warning",
-                                CheckBufferPoolHitRatioJnrpe.WARNING_VALUE),
+                                CheckBufferPoolHitRatioPlugin.WARNING_VALUE),
                         line.getOptionValue("critical",
-                                CheckBufferPoolHitRatioJnrpe.CRITICAL_VALUE));
+                                CheckBufferPoolHitRatioPlugin.CRITICAL_VALUE));
             } else {
                 this.log.error("The bufferpool " + bufferpoolName
                         + " does not exist");
@@ -194,9 +194,9 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
             final BufferpoolRead bpDesc = this.bufferpoolReads.get(name);
             ratio = new BigDecimal(bpDesc.getLastRatio());
             logMessage.append(String.format("BP %s: %.1f%% ", name, ratio));
-            final String logStr = CheckBufferPoolHitRatioJnrpe
+            final String logStr = CheckBufferPoolHitRatioPlugin
                     .getSimplifiedValue(bpDesc.getLogicalReads());
-            final String phyStr = CheckBufferPoolHitRatioJnrpe
+            final String phyStr = CheckBufferPoolHitRatioPlugin
                     .getSimplifiedValue(bpDesc.getPhysicalReads());
             final String message = String.format(
                     "%s at %d has %s LR and %s PR, ratio of " + "%.1f%%.",
@@ -251,7 +251,7 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
             }
         } catch (final UnknownValueException e) {
             // There are not values in the cache. Do nothing.
-            CheckBufferPoolHitRatioJnrpe.LOGGER
+            CheckBufferPoolHitRatioPlugin.LOGGER
                     .info("Values have not been read");
         }
         return bufferpoolNames;
@@ -277,10 +277,10 @@ public final class CheckBufferPoolHitRatioJnrpe extends AbstractDB2PluginBase {
      */
     private static String getSimplifiedValue(final long value) {
         String logStr;
-        if (value > CheckBufferPoolHitRatioJnrpe.MEGA) {
-            logStr = value / CheckBufferPoolHitRatioJnrpe.MEGA + "M";
-        } else if (value > CheckBufferPoolHitRatioJnrpe.KILO) {
-            logStr = value / CheckBufferPoolHitRatioJnrpe.KILO + "K";
+        if (value > CheckBufferPoolHitRatioPlugin.MEGA) {
+            logStr = value / CheckBufferPoolHitRatioPlugin.MEGA + "M";
+        } else if (value > CheckBufferPoolHitRatioPlugin.KILO) {
+            logStr = value / CheckBufferPoolHitRatioPlugin.KILO + "K";
         } else {
             logStr = Long.toString(value);
         }
