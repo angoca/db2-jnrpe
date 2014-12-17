@@ -130,7 +130,8 @@ public final class CheckBufferPoolHitRatioPlugin extends AbstractDB2PluginBase {
                             null,
                             line.getOptionValue("warning",
                                     CheckBufferPoolHitRatioPlugin.WARNING_VALUE),
-                            line.getOptionValue("critical",
+                            line.getOptionValue(
+                                    "critical",
                                     CheckBufferPoolHitRatioPlugin.CRITICAL_VALUE));
                 }
                 this.log.debug(logMessage.toString());
@@ -199,8 +200,8 @@ public final class CheckBufferPoolHitRatioPlugin extends AbstractDB2PluginBase {
             final String phyStr = CheckBufferPoolHitRatioPlugin
                     .getSimplifiedValue(bpDesc.getPhysicalReads());
             final String message = String.format(
-                    "%s at %d has %s LR and %s PR, ratio of " + "%.1f%%.",
-                    name, bpDesc.getMember(), logStr, phyStr, ratio);
+                    "%s at %d has %s LR and %s PR, ratio of %.1f%%.", name,
+                    bpDesc.getMember(), logStr, phyStr, ratio);
 
             res.add(new Metric(name, message, ratio, null, null));
         }
