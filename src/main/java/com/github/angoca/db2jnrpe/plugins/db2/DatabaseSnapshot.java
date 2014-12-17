@@ -204,7 +204,13 @@ public final class DatabaseSnapshot implements Cloneable {
                     + this.bpTempIndex - this.prevBpTempIndex;
             final long divisor = this.commitSQLstmts - this.prevComSQLstmts;
             ret = dividend / divisor;
+
             if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
+                DatabaseSnapshot.LOGGER.debug("Values {}-{}+{}-{}+{}-{}+{}-{}",
+                        new Object[] { this.bpData, this.prevBpData,
+                                this.bpIndex, this.prevBpIndex,
+                                this.bpTempData, this.prevBpTempData,
+                                this.bpTempIndex, this.prevBpTempIndex });
                 DatabaseSnapshot.LOGGER.debug(
                         "Ratio {}/{}={} at {}",
                         new Object[] { dividend, divisor, ret,
@@ -333,6 +339,13 @@ public final class DatabaseSnapshot implements Cloneable {
         this.bpIndex = bpindex;
         this.bpTempData = bptempdata;
         this.bpTempIndex = bptempindex;
+        if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
+            DatabaseSnapshot.LOGGER.debug("New:{},{},{},{};Old:{},{},{},{}",
+                    new Object[] { this.bpData, this.bpIndex, this.bpTempData,
+                            this.bpTempIndex, this.prevBpData,
+                            this.prevBpIndex, this.prevBpTempData,
+                            this.prevBpTempIndex });
+        }
     }
 
     /**
