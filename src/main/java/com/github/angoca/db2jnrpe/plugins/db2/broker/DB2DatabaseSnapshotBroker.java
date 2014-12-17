@@ -84,8 +84,9 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      */
     private static final String QUERY = "SELECT DBPARTITIONNUM, "
             + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS, "
-            + "POOL_DATA_P_READS, C_POOL_INDEX_P_READS, C_POOL_TEMP_DATA_P_READS, "
-            + "C_POOL_TEMP_INDEX_P_READS " + "FROM SYSIBMADM.SNAPDB";
+            + "POOL_DATA_P_READS, POOL_INDEX_P_READS, "
+            + "POOL_TEMP_DATA_P_READS, POOL_TEMP_INDEX_P_READS "
+            + "FROM SYSIBMADM.SNAPDB";
 
     /**
      * Tester.
@@ -127,6 +128,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                 new DB2Database(dbConn.getUrl()));
         new DB2DatabaseSnapshotBroker(dbConn, DB2DatabasesManager.getInstance()
                 .getDatabase(dbConn.getUrl())).check();
+        new DB2DatabaseSnapshotBroker(dbConn, DB2DatabasesManager.getInstance()
+                .getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
                 .getSnap();
         System.out.println("UIDs:" + snap.getLastUIDRate() + ",Selects:"
@@ -149,6 +152,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
 
         DB2DatabasesManager.getInstance().add(dbConn.getUrl(),
                 new DB2Database(dbConn.getUrl()));
+        new DB2BufferpoolHitRatioBroker(dbConn, DB2DatabasesManager
+                .getInstance().getDatabase(dbConn.getUrl())).check();
         new DB2BufferpoolHitRatioBroker(dbConn, DB2DatabasesManager
                 .getInstance().getDatabase(dbConn.getUrl())).check();
         snap = DB2DatabasesManager.getInstance().getDatabase(dbConn.getUrl())
