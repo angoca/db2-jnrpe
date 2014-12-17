@@ -186,8 +186,12 @@ public final class DatabaseSnapshot implements Cloneable {
         if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.commitSQLstmts - this.prevComSQLstmts)
-                / this.getLastSeconds();
+        double ret = 0;
+        long secs = this.getLastSeconds();
+        if (secs != 0) {
+            ret = (this.commitSQLstmts - this.commitSQLstmts) / secs;
+        }
+        return ret;
     }
 
     /**
@@ -242,8 +246,12 @@ public final class DatabaseSnapshot implements Cloneable {
         if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.selectSQLstmts - this.prevSelSQLstmts)
-                / this.getLastSeconds();
+        double ret = 0;
+        long secs = this.getLastSeconds();
+        if (secs != 0) {
+            ret = (this.selectSQLstmts - this.prevSelSQLstmts) / secs;
+        }
+        return ret;
     }
 
     /**
@@ -267,8 +275,12 @@ public final class DatabaseSnapshot implements Cloneable {
         if (this.prevSnapshot == 0) {
             throw new UnknownValueException("Second snapshot has not been read");
         }
-        return (this.uidSQLstmts - this.prevUidSQLstmts)
-                / this.getLastSeconds();
+        double ret = 0;
+        long secs = this.getLastSeconds();
+        if (secs != 0) {
+            ret = (this.uidSQLstmts - this.prevUidSQLstmts) / secs;
+        }
+        return ret;
     }
 
     /**
