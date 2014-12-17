@@ -152,7 +152,7 @@ public final class CheckDatabaseLoadPlugin extends AbstractDB2PluginBase {
     /**
      * Empty.
      */
-    private CheckDatabaseLoadPlugin() {
+    public CheckDatabaseLoadPlugin() {
         super();
     }
 

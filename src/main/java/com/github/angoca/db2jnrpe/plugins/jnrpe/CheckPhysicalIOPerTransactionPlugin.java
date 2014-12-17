@@ -52,7 +52,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     /**
      * Empty constructor.
      */
-    protected CheckPhysicalIOPerTransactionPlugin() {
+    public CheckPhysicalIOPerTransactionPlugin() {
         super();
     }
 
