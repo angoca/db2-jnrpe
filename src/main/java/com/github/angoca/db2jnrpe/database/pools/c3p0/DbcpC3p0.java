@@ -35,7 +35,7 @@ public final class DbcpC3p0 extends AbstractConnectionPool {
      */
     @SuppressWarnings({ "PMD", "resource" })
     public static void main(final String[] args) throws Exception {
-        System.out.println("Test: AbstractDatabaseConnection c3p0");
+        System.out.println("Test: DatabaseConnection c3p0");
         final AbstractDatabaseConnection dc1 = new AbstractDatabaseConnection(
                 DbcpC3p0.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
@@ -85,7 +85,7 @@ public final class DbcpC3p0 extends AbstractConnectionPool {
     /**
      * Empty constructor.
      */
-    private DbcpC3p0() {
+    public DbcpC3p0() {
         super();
     }
 

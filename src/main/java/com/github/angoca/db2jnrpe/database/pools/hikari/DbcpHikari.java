@@ -35,7 +35,7 @@ public final class DbcpHikari extends AbstractConnectionPool {
      */
     @SuppressWarnings({ "PMD", "resource" })
     public static void main(final String[] args) throws Exception {
-        System.out.println("Test: AbstractDatabaseConnection Hikari");
+        System.out.println("Test: DatabaseConnection Hikari");
         final AbstractDatabaseConnection dc1 = new AbstractDatabaseConnection(
                 DbcpHikari.class.getName(), new Properties(), "db2inst1",
                 "db2inst1") {
@@ -87,7 +87,7 @@ public final class DbcpHikari extends AbstractConnectionPool {
     /**
      * Empty constructor.
      */
-    private DbcpHikari() {
+    public DbcpHikari() {
         super();
     }
 
@@ -120,10 +120,11 @@ public final class DbcpHikari extends AbstractConnectionPool {
      * (com.github.angoca.db2jnrpe.database.AbstractDatabaseConnection)
      */
     @Override
-    @SuppressWarnings("PMD.CommentRequired")
+    @SuppressWarnings({ "PMD.CommentRequired", "resource" })
     public Connection getConnection(final AbstractDatabaseConnection dbConn)
             throws DatabaseConnectionException {
         HikariDataSource datasource = DbcpHikari.pools.get(dbConn.getUrl());
+        Connection conn = null;
         if (datasource == null) {
             final HikariConfig config = new HikariConfig();
             config.addDataSourceProperty("cachePrepStmts", "true");
@@ -143,12 +144,11 @@ public final class DbcpHikari extends AbstractConnectionPool {
         }
 
         try {
-            return datasource.getConnection();
+            conn = datasource.getConnection();
         } catch (final SQLException e) {
             throw new DatabaseConnectionException(e);
-        } finally {
-            datasource.close();
         }
+        return conn;
     }
 
     /*
