@@ -243,11 +243,11 @@ public final class DB2Helper {
         password = "db2inst1";
 
         databaseConnection = DB2Connection.class.getName();
-        // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
-        // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                 .getName();
+        // connectionPool =
+        // com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        // .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
                         hostname, portNumber, databaseName, username, password);
@@ -262,11 +262,11 @@ public final class DB2Helper {
         password = "db2inst1";
 
         databaseConnection = DB2Connection.class.getName();
-        // connectionPool =
-        // com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
-        // .getName();
-        connectionPool = com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        connectionPool = com.github.angoca.db2jnrpe.database.pools.hikari.DbcpHikari.class
                 .getName();
+        // connectionPool =
+        // com.github.angoca.db2jnrpe.database.pools.c3p0.DbcpC3p0.class
+        // .getName();
         dbConn = DatabaseConnectionsManager.getInstance()
                 .getDatabaseConnection(connectionPool, databaseConnection,
                         hostname, portNumber, databaseName, username, password);
