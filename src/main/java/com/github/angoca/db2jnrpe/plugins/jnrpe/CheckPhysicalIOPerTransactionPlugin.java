@@ -203,7 +203,9 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
 
             final String message = "The average of physical I/O activity per "
                     + "committed transaction is "
-                    + snapshot.getLastQuantityReadsWritesPerTransaction();
+                    + snapshot.getLastQuantityReadsWritesPerTransaction() + '('
+                    + snapshot.getLastIO() + '/' + snapshot.getLastCommits()
+                    + ')';
             res.add(new Metric(
                     CheckPhysicalIOPerTransactionPlugin.IO_PER_TRANSACTION,
                     message, new BigDecimal(snapshot
