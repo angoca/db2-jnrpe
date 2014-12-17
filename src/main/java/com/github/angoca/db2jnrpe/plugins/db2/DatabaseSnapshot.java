@@ -158,10 +158,10 @@ public final class DatabaseSnapshot implements Cloneable {
         copy.prevUidSQLstmts = this.prevUidSQLstmts;
         copy.lastSnapshot = this.lastSnapshot;
         copy.prevSnapshot = this.prevSnapshot;
-        copy.prevBpData = this.bpData;
-        copy.prevBpIndex = this.bpIndex;
-        copy.prevBpTempData = this.bpTempData;
-        copy.prevBpTempIndex = this.bpTempIndex;
+        copy.prevBpData = this.prevBpData;
+        copy.prevBpIndex = this.prevBpIndex;
+        copy.prevBpTempData = this.prevBpTempData;
+        copy.prevBpTempIndex = this.prevBpTempIndex;
         return copy;
     }
 
@@ -172,6 +172,15 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public long getCommits() {
         return this.commitSQLstmts;
+    }
+
+    /**
+     * Returns the last difference of commits.
+     * 
+     * @return Quantity of commits between the last two checks.
+     */
+    public long getLastCommits() {
+        return this.commitSQLstmts - this.prevComSQLstmts;
     }
 
     /**
@@ -189,8 +198,20 @@ public final class DatabaseSnapshot implements Cloneable {
         double ret = 0;
         long secs = this.getLastSeconds();
         if (secs != 0) {
-            ret = (this.commitSQLstmts - this.commitSQLstmts) / secs;
+            ret = getLastCommits() / secs;
         }
+        return ret;
+    }
+
+    /**
+     * Quantity of generated IO in the last two checks.
+     * 
+     * @return Quantity of IO in the last two checks.
+     */
+    public long getLastIO() {
+        long ret = this.bpData - this.prevBpData + this.bpIndex
+                - this.prevBpIndex + this.bpTempData - this.prevBpTempData
+                + this.bpTempIndex - this.prevBpTempIndex;
         return ret;
     }
 
@@ -203,10 +224,8 @@ public final class DatabaseSnapshot implements Cloneable {
         double ret = 0;
         if (this.commitSQLstmts > 0
                 && this.prevComSQLstmts != this.commitSQLstmts) {
-            final long dividend = this.bpData - this.prevBpData + this.bpIndex
-                    - this.prevBpIndex + this.bpTempData - this.prevBpTempData
-                    + this.bpTempIndex - this.prevBpTempIndex;
-            final long divisor = this.commitSQLstmts - this.prevComSQLstmts;
+            final long dividend = this.getLastIO();
+            final long divisor = this.getLastCommits();
             ret = dividend / divisor;
 
             if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
