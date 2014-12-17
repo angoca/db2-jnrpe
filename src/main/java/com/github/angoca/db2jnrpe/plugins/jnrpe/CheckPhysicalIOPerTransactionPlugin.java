@@ -50,6 +50,99 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     private static final String WARNING_VALUE = "15:";
 
     /**
+     * Tests the complete chain.
+     *
+     * @param args
+     *            Nothing.
+     * @throws Exception
+     *             If any error occur.
+     */
+    @SuppressWarnings("PMD")
+    public static void main(final String[] args) throws Exception {
+        // CHECKSTYLE:OFF
+        final ICommandLine cl = new ICommandLine() {
+
+            @Override
+            public String getOptionValue(final char shortOptionName) {
+                return null;
+            }
+
+            @Override
+            public String getOptionValue(final char shortOptionName,
+                    final String defaultValue) {
+                return null;
+            }
+
+            @Override
+            public String getOptionValue(final String optionName) {
+                String ret = null;
+                if (optionName.equals("hostname")) {
+                    ret = "localhost";
+                } else if (optionName.equals("port")) {
+                    ret = "50000";
+                } else if (optionName.equals("database")) {
+                    ret = "sample";
+                } else if (optionName.equals("username")) {
+                    ret = "db2inst1";
+                } else if (optionName.equals("password")) {
+                    ret = "db2inst1";
+                }
+                return ret;
+            }
+
+            @Override
+            public List<String> getOptionValues(final String optionName) {
+                return null;
+            }
+
+            @Override
+            public String getOptionValue(final String optionName,
+                    final String defaultValue) {
+                return null;
+            }
+
+            @Override
+            public List<String> getOptionValues(final char shortOptionName) {
+                return null;
+            }
+
+            @Override
+            public boolean hasOption(final String optionName) {
+                return false;
+            }
+
+            @Override
+            public boolean hasOption(final char shortOptionName) {
+                return false;
+            }
+        };
+        final ThresholdsEvaluatorBuilder thrb = new ThresholdsEvaluatorBuilder();
+        Collection<Metric> c;
+        AbstractDB2PluginBase p;
+        p = new CheckDatabaseLoadPlugin();
+        p.configureThresholdEvaluatorBuilder(thrb, cl);
+        try {
+            p.gatherMetrics(cl);
+        } catch (final Exception e) {
+            System.out.println("First snapshot");
+        }
+        Thread.sleep(2000);
+        try {
+            c = p.gatherMetrics(cl);
+            System.out.println(c.toString() + ':' + c.size());
+        } catch (final Exception e) {
+            System.out.println("Second snapshot");
+        }
+        Thread.sleep(5000);
+        c = p.gatherMetrics(cl);
+        System.out.println(c.toString() + ':' + c.size());
+        Thread.sleep(5000);
+        c = p.gatherMetrics(cl);
+        System.out.println(c.toString() + ':' + c.size());
+        // CHECKSTYLE:ON
+    }
+
+    /**
      * Empty constructor.
      */
     public CheckPhysicalIOPerTransactionPlugin() {
