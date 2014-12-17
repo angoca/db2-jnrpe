@@ -226,7 +226,7 @@ public final class DatabaseSnapshot implements Cloneable {
                 && this.prevComSQLstmts != this.commitSQLstmts) {
             final long dividend = this.getLastIO();
             final long divisor = this.getLastCommits();
-            ret = dividend / divisor;
+            ret = (double)dividend / (double)divisor;
 
             if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
                 DatabaseSnapshot.LOGGER.debug("Values {}-{}+{}-{}+{}-{}+{}-{}",

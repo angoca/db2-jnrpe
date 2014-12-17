@@ -201,11 +201,10 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
             snapshot = db2Database.getSnapshotAndRefresh(this
                     .getConnection(line));
 
-            final String message = "The average of physical I/O activity per "
-                    + "committed transaction is "
-                    + snapshot.getLastQuantityReadsWritesPerTransaction() + '('
-                    + snapshot.getLastIO() + '/' + snapshot.getLastCommits()
-                    + ')';
+            final String message = String.format("The average of physical I/O "
+                    + "activity per committed transaction is %.1f (%d/%d)",
+                    snapshot.getLastQuantityReadsWritesPerTransaction(),
+                    snapshot.getLastIO(), snapshot.getLastCommits());
             res.add(new Metric(
                     CheckPhysicalIOPerTransactionPlugin.IO_PER_TRANSACTION,
                     message, new BigDecimal(snapshot
