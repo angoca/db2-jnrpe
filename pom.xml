@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
  <modelVersion>4.0.0</modelVersion>
- <groupId>com.github.angoca</groupId>
- <artifactId>db2-jnrpe</artifactId>
+ <groupId>eu.ziccardi.jnrpe</groupId>
+ <artifactId>db2-jnrpe-plugins</artifactId>
  <version>0.0.3-SNAPSHOT</version>
 
  <dependencies>
@@ -51,6 +51,58 @@
   </plugins>
  </build>
 
+ <!-- More Project Information -->
+ <name>db2-jnrpe</name>
+ <description>
+  set of Nagios plugins for DB2 using JNRPE.
+  </description>
+ <url>https://github.com/angoca/db2-jnrpe</url>
+ <!-- The first year. -->
+ <inceptionYear>2014</inceptionYear>
+ <licenses>
+  <license>
+   <name>GNU General Public License</name>
+   <distribution>repo</distribution>
+   <comments>
+    The GPL v3 license for the source code.
+   </comments>
+   <url>https://www.gnu.org/licenses/gpl.txt</url>
+  </license>
+  <license>
+   <name>CreativeCommons Attribution 4.0 International</name>
+   <distribution>repo</distribution>
+   <comments>
+    This license is for the documentation in the Wiki.
+   </comments>
+   <url>https://creativecommons.org/licenses/by/4.0/legalcode</url>
+  </license>
+ </licenses>
+
+ <developers>
+  <developer>
+   <id>angoca</id>
+   <name>Andres Gomez Casanova</name>
+   <email>angoca at yahoo dot com</email>
+   <timezone>-5</timezone>
+   <url>http://angoca.users.sourceforge.net/</url>
+   <roles>
+    <role>Designer</role>
+    <role>Developer</role>
+   </roles>
+   <properties>
+    <picUrl>
+     https://secure.gravatar.com/avatar/6998587ec6de0bab814c70777bcdd2ce.png
+    </picUrl>
+   </properties>
+  </developer>
+ </developers>
+
+ <!-- Environment Settings -->
+ <issueManagement>
+  <system>GitHub</system>
+  <url>https://github.com/angoca/db2-jnrpe/issues</url>
+ </issueManagement>
+
  <scm>
   <connection>scm:git:ssh://github.com/angoca/db2-jnrpe.git</connection>
   <developerConnection>
@@ -59,4 +111,12 @@
   <url>https://github.com/angoca/db2-jnrpe</url>
   <tag>HEAD</tag>
  </scm>
+
+ <distributionManagement>
+  <repository>
+   <id>internal.repo</id>
+   <name>Temporary Staging Repository</name>
+   <url>file://${project.build.directory}/mvn-repo</url>
+  </repository>
+ </distributionManagement>
 </project>
