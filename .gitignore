@@ -9,3 +9,4 @@
 target/
 bin
 lib
+.eclipse-pmd
