@@ -18,12 +18,12 @@ import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
 import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
- * This plugin allows to calculate the average physical IO per transaction.<br/>
+ * This plugin allows to calculate the physical IO per transaction.<br/>
  * In order to execute this plugin, it is necessary to have DB2 in at least one
  * of the following version:
  * <ul>
- * <li>v9.7 FP1</li>
- * <li>v9.8 FP2</li>
+ * <li>At least v9.7 FP1</li>
+ * <li>At least v9.8 FP2</li>
  * <li>v10.1 or newer</li>
  * </ul>
  *
@@ -35,7 +35,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
         AbstractDB2PluginBase {
 
     /**
-     * Value to consider the physical IO as warning.
+     * Value to consider the physical IO as critical.
      */
     private static final String CRITICAL_VALUE = "20:";
 
@@ -45,7 +45,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     @SuppressWarnings("PMD.LongVariable")
     private static final String IO_PER_TRANSACTION = "IOperTrans";
     /**
-     * Value to consider the physical IO as critical.
+     * Value to consider the physical IO as warning.
      */
     private static final String WARNING_VALUE = "15:";
 
