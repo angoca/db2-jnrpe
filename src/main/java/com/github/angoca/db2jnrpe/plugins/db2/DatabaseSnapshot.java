@@ -103,6 +103,22 @@ public final class DatabaseSnapshot implements Cloneable {
      * Quantity of modifications in the database.
      */
     private transient long uidSQLstmts;
+    /**
+     * Quantity of time passed doing sorts.
+     */
+    private long totalSortTimeSecs;
+    /**
+     * Previous value of totalSortTimeSecs.
+     */
+    private long prevTotalSortTime;
+    /**
+     * Quantity of sorts.
+     */
+    private long totalSorts;
+    /**
+     * Previous value of total sorts.
+     */
+    private long prevTotalSorts;
 
     /**
      * Creates a snapshot with the retrieved values from the table.
@@ -175,6 +191,19 @@ public final class DatabaseSnapshot implements Cloneable {
     }
 
     /**
+     * Returns the average of sort time between the last two checks.
+     * 
+     * @return Average of sort time.
+     */
+    public double getLastAverageSortTime() {
+        double ret = 0;
+        if (this.totalSortTimeSecs != 0) {
+            ret = (double) this.totalSorts / this.totalSortTimeSecs;
+        }
+        return ret;
+    }
+
+    /**
      * Returns the last difference of commits.
      * 
      * @return Quantity of commits between the last two checks.
@@ -198,7 +227,7 @@ public final class DatabaseSnapshot implements Cloneable {
         double ret = 0;
         long secs = this.getLastSeconds();
         if (secs != 0) {
-            ret = getLastCommits() / secs;
+            ret = (double) getLastCommits() / secs;
         }
         return ret;
     }
@@ -216,6 +245,27 @@ public final class DatabaseSnapshot implements Cloneable {
     }
 
     /**
+     * Returns the quantity of sorts between the last two checks.
+     * 
+     * @return Delta of quantity of sorts.
+     */
+    public long getLastTotalSorts() {
+        long ret = this.totalSorts;
+        return ret;
+    }
+
+    /**
+     * Returns the quantity of time expended doing sorts between the last two
+     * checks.
+     * 
+     * @return Delta of time expended doing sorts.
+     */
+    public long getLastTotalSortTimeSecs() {
+        long ret = this.totalSortTimeSecs;
+        return ret;
+    }
+
+    /**
      * Returns the average physical I/O activity per committed transaction.
      *
      * @return Quantity or read and writes per transaction.
@@ -226,7 +276,7 @@ public final class DatabaseSnapshot implements Cloneable {
                 && this.prevComSQLstmts != this.commitSQLstmts) {
             final long dividend = this.getLastIO();
             final long divisor = this.getLastCommits();
-            ret = (double)dividend / (double)divisor;
+            ret = (double) dividend / (double) divisor;
 
             if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
                 DatabaseSnapshot.LOGGER.debug("Values {}-{}+{}-{}+{}-{}+{}-{}",
@@ -280,6 +330,20 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public long getLastSnapshotRefresh() {
         return this.lastSnapshot;
+    }
+
+    /**
+     * Returns the time used for sorts per transaction.
+     * 
+     * @return Time used for sorts per transaction between the last two checks.
+     */
+    public double getLastSortTimePerTransaction() {
+        double ret = 0;
+        if (this.commitSQLstmts != 0) {
+            ret = (double) this.totalSortTimeSecs
+                    / (double) this.commitSQLstmts;
+        }
+        return ret;
     }
 
     /**
@@ -469,5 +533,46 @@ public final class DatabaseSnapshot implements Cloneable {
     public void updateLastSnapshot() {
         this.prevSnapshot = this.lastSnapshot;
         this.lastSnapshot = System.currentTimeMillis();
+    }
+
+    /**
+     * Sets the quantity of time expended doing sorts. The value received is in
+     * milliseconds, but converted to seconds.
+     * 
+     * @param totalsorttime
+     *            Total time used for sorts (milliseconds).
+     */
+    public void setTotalSortTime(final long totalsorttime) {
+        if (totalsorttime < this.totalSortTimeSecs) {
+            // The database was recycled between two checks.
+            this.prevTotalSortTime = 0;
+        } else {
+            this.prevTotalSortTime = this.totalSortTimeSecs;
+        }
+        this.totalSortTimeSecs = totalsorttime / 1000;
+        if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
+            DatabaseSnapshot.LOGGER.debug("New:{};Old:{}",
+                    this.totalSortTimeSecs, this.prevTotalSortTime);
+        }
+    }
+
+    /**
+     * Sets the quantity of sorts.
+     * 
+     * @param totalsorts
+     *            Quantity of sorts.
+     */
+    public void setTotalSorts(final long totalsorts) {
+        if (totalsorts < this.totalSorts) {
+            // The database was recycled between two checks.
+            this.prevTotalSorts = 0;
+        } else {
+            this.prevTotalSorts = this.totalSorts;
+        }
+        this.totalSorts = totalsorts;
+        if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
+            DatabaseSnapshot.LOGGER.debug("New:{};Old:{}", this.totalSorts,
+                    this.prevTotalSorts);
+        }
     }
 }

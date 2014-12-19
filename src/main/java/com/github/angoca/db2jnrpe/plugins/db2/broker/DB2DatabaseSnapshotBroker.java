@@ -72,6 +72,16 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * Position of column modifications quantity.
      */
     private static final int C_UID_SQL_STMTS = 4;
+    /**
+     * Position of column total sort time.
+     */
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_TOT_SORT_TIME = 9;
+    /**
+     * Position of column total sorts.
+     */
+    @SuppressWarnings("PMD.LongVariable")
+    private static final int C_TOTAL_SORTS = 10;
 
     /**
      * Logger.
@@ -85,7 +95,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
     private static final String QUERY = "SELECT DBPARTITIONNUM, "
             + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS, "
             + "POOL_DATA_P_READS, POOL_INDEX_P_READS, "
-            + "POOL_TEMP_DATA_P_READS, POOL_TEMP_INDEX_P_READS "
+            + "POOL_TEMP_DATA_P_READS, POOL_TEMP_INDEX_P_READS, "
+            + "TOTAL_SORT_TIME, TOTAL_SORTS "
             + "FROM SYSIBMADM.SNAPDB";
 
     /**
@@ -197,6 +208,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
         long bpindex;
         long bptempdata;
         long bptempindex;
+        long totalsorttime;
+        long totalsorts;
         DatabaseSnapshot snap;
         while (res.next()) {
             // Partition.
@@ -222,6 +235,12 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
             // Quantity of bufferpool physical reads for temporal index.
             bptempindex = res
                     .getLong(DB2DatabaseSnapshotBroker.C_POOL_TEMP_INDEX_P_READS);
+            // Total sort time
+            totalsorttime = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_TOT_SORT_TIME);
+            // Total sorts 
+            totalsorts = res
+                    .getLong(DB2DatabaseSnapshotBroker.C_TOTAL_SORTS);
 
             DB2DatabaseSnapshotBroker.LOGGER.info(
                     "{}::Part{},commit{},select{},uid{}", new Object[] {
@@ -248,6 +267,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                 snap.setValues(dbpartitionnum, commitSQLstmts, selectSQLstmts,
                         uidSQLstmts, bpdata, bpindex, bptempdata, bptempindex);
             }
+            snap.setTotalSortTime(totalsorttime);
+            snap.setTotalSorts(totalsorts);
         }
     }
 
