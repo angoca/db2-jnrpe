@@ -168,7 +168,7 @@ public final class DB2BufferpoolHitRatioBroker extends AbstractDB2Broker
                             + "logical reads and %s total reads, with a hit "
                             + "ratio of %s%%.", bpDesc.getName(),
                     bpDesc.getMember(), bpDesc.getLogicalReads(),
-                    bpDesc.getTotalReads(), bpDesc.getRatio());
+                    bpDesc.getTotalReads(), bpDesc.getLastRatio());
 
             System.out.println(message);
         }

@@ -88,15 +88,24 @@ public final class BufferpoolRead implements Cloneable {
     public double getLastRatio() {
         double ret = 0;
         if (this.totalReads == 0) {
+            // No reads until now.
             ret = BufferpoolRead.HUNDRED_PERCENT;
         } else if (this.prevTotalReads == 0) {
-            ret = this.getRatio();
+            ret = (double) this.logicalReads * BufferpoolRead.HUNDRED_PERCENT
+                    / this.totalReads;
         } else if (this.prevTotalReads == this.totalReads) {
             ret = BufferpoolRead.HUNDRED_PERCENT;
         } else {
             ret = (double) (this.logicalReads - this.prevLogicalReads)
                     * BufferpoolRead.HUNDRED_PERCENT
                     / (this.totalReads - this.prevTotalReads);
+        }
+
+        // Check values.
+        if (ret > BufferpoolRead.HUNDRED_PERCENT) {
+            ret = BufferpoolRead.HUNDRED_PERCENT;
+        } else if (ret < 0) {
+            ret = 0;
         }
         return ret;
     }
@@ -135,24 +144,6 @@ public final class BufferpoolRead implements Cloneable {
      */
     public long getPhysicalReads() {
         return this.totalReads - this.logicalReads;
-    }
-
-    /**
-     * Returns the ratio between logical reads and total reads (logical +
-     * physical reads).
-     *
-     * @return Ratio of the reads.
-     */
-    public double getRatio() {
-        double ret = 0;
-        if (this.totalReads == 0) {
-            // No reads until now.
-            ret = BufferpoolRead.HUNDRED_PERCENT;
-        } else {
-            ret = (double) this.logicalReads * BufferpoolRead.HUNDRED_PERCENT
-                    / this.totalReads;
-        }
-        return ret;
     }
 
     /**
