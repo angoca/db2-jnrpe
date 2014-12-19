@@ -125,7 +125,7 @@ administrative view.
  </plugin>
 
  <plugin name="check_average_sorting_time"
-  class="com.github.angoca.db2jnrpe.plugins.jnrpe.CheckAverageSortingTime">
+  class="com.github.angoca.db2jnrpe.plugins.jnrpe.CheckAverageSortingTimePlugin">
   <description>
 <![CDATA[
 This plugin allows to measure the average sorting time between two checks.
