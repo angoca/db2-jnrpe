@@ -39,7 +39,10 @@ This is the list of available DB2 plugins:
 
 * Check_bufferpool_hit_ratio: Allows to check the performance of the
 bufferpools, by measuring the hit ratio between the most recent measures.
-
+* Check_Database_Load: Checks the database load according to the quantity
+of modifications (UID: Update, insert, delete), commits and selects.
+* Check_Physical_IO_Per_Transaction: Measures the quantity of physical reads
+per transaction.
 
 # Prerequisites
 
