@@ -123,4 +123,45 @@ administrative view.
    </options>
   </command-line>
  </plugin>
+
+ <plugin name="check_average_sorting_time"
+  class="com.github.angoca.db2jnrpe.plugins.jnrpe.CheckAverageSortingTime">
+  <description>
+<![CDATA[
+This plugin allows to measure the average sorting time between two checks.
+
+This plugin needs one of the following DB2 versions: v9.7 FP1, v9.8 FP2 or any
+newer db2 version. The values are retrieves from the SYSPROC.SNAP_DB
+administrative view.
+]]>
+  </description>
+  <command-line>
+   <options>
+    <option shortName="h" longName="hostname"
+     description="Hostname where the database resides" required="true"
+     hasArgs="true" argName="Hostname/IP" optionalArgs="false" />
+    <option shortName="p" longName="port" description="Port number of the instance"
+     required="true" hasArgs="true" argName="PortNumber" optionalArgs="false" />
+    <option shortName="d" longName="database" description="Name of the database"
+     required="true" hasArgs="true" argName="DatabaseName" optionalArgs="false" />
+    <option shortName="u" longName="username"
+     description="Username to connect to the database" required="true"
+     hasArgs="true" argName="Username" optionalArgs="false" />
+    <option shortName="P" longName="password" description="Password"
+     required="true" hasArgs="true" argName="Password" optionalArgs="false" />
+    <option shortName="w" longName="warning" description="The warning threshold"
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
+    <option shortName="c" longName="critical" description="The critical threshold"
+     required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
+
+    <option shortName="T" longName="threshold"
+     description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
+     required="false" argName="Threshold" hasArgs="true" />
+
+    <option shortName="M" longName="metadata"
+     description="Metadata of the cached values" required="false"
+     hasArgs="false" />
+   </options>
+  </command-line>
+ </plugin>
 </plugins>
