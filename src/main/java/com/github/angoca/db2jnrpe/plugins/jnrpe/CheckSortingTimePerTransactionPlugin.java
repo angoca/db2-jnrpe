@@ -172,7 +172,7 @@ AbstractSingleMetricDB2Plugin {
     @Override
     void addMetric(final List<Metric> res, final DatabaseSnapshot snapshot) {
         final String message = String.format(
-                "The sorting time per transaction is %.1f (%d/%d)",
+                "The sorting time per transaction is %.4f (%d/%d)",
                 snapshot.getLastSortTimePerTransaction(),
                 snapshot.getLastTotalSortTimeSecs(), snapshot.getLastCommits());
         res.add(new Metric(
