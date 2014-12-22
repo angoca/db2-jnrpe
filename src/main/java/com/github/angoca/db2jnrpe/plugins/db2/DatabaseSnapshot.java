@@ -127,8 +127,6 @@ public final class DatabaseSnapshot implements Cloneable {
      *            Object that holds all data.
      * @param partitionnum
      *            Database partition number.
-     * @param commitSQL
-     *            Quantity of commits.
      * @param selectSQL
      *            Quantity of selects.
      * @param uidSQL
@@ -143,12 +141,10 @@ public final class DatabaseSnapshot implements Cloneable {
      *            Quantity of bufferpool temporal index physical reads.
      */
     public DatabaseSnapshot(final DB2Database dataBase, final int partitionnum,
-            final long commitSQL, final long selectSQL, final long uidSQL,
-            final long bpdata, final long bpindex, final long bptempdata,
-            final long bptempindex) {
+            final long selectSQL, final long uidSQL, final long bpdata,
+            final long bpindex, final long bptempdata, final long bptempindex) {
         this.database = dataBase;
         this.dbPartNum = partitionnum;
-        this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;
         this.uidSQLstmts = uidSQL;
         this.bpData = bpdata;
@@ -166,9 +162,8 @@ public final class DatabaseSnapshot implements Cloneable {
     @SuppressWarnings({ "PMD.CommentRequired", "PMD.ProperCloneImplementation" })
     public DatabaseSnapshot clone() {
         final DatabaseSnapshot copy = new DatabaseSnapshot(this.database,
-                this.dbPartNum, this.commitSQLstmts, this.selectSQLstmts,
-                this.uidSQLstmts, this.bpData, this.bpIndex, this.bpTempData,
-                this.bpTempIndex);
+                this.dbPartNum, this.selectSQLstmts, this.uidSQLstmts,
+                this.bpData, this.bpIndex, this.bpTempData, this.bpTempIndex);
         copy.prevComSQLstmts = this.prevComSQLstmts;
         copy.prevSelSQLstmts = this.prevSelSQLstmts;
         copy.prevUidSQLstmts = this.prevUidSQLstmts;
@@ -178,6 +173,9 @@ public final class DatabaseSnapshot implements Cloneable {
         copy.prevBpIndex = this.prevBpIndex;
         copy.prevBpTempData = this.prevBpTempData;
         copy.prevBpTempIndex = this.prevBpTempIndex;
+
+        copy.commitSQLstmts = this.commitSQLstmts;
+        copy.prevComSQLstmts = this.prevComSQLstmts;
 
         copy.totalSorts = this.totalSorts;
         copy.prevTotalSorts = this.prevTotalSorts;
@@ -217,7 +215,7 @@ public final class DatabaseSnapshot implements Cloneable {
      * @return Quantity of commits between the last two checks.
      */
     public long getLastCommits() {
-        return this.getCommits() - this.prevComSQLstmts;
+        return this.commitSQLstmts - this.prevComSQLstmts;
     }
 
     /**
@@ -469,6 +467,22 @@ public final class DatabaseSnapshot implements Cloneable {
     }
 
     /**
+     * Sets the quantity of commits.
+     * 
+     * @param commitSQL
+     *            Quantity of commits.
+     */
+    public void setCommits(final long commitSQL) {
+        if (commitSQL < this.commitSQLstmts) {
+            // The database was recycled between two checks.
+            this.prevComSQLstmts = 0;
+        } else {
+            this.prevComSQLstmts = this.commitSQLstmts;
+        }
+        this.commitSQLstmts = commitSQL;
+    }
+
+    /**
      * Changes the partition number.
      *
      * @param partitionnum
@@ -481,28 +495,21 @@ public final class DatabaseSnapshot implements Cloneable {
     /**
      * Sets the values for the of the database load.
      *
-     * @param commitSQL
-     *            Quantity of commits.
      * @param selectSQL
      *            Quantity of selects.
      * @param uidSQL
      *            Quantity of modifications. A modification can be an update,
      *            insert or delete.
      */
-    private void setStmts(final long commitSQL, final long selectSQL,
-            final long uidSQL) {
-        if (commitSQL < this.commitSQLstmts || selectSQL < this.selectSQLstmts
-                || uidSQL < this.uidSQLstmts) {
+    private void setStmts(final long selectSQL, final long uidSQL) {
+        if (selectSQL < this.selectSQLstmts || uidSQL < this.uidSQLstmts) {
             // The database was recycled between two checks.
-            this.prevComSQLstmts = 0;
             this.prevSelSQLstmts = 0;
             this.prevUidSQLstmts = 0;
         } else {
-            this.prevComSQLstmts = this.commitSQLstmts;
             this.prevSelSQLstmts = this.selectSQLstmts;
             this.prevUidSQLstmts = this.uidSQLstmts;
         }
-        this.commitSQLstmts = commitSQL;
         this.selectSQLstmts = selectSQL;
         this.uidSQLstmts = uidSQL;
 
@@ -513,8 +520,6 @@ public final class DatabaseSnapshot implements Cloneable {
      *
      * @param partition
      *            Partition number of the database.
-     * @param commitSQL
-     *            Quantity of commits.
      * @param selectSQL
      *            Quantity of selects.
      * @param uidSQL
@@ -528,11 +533,11 @@ public final class DatabaseSnapshot implements Cloneable {
      * @param bptempindex
      *            Quantity of bufferpool temporal index physical reads.
      */
-    public void setValues(final int partition, final long commitSQL,
-            final long selectSQL, final long uidSQL, final long bpdata,
-            final long bpindex, final long bptempdata, final long bptempindex) {
+    public void setValues(final int partition, final long selectSQL,
+            final long uidSQL, final long bpdata, final long bpindex,
+            final long bptempdata, final long bptempindex) {
         this.setDbPartitionNum(partition);
-        this.setStmts(commitSQL, selectSQL, uidSQL);
+        this.setStmts(selectSQL, uidSQL);
         this.setBpValues(bpdata, bpindex, bptempdata, bptempindex);
     }
 

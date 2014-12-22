@@ -96,8 +96,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
             + "COMMIT_SQL_STMTS, SELECT_SQL_STMTS, UID_SQL_STMTS, "
             + "POOL_DATA_P_READS, POOL_INDEX_P_READS, "
             + "POOL_TEMP_DATA_P_READS, POOL_TEMP_INDEX_P_READS, "
-            + "TOTAL_SORT_TIME, TOTAL_SORTS "
-            + "FROM SYSIBMADM.SNAPDB";
+            + "TOTAL_SORT_TIME, TOTAL_SORTS " + "FROM SYSIBMADM.SNAPDB";
 
     /**
      * Tester.
@@ -197,7 +196,7 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
      * @param res
      *            Result set.
      * @throws SQLException
-     *             If any problem ocurrs while reading the info.
+     *             If any problem appears while reading the info.
      */
     private void assignValues(final ResultSet res) throws SQLException {
         int dbpartitionnum;
@@ -238,9 +237,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
             // Total sort time
             totalsorttime = res
                     .getLong(DB2DatabaseSnapshotBroker.C_TOT_SORT_TIME);
-            // Total sorts 
-            totalsorts = res
-                    .getLong(DB2DatabaseSnapshotBroker.C_TOTAL_SORTS);
+            // Total sorts
+            totalsorts = res.getLong(DB2DatabaseSnapshotBroker.C_TOTAL_SORTS);
 
             DB2DatabaseSnapshotBroker.LOGGER.info(
                     "{}::Part{},commit{},select{},uid{}", new Object[] {
@@ -255,8 +253,8 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                             + "::Creating snap");
                 }
                 snap = new DatabaseSnapshot(this.getDatabase(), dbpartitionnum,
-                        commitSQLstmts, selectSQLstmts, uidSQLstmts, bpdata,
-                        bpindex, bptempdata, bptempindex);
+                        selectSQLstmts, uidSQLstmts, bpdata, bpindex,
+                        bptempdata, bptempindex);
                 this.getDatabase().setSnap(snap);
             } else {
                 if (DB2DatabaseSnapshotBroker.LOGGER.isDebugEnabled()) {
@@ -264,9 +262,10 @@ public final class DB2DatabaseSnapshotBroker extends AbstractDB2Broker
                             .getDatabaseConnection().getUrl()
                             + "::Snap updated");
                 }
-                snap.setValues(dbpartitionnum, commitSQLstmts, selectSQLstmts,
-                        uidSQLstmts, bpdata, bpindex, bptempdata, bptempindex);
+                snap.setValues(dbpartitionnum, selectSQLstmts, uidSQLstmts,
+                        bpdata, bpindex, bptempdata, bptempindex);
             }
+            snap.setCommits(commitSQLstmts);
             snap.setTotalSortTime(totalsorttime);
             snap.setTotalSorts(totalsorts);
         }
