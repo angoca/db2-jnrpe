@@ -235,6 +235,6 @@ public final class CheckAverageSortingTimePlugin extends AbstractDB2PluginBase {
     @Override
     @SuppressWarnings("PMD.CommentRequired")
     protected String getPluginName() {
-        return "Check_Avergare_Sorting_Tie";
+        return "Check_Avergare_Sorting_Time";
     }
 }
