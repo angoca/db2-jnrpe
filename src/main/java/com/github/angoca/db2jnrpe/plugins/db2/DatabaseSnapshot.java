@@ -178,6 +178,12 @@ public final class DatabaseSnapshot implements Cloneable {
         copy.prevBpIndex = this.prevBpIndex;
         copy.prevBpTempData = this.prevBpTempData;
         copy.prevBpTempIndex = this.prevBpTempIndex;
+
+        copy.totalSorts = this.totalSorts;
+        copy.prevTotalSorts = this.prevTotalSorts;
+
+        copy.totalSortTimeSecs = this.totalSortTimeSecs;
+        copy.prevTotalSortTime = this.prevTotalSortTime;
         return copy;
     }
 
@@ -197,8 +203,10 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public double getLastAverageSortTime() {
         double ret = 0;
-        if (this.totalSortTimeSecs != 0) {
-            ret = (double) this.totalSorts / this.totalSortTimeSecs;
+        final long dividend = this.totalSorts - this.prevTotalSorts;
+        final long divisor = this.totalSortTimeSecs - this.prevTotalSortTime;
+        if (divisor != 0) {
+            ret = (double) dividend / divisor;
         }
         return ret;
     }
@@ -209,7 +217,7 @@ public final class DatabaseSnapshot implements Cloneable {
      * @return Quantity of commits between the last two checks.
      */
     public long getLastCommits() {
-        return this.commitSQLstmts - this.prevComSQLstmts;
+        return this.getCommits() - this.prevComSQLstmts;
     }
 
     /**
@@ -250,7 +258,7 @@ public final class DatabaseSnapshot implements Cloneable {
      * @return Delta of quantity of sorts.
      */
     public long getLastTotalSorts() {
-        long ret = this.totalSorts;
+        long ret = this.totalSorts - this.prevTotalSorts;
         return ret;
     }
 
@@ -261,7 +269,7 @@ public final class DatabaseSnapshot implements Cloneable {
      * @return Delta of time expended doing sorts.
      */
     public long getLastTotalSortTimeSecs() {
-        long ret = this.totalSortTimeSecs;
+        long ret = this.totalSortTimeSecs - this.prevTotalSortTime;
         return ret;
     }
 
@@ -272,10 +280,9 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public double getLastQuantityReadsWritesPerTransaction() {
         double ret = 0;
-        if (this.commitSQLstmts > 0
-                && this.prevComSQLstmts != this.commitSQLstmts) {
-            final long dividend = this.getLastIO();
-            final long divisor = this.getLastCommits();
+        final long dividend = this.getLastIO();
+        final long divisor = this.getLastCommits();
+        if (divisor != 0) {
             ret = (double) dividend / (double) divisor;
 
             if (DatabaseSnapshot.LOGGER.isDebugEnabled()) {
@@ -339,9 +346,9 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public double getLastSortTimePerTransaction() {
         double ret = 0;
-        if (this.commitSQLstmts != 0) {
-            ret = (double) this.totalSortTimeSecs
-                    / (double) this.commitSQLstmts;
+        long lastComm = this.getLastCommits();
+        if (lastComm != 0) {
+            ret = (double) this.getLastTotalSortTimeSecs() / (double) lastComm;
         }
         return ret;
     }
@@ -373,6 +380,24 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public long getSelects() {
         return this.selectSQLstmts;
+    }
+
+    /**
+     * Returns the value of the total sorts.
+     * 
+     * @return Total sorts.
+     */
+    public long getTotalSorts() {
+        return this.totalSorts;
+    }
+
+    /**
+     * Returns the total quantity of seconds used for sort time.
+     * 
+     * @return Total time for sorts.
+     */
+    public long getTotalSortTimeSec() {
+        return this.totalSortTimeSecs;
     }
 
     /**
@@ -522,7 +547,8 @@ public final class DatabaseSnapshot implements Cloneable {
         final String ret = "Snapshot[" + this.dbPartNum + ';'
                 + this.commitSQLstmts + ';' + this.selectSQLstmts + ';'
                 + this.uidSQLstmts + ';' + this.bpData + ';' + this.bpIndex
-                + ';' + this.bpTempData + ';' + this.bpTempIndex + ']';
+                + ';' + this.bpTempData + ';' + this.bpTempIndex + ';'
+                + this.totalSorts + ';' + this.totalSortTimeSecs + ']';
         return ret;
     }
 
