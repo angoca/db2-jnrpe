@@ -201,8 +201,8 @@ public final class DatabaseSnapshot implements Cloneable {
      */
     public double getLastAverageSortTime() {
         double ret = 0;
-        final long dividend = this.totalSorts - this.prevTotalSorts;
-        final long divisor = this.totalSortTimeSecs - this.prevTotalSortTime;
+        final long dividend = this.getLastTotalSorts();
+        final long divisor = this.getLastTotalSortTimeSecs();
         if (divisor != 0) {
             ret = (double) dividend / divisor;
         }
@@ -233,7 +233,7 @@ public final class DatabaseSnapshot implements Cloneable {
         double ret = 0;
         long secs = this.getLastSeconds();
         if (secs != 0) {
-            ret = (double) getLastCommits() / secs;
+            ret = (double) this.getLastCommits() / secs;
         }
         return ret;
     }
