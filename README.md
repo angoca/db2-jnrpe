@@ -37,16 +37,22 @@ with the other plugins in the market that require bash on Linux, or Perl.
 
 This is the list of available DB2 plugins:
 
-* Check_bufferpool_hit_ratio: Allows to check the performance of the
+* Check_Average_Sorting_Time: Checks the quantity of time expended in sorts per
+sorts.
+* Check_Bufferpool_Hit_Ratio: Allows to check the performance of the
 bufferpools, by measuring the hit ratio between the most recent measures.
 * Check_Database_Load: Checks the database load according to the quantity
 of modifications (UID: Update, insert, delete), commits and selects.
 * Check_Physical_IO_Per_Transaction: Measures the quantity of physical reads
 per transaction.
+* Check_Sorting_Time_Per_Transaction: Checks the quantity of sorts per
+transaction.
+
 
 # Prerequisites
 
 In order to run this set of plugins, it is necessary to have Java 6 or 7.
+
 
 # Install
 
