@@ -12,7 +12,7 @@ import java.util.List;
 import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
 
 /**
- * This plugin allows to calculate the physical IO per transaction.<br/>
+ * This plugin allows to calculate the sorting time per transaction.<br/>
  * In order to execute this plugin, it is necessary to have DB2 in at least one
  * of the following version:
  * <ul>
@@ -22,11 +22,11 @@ import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
  * </ul>
  *
  * @author Andres Gomez Casanova (@AngocA)
- * @version 2014-11-21
+ * @version 2014-12-19
  */
 @SuppressWarnings("PMD.CommentSize")
-public final class CheckPhysicalIOPerTransactionPlugin extends
-        AbstractSingleMetricDB2Plugin {
+public final class CheckSortingTimePerTransactionPlugin extends
+AbstractSingleMetricDB2Plugin {
 
     /**
      * Value to consider the physical IO as critical.
@@ -37,7 +37,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
      * Label for the physical IO per transaction.
      */
     @SuppressWarnings("PMD.LongVariable")
-    private static final String IO_PER_TRANSACTION = "IOperTrans";
+    private static final String SORT_TIME_P_TRX = "Sort_time_per_trx";
     /**
      * Value to consider the physical IO as warning.
      */
@@ -113,7 +113,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
         final ThresholdsEvaluatorBuilder thrb = new ThresholdsEvaluatorBuilder();
         Collection<Metric> c;
         AbstractDB2PluginBase p;
-        p = new CheckDatabaseLoadPlugin();
+        p = new CheckSortingTimePerTransactionPlugin();
         p.configureThresholdEvaluatorBuilder(thrb, cl);
         try {
             p.gatherMetrics(cl);
@@ -139,7 +139,7 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     /**
      * Empty constructor.
      */
-    public CheckPhysicalIOPerTransactionPlugin() {
+    public CheckSortingTimePerTransactionPlugin() {
         super();
     }
 
@@ -147,39 +147,37 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractSingleMetricDB2Plugin
-     * #setThreshold(it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder,
+     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractDB2PluginBase#setThreshold
+     * (it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder,
      * it.jnrpe.ICommandLine)
      */
     @Override
     void setThreshold(final ThresholdsEvaluatorBuilder thrb,
             final ICommandLine line) throws BadThresholdException {
         thrb.withLegacyThreshold(
-                CheckPhysicalIOPerTransactionPlugin.IO_PER_TRANSACTION, null,
+                CheckSortingTimePerTransactionPlugin.SORT_TIME_P_TRX, null,
                 line.getOptionValue("warning",
-                        CheckPhysicalIOPerTransactionPlugin.WARNING_VALUE),
+                        CheckSortingTimePerTransactionPlugin.WARNING_VALUE),
                 line.getOptionValue("critical",
-                        CheckPhysicalIOPerTransactionPlugin.CRITICAL_VALUE));
+                        CheckSortingTimePerTransactionPlugin.CRITICAL_VALUE));
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractSingleMetricDB2Plugin
-     * #addMetric(java.util.List,
-     * com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot)
+     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractDB2PluginBase#addMetric
+     * (java.util.List, com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot)
      */
     @Override
     void addMetric(final List<Metric> res, final DatabaseSnapshot snapshot) {
-        final String message = String.format("The average of physical I/O "
-                + "activity per committed transaction is %.1f (%d/%d)",
-                snapshot.getLastQuantityReadsWritesPerTransaction(),
-                snapshot.getLastIO(), snapshot.getLastCommits());
+        final String message = String.format(
+                "The sorting time per transaction is %.1f (%d/%d)",
+                snapshot.getLastSortTimePerTransaction(),
+                snapshot.getLastTotalSortTimeSecs(), snapshot.getLastCommits());
         res.add(new Metric(
-                CheckPhysicalIOPerTransactionPlugin.IO_PER_TRANSACTION,
-                message, new BigDecimal(snapshot
-                        .getLastQuantityReadsWritesPerTransaction()), null,
+                CheckSortingTimePerTransactionPlugin.SORT_TIME_P_TRX, message,
+                new BigDecimal(snapshot.getLastSortTimePerTransaction()), null,
                 null));
     }
 
@@ -191,6 +189,6 @@ public final class CheckPhysicalIOPerTransactionPlugin extends
     @Override
     @SuppressWarnings("PMD.CommentRequired")
     protected String getPluginName() {
-        return "Check_Physical_IO_Per_Transaction";
+        return "Check_Avergare_Sorting_Time";
     }
 }

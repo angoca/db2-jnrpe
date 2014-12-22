@@ -1,24 +1,18 @@
 package com.github.angoca.db2jnrpe.plugins.jnrpe;
 
 import it.jnrpe.ICommandLine;
-import it.jnrpe.Status;
 import it.jnrpe.plugins.Metric;
-import it.jnrpe.plugins.MetricGatheringException;
 import it.jnrpe.utils.BadThresholdException;
 import it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.github.angoca.db2jnrpe.plugins.db2.DB2Database;
-import com.github.angoca.db2jnrpe.plugins.db2.DB2DatabasesManager;
 import com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot;
-import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
 
 /**
- * This plugin allows to calculate the average average sorting time.<br/>
+ * This plugin allows to calculate the average sorting time.<br/>
  * In order to execute this plugin, it is necessary to have DB2 in at least one
  * of the following version:
  * <ul>
@@ -31,7 +25,8 @@ import com.github.angoca.db2jnrpe.plugins.db2.UnknownValueException;
  * @version 2014-12-19
  */
 @SuppressWarnings("PMD.CommentSize")
-public final class CheckAverageSortingTimePlugin extends AbstractDB2PluginBase {
+public final class CheckAverageSortingTimePlugin extends
+        AbstractSingleMetricDB2Plugin {
 
     /**
      * Value to consider the physical IO as critical.
@@ -118,7 +113,7 @@ public final class CheckAverageSortingTimePlugin extends AbstractDB2PluginBase {
         final ThresholdsEvaluatorBuilder thrb = new ThresholdsEvaluatorBuilder();
         Collection<Metric> c;
         AbstractDB2PluginBase p;
-        p = new CheckDatabaseLoadPlugin();
+        p = new CheckAverageSortingTimePlugin();
         p.configureThresholdEvaluatorBuilder(thrb, cl);
         try {
             p.gatherMetrics(cl);
@@ -152,79 +147,37 @@ public final class CheckAverageSortingTimePlugin extends AbstractDB2PluginBase {
      * (non-Javadoc)
      * 
      * @see
-     * it.jnrpe.plugins.PluginBase#configureThresholdEvaluatorBuilder(it.jnrpe
-     * .utils.thresholds.ThresholdsEvaluatorBuilder, it.jnrpe.ICommandLine)
+     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractDB2PluginBase#setThreshold
+     * (it.jnrpe.utils.thresholds.ThresholdsEvaluatorBuilder,
+     * it.jnrpe.ICommandLine)
      */
     @Override
-    @SuppressWarnings("PMD.CommentRequired")
-    public void configureThresholdEvaluatorBuilder(
-            final ThresholdsEvaluatorBuilder thrb, final ICommandLine line)
-            throws BadThresholdException {
-        final String dbId = AbstractDB2PluginBase.getId(line);
-        this.log.warn("Database: " + dbId);
+    void setThreshold(final ThresholdsEvaluatorBuilder thrb,
+            final ICommandLine line) throws BadThresholdException {
         thrb.withLegacyThreshold(CheckAverageSortingTimePlugin.AVG_SORT_TIME,
                 null, line.getOptionValue("warning",
                         CheckAverageSortingTimePlugin.WARNING_VALUE), line
                         .getOptionValue("critical",
                                 CheckAverageSortingTimePlugin.CRITICAL_VALUE));
-
-        // Metadata
-        final boolean metadata = line.hasOption("metadata");
-        if (metadata) {
-            thrb.withLegacyThreshold("Cache-data", null, null, null);
-            thrb.withLegacyThreshold("Cache-old", null, null, null);
-        }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see it.jnrpe.plugins.PluginBase#gatherMetrics(it.jnrpe.ICommandLine)
+     * @see
+     * com.github.angoca.db2jnrpe.plugins.jnrpe.AbstractDB2PluginBase#addMetric
+     * (java.util.List, com.github.angoca.db2jnrpe.plugins.db2.DatabaseSnapshot)
      */
     @Override
-    @SuppressWarnings("PMD.CommentRequired")
-    public Collection<Metric> gatherMetrics(final ICommandLine line)
-            throws MetricGatheringException {
-        final List<Metric> res = new ArrayList<Metric>();
-
-        final String identification = AbstractDB2PluginBase.getId(line);
-        DB2Database db2Database = DB2DatabasesManager.getInstance()
-                .getDatabase(identification);
-        if (db2Database == null) {
-            db2Database = new DB2Database(identification);
-            DB2DatabasesManager.getInstance().add(identification, db2Database);
-        }
-        DatabaseSnapshot snapshot;
-        try {
-            snapshot = db2Database.getSnapshotAndRefresh(this
-                    .getConnection(line));
-
-            final String message = String.format(
-                    "The average sorting time is %.1f (%d/%d)",
-                    snapshot.getLastAverageSortTime(),
-                    snapshot.getLastTotalSortTimeSecs(),
-                    snapshot.getLastTotalSorts());
-            res.add(new Metric(CheckAverageSortingTimePlugin.AVG_SORT_TIME,
-                    message, new BigDecimal(snapshot.getLastAverageSortTime()),
-                    null, null));
-        } catch (final UnknownValueException e) {
-            this.log.warn(identification + "::No values");
-            throw new MetricGatheringException(
-                    "Not enough values have been gathered: " + e.getMessage(),
-                    Status.UNKNOWN, e);
-        }
-
-        // Metadata
-        final boolean metadata = line.hasOption("metadata");
-        if (metadata) {
-            res.add(new Metric("Cache-data", "", new BigDecimal(db2Database
-                    .getSnap().getLastSnapshotRefresh()), null, null));
-            res.add(new Metric("Cache-old", "", new BigDecimal(System
-                    .currentTimeMillis()
-                    - db2Database.getSnap().getLastSnapshotRefresh()), null,
-                    null));
-        }
-        return res;
+    void addMetric(final List<Metric> res, final DatabaseSnapshot snapshot) {
+        final String message = String.format(
+                "The average sorting time is %.1f (%d/%d)",
+                snapshot.getLastAverageSortTime(),
+                snapshot.getLastTotalSortTimeSecs(),
+                snapshot.getLastTotalSorts());
+        res.add(new Metric(CheckAverageSortingTimePlugin.AVG_SORT_TIME,
+                message, new BigDecimal(snapshot.getLastAverageSortTime()),
+                null, null));
     }
 
     /*
