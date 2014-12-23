@@ -1,6 +1,8 @@
 db2-jnrpe
 =========
 
+([Please check the Wiki](https://github.com/angoca/db2-jnrpe/wiki) for more information)
+
 This is a set of plugins to monitor DB2 via Nagios. It relies on the JNRPE
 framework, which is a Java implementation of the NRPE server.
 This framework is very flexible and it can be used not only to monitor DB2
