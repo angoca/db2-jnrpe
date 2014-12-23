@@ -206,6 +206,10 @@ public final class DatabaseSnapshot implements Cloneable {
         if (divisor != 0) {
             ret = (double) dividend / (double) divisor;
         }
+        // Database was recycled.
+        if (ret < 0) {
+            ret = 0;
+        }
         return ret;
     }
 
@@ -234,6 +238,10 @@ public final class DatabaseSnapshot implements Cloneable {
         long secs = this.getLastSeconds();
         if (secs != 0) {
             ret = (double) this.getLastCommits() / secs;
+        }
+        // Database was recycled.
+        if (ret < 0) {
+            ret = 0;
         }
         return ret;
     }
@@ -295,6 +303,9 @@ public final class DatabaseSnapshot implements Cloneable {
                                 this.database.getId() });
             }
         }
+        if (ret < 0) {
+            ret = 0;
+        }
         return ret;
     }
 
@@ -325,6 +336,10 @@ public final class DatabaseSnapshot implements Cloneable {
         if (secs != 0) {
             ret = (this.selectSQLstmts - this.prevSelSQLstmts) / secs;
         }
+        // Database was recycled.
+        if (ret < 0) {
+            ret = 0;
+        }
         return ret;
     }
 
@@ -349,6 +364,10 @@ public final class DatabaseSnapshot implements Cloneable {
         if (divisor != 0) {
             ret = (double) dividend / (double) divisor;
         }
+        // Database was recycled.
+        if (ret < 0) {
+            ret = 0;
+        }
         return ret;
     }
 
@@ -368,6 +387,10 @@ public final class DatabaseSnapshot implements Cloneable {
         long secs = this.getLastSeconds();
         if (secs != 0) {
             ret = (this.uidSQLstmts - this.prevUidSQLstmts) / secs;
+        }
+        // Database was recycled.
+        if (ret < 0) {
+            ret = 0;
         }
         return ret;
     }
