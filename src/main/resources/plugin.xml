@@ -29,7 +29,7 @@ specific one.
      required="false" hasArgs="true" argName="Threshold" optionalArgs="false" />
     <option shortName="b" longName="bufferpool"
      description="Name of the bufferpool to check" required="false"
-     hasArgs="true" argName="BufferpooNamel" optionalArgs="false" />
+     hasArgs="true" argName="BufferpoolName" optionalArgs="false" />
 
     <option shortName="T" longName="threshold"
      description="Configure a threshold. Format : metric={metric},ok={range},warn={range},crit={range},unit={unit},prefix={SI prefix}"
