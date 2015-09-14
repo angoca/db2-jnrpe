@@ -142,7 +142,7 @@ public abstract class AbstractDB2Broker {
             // or it has a big workload, and multiple connections are
             // established.
             if (AbstractDB2Broker.hasLock(key)) {
-                AbstractDB2Broker.LOGGER.warn("{}::There is a lock for: ", url,
+                AbstractDB2Broker.LOGGER.warn("{}::There is a lock for: {}", url,
                         key);
             } else {
                 AbstractDB2Broker.putLock(key);
@@ -151,7 +151,7 @@ public abstract class AbstractDB2Broker {
             }
         } catch (final Exception e) {
             AbstractDB2Broker.LOGGER.error(
-                    "{}::Error while reading bufferpool values", url, e);
+                    "{}::Error while reading bufferpool values {}", url, e);
             AbstractDB2Broker.removeLock(key);
         }
     }
