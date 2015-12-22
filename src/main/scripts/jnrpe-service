@@ -1,0 +1,99 @@
+#!/bin/sh
+
+# Daemon for JNRPE. This scripts starts, stops and restart the process.
+# It also returns the status, which is validated with the PID stored in a file.
+#
+# Author: Andres Gomez Casanova
+# Version: 2015-12-22 1.0
+
+SERVICE_NAME=jnrpe
+PATH_TO_SERVICE=/opt/jnrpe
+PID_PATH_NAME=/tmp/jnrpe-pid
+
+start() {
+  # The process is verified.
+  PID=$(ps -ef | grep java | grep jnrpe | grep "${PATH_TO_SERVICE}" | awk '{print $2}' )
+  if [ ! -f ${PID_PATH_NAME} ] ; then
+    # The PID file does not exist.
+    if [ "${PID}" == "" ] ; then
+      # No process is running.
+      nohup ${PATH_TO_SERVICE}/bin/jnrpe -c ${PATH_TO_SERVICE}/etc/jnrpe.ini 2>> /dev/null >> /dev/null &
+      echo $! > ${PID_PATH_NAME}
+      echo "${SERVICE_NAME} started (PID $(cat ${PID_PATH_NAME}))."
+    else
+      # The process is running, but not as a daemon.
+      echo ${PID} > ${PID_PATH_NAME}
+      echo "${SERVICE_NAME} is already running but not as a daemon."
+      echo "It was daemonized (PID $(cat ${PID_PATH_NAME}))."
+    fi
+  else
+    # The PID file does exist.
+    if [ "${PID}" == "" ] ; then
+      # The process is not running. Thus, it has to be started.
+      rm ${PID_PATH_NAME}
+      start
+    else
+      # The process is already running.
+      echo "${SERVICE_NAME} is already running (PID $(cat ${PID_PATH_NAME}))."
+    fi
+  fi
+}
+
+stop() {
+  # The PID file exist.
+  if [ -f ${PID_PATH_NAME} ] ; then
+    PID=$(cat ${PID_PATH_NAME})
+    kill ${PID}
+    echo "${SERVICE_NAME} stopped (PID ${PID})."
+    rm ${PID_PATH_NAME}
+  else
+    # The PID file does not exist, thus the process is not running.
+    echo "${SERVICE_NAME} is not running."
+  fi
+}
+
+restart() {
+  stop
+  unset PID
+  sleep 2
+  start
+}
+
+status() {
+  PID=$(ps -ef | grep java | grep jnrpe | grep ${PATH_TO_SERVICE})
+  if [ ! -f ${PID_PATH_NAME} ] ; then
+    if [ "${PID}" == "" ] ; then
+      echo "The ${SERVICE_NAME} process is not running."
+    else
+      echo "The ${SERVICE_NAME} process is running, but not as a daemon."
+    fi
+  else
+    if [ "${PID}" == "" ] ; then
+      echo "The ${SERVICE_NAME} process is not running, but there is a PID file."
+    else
+      echo "The ${SERVICE_NAME} process is running."
+    fi
+  fi
+}
+
+case $1 in
+  start)
+    echo "Starting ${SERVICE_NAME}..."
+    start
+    ;;
+  stop)
+    echo "Stopping ${SERVICE_NAME}..."
+    stop
+    ;;
+  restart)
+    echo "Restarting ${SERVICE_NAME}..."
+    restart
+    ;;
+  status)
+    status
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+esac
+
