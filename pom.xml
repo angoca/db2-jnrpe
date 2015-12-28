@@ -29,7 +29,7 @@
    <!-- You need to install the DB2 driver -->
    <!-- mvn install:install-file -Dfile="C:\Program Files\IBM\SQLLIB\java\db2jcc4.jar" 
     -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->
-   <!-- mvn install:install-file -Dfile="/opt/IBM/db2/V10.1/java/db2jcc4.jar" 
+   <!-- mvn install:install-file -Dfile="/opt/IBM/db2/V10.5/java/db2jcc4.jar" 
     -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->
    <groupId>com.ibm.im.db2</groupId>
    <artifactId>db2jcc4</artifactId>
@@ -53,7 +53,7 @@
  <!-- More Project Information -->
  <name>db2-jnrpe</name>
  <description>
-  set of Nagios plugins for DB2 using JNRPE.
+  Set of Nagios plugins for DB2 using JNRPE.
   </description>
  <url>https://github.com/angoca/db2-jnrpe</url>
  <!-- The first year. -->
