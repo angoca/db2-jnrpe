@@ -28,9 +28,9 @@
   <dependency>
    <!-- You need to install the DB2 driver -->
    <!-- mvn install:install-file -Dfile="C:\Program Files\IBM\SQLLIB\java\db2jcc4.jar" 
-    -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->
+    -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.19.26 -Dpackaging=jar -->
    <!-- mvn install:install-file -Dfile="/opt/IBM/db2/V10.5/java/db2jcc4.jar" 
-    -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar -->
+    -DgroupId=com.ibm.im.db2 -DartifactId=db2jcc4 -Dversion=4.19.26 -Dpackaging=jar -->
    <groupId>com.ibm.im.db2</groupId>
    <artifactId>db2jcc4</artifactId>
    <version>4.16.53</version>
